@@ -1,74 +1,123 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { FaceLivenessDetector } from '@aws-amplify/ui-react-liveness'
 
 type CreateSessionResponse = {
-  sessionId: string
+    sessionId: string
 }
 
 export default function App() {
-  const [sessionId, setSessionId] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+    const [sessionId, setSessionId] = useState<string | null>(null)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
 
-  async function createLivenessSession() {
-    setLoading(true)
-    setError(null)
-    try {
-      // Seu backend deve criar a sessão no Rekognition e retornar sessionId
-      // Ex: POST /api/liveness/session
-      const res = await fetch('/api/liveness/session', { method: 'POST' })
-      if (!res.ok) throw new Error('Falha ao criar sessão de liveness')
-      const data = (await res.json()) as CreateSessionResponse
-      setSessionId(data.sessionId)
-    } catch (e: any) {
-      setError(e?.message ?? 'Erro desconhecido')
-    } finally {
-      setLoading(false)
-    }
-  }
+    // Evita criar a sessão duas vezes (React StrictMode)
+    const sessionRequestedRef = useRef(false)
 
-  useEffect(() => {
-    createLivenessSession()
-  }, [])
+    async function createLivenessSession() {
+        if (sessionRequestedRef.current) return
+        sessionRequestedRef.current = true
 
-  if (loading && !sessionId) return <p>Preparando câmera e sessão…</p>
-  if (error) return (
-    <div>
-      <p>Erro: {error}</p>
-      <button onClick={createLivenessSession}>Tentar de novo</button>
-    </div>
-  )
+        setLoading(true)
+        setError(null)
 
-  return (
-    <div style={{ maxWidth: 520, margin: '40px auto' }}>
-      <h2>Validação Facial (Liveness)</h2>
+        try {
+            const res = await fetch(
+                'https://tue7xhg2he.execute-api.us-east-1.amazonaws.com/teste/create-session',
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            )
 
-      {sessionId ? (
-        <FaceLivenessDetector
-          sessionId={sessionId}
-          region={amplifyRegionFromConfig()}
-          onAnalysisComplete={() => {
-            // Aqui você geralmente chama seu backend para buscar o resultado da sessão
-            // Ex: GET /api/liveness/result?sessionId=...
-            console.log('Análise concluída')
-          }}
-          onError={(err) => {
+            if (!res.ok) {
+                throw new Error('Falha ao criar sessão de liveness')
+            }
+
+            const data = (await res.json()) as CreateSessionResponse
+
+            if (!data.sessionId) {
+                throw new Error('sessionId não retornado pela API')
+            }
+
+            setSessionId(data.sessionId)
+        } catch (err: any) {
             console.error(err)
-            setError('Falha no fluxo de liveness')
-          }}
-        />
-      ) : (
-        <button onClick={createLivenessSession}>Iniciar validação</button>
-      )}
-    </div>
-  )
-}
+            setError(err?.message ?? 'Erro desconhecido')
+            sessionRequestedRef.current = false
+        } finally {
+            setLoading(false)
+        }
+    }
 
-/**
- * Dica: o region pode vir do seu amplifyconfiguration.json dependendo do setup.
- * Se preferir, substitua por uma string fixa: "us-east-1", etc.
- */
-function amplifyRegionFromConfig(): string {
-  // Ajuste conforme seu arquivo; se não souber, use a região fixa.
-  return 'us-east-1'
+    useEffect(() => {
+        createLivenessSession()
+    }, [])
+
+    if (loading && !sessionId) {
+        return (
+            <p style={{ textAlign: 'center', marginTop: 40 }}>
+                Preparando câmera e sessão de validação facial…
+            </p>
+        )
+    }
+
+    if (error) {
+        return (
+            <div style={{ maxWidth: 520, margin: '40px auto', textAlign: 'center' }}>
+                <p>{error}</p>
+                <button
+                    onClick={() => {
+                        sessionRequestedRef.current = false
+                        setSessionId(null)
+                        createLivenessSession()
+                    }}
+                >
+                    Tentar novamente
+                </button>
+            </div>
+        )
+    }
+
+    return (
+        <div style={{ maxWidth: 520, margin: '40px auto' }}>
+            <h2>Validação Facial (Liveness)</h2>
+
+            {sessionId ? (
+                <FaceLivenessDetector
+                    sessionId={sessionId}
+                    region="us-east-1"
+                    onAnalysisComplete={async () => {
+                        console.log('✅ Análise de liveness concluída')
+
+                        // 🔴 PRÓXIMO PASSO (backend):
+                        // Chamar:
+                        // GET /liveness/result?sessionId=...
+                        //
+                        // Esse endpoint irá:
+                        // 1. GetFaceLivenessSessionResults
+                        // 2. Salvar imagem final no S3
+                        // 3. Retornar score + status
+                    }}
+                    onError={(err: any) => {
+                        console.error('Erro no FaceLivenessDetector:', err)
+
+                        if (err?.state === 'MOBILE_LANDSCAPE_ERROR') {
+                            setError(
+                                'Use o celular em modo retrato (vertical) para continuar.'
+                            )
+                            return
+                        }
+
+                        setError('Falha durante a validação facial')
+                    }}
+                />
+            ) : (
+                <button onClick={createLivenessSession}>
+                    Iniciar validação facial
+                </button>
+            )}
+        </div>
+    )
 }
