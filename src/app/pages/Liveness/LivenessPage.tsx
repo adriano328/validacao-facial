@@ -1,19 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { FaceLivenessDetector } from "@aws-amplify/ui-react-liveness";
-import { criarSessaoLiveness, obterResultadoSessaoLiveness } from "../../services/liveness";
-// ajuste o path acima conforme sua estrutura
+import {
+  criarSessaoLiveness,
+  obterResultadoSessaoLiveness,
+} from "../../../services/liveness";
 
 export function LivenessPage() {
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [idSessao, setIdSessao] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null); // AWS sessionId
+  const [idSessao, setIdSessao] = useState<string | null>(null);   // id interno backend
 
-  // você precisa obter isso do seu fluxo (cadastro/login/rota)
-  const idPessoa = "123"; // TODO: substituir pelo id real
+  const idPessoa = "123"; 
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // evita duplicar no StrictMode
   const sessionRequestedRef = useRef(false);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -28,18 +28,34 @@ export function LivenessPage() {
     setLoading(true);
     setError(null);
 
+    const hasMediaDevices =
+      typeof navigator !== "undefined" &&
+      !!navigator.mediaDevices &&
+      typeof navigator.mediaDevices.getUserMedia === "function";
+
+    if (!hasMediaDevices) {
+      return (
+        <div style={{ maxWidth: 520, margin: "40px auto", textAlign: "center" }}>
+          <h2>Validação Facial</h2>
+          <p>
+            Seu navegador ou ambiente não liberou acesso à câmera.
+            Abra em <b>HTTPS</b> ou em <b>http://localhost</b>.
+          </p>
+          <p style={{ fontSize: 12, opacity: 0.7 }}>
+            Dica: acessar via IP (ex.: 192.x.x.x) sem HTTPS bloqueia o uso da câmera.
+          </p>
+        </div>
+      );
+    }
+
     try {
       const data = await criarSessaoLiveness(controller.signal);
-
-      // backend pode retornar "idSessao" e/ou "sessionId"
-      const sessao = data.idSessao;
-      const sessId = data.sessionId ?? data.idSessao; // fallback comum
-
-      if (!sessao) throw new Error("idSessao não retornado pela API");
-      if (!sessId) throw new Error("sessionId não retornado pela API");
-
-      setIdSessao(sessao);
-      setSessionId(sessId);
+      console.log("criarSessaoLiveness:", data);
+      const backendIdSessao = "idSessao" in data ? (data as any).idSessao : undefined;
+      const awsSessionId = "sessionId" in data ? (data as any).sessionId : undefined;
+      if (!awsSessionId) throw new Error("sessionId não retornado pela API");
+      if (backendIdSessao) setIdSessao(String(backendIdSessao));
+      setSessionId(String(awsSessionId));
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Erro desconhecido";
       setError(msg);
@@ -85,6 +101,7 @@ export function LivenessPage() {
     <div style={{ maxWidth: 520, margin: "40px auto" }}>
       <h2>Validação Facial (Liveness)</h2>
 
+      {/* ✅ assim que sessionId existir, o detector renderiza */}
       {sessionId ? (
         <FaceLivenessDetector
           sessionId={sessionId}
@@ -92,15 +109,15 @@ export function LivenessPage() {
           onAnalysisComplete={async () => {
             console.log("✅ Análise de liveness concluída");
 
-            // opcional: buscar resultado no backend após concluir
-            if (idSessao) {
-              try {
-                const result = await obterResultadoSessaoLiveness(idSessao, idPessoa);
-                console.log("📌 Resultado:", result);
-              } catch (e: unknown) {
-                const msg = e instanceof Error ? e.message : "Falha ao obter resultado";
-                setError(msg);
-              }
+            // só chama resultado se você tiver idSessao
+            if (!idSessao) return;
+
+            try {
+              const result = await obterResultadoSessaoLiveness(idSessao, idPessoa);
+              console.log("📌 Resultado:", result);
+            } catch (e: unknown) {
+              const msg = e instanceof Error ? e.message : "Falha ao obter resultado";
+              setError(msg);
             }
           }}
           onError={(err: unknown) => {

@@ -6,10 +6,10 @@ export type CriarSessaoLivenessResponse = {
 };
 
 export type ResultadoSessaoLivenessResponse = {
-  status: string;          // ex: "SUCCEEDED" | "FAILED" etc (ajuste conforme seu backend)
-  score?: number;          // se houver
-  imagemUrl?: string;      // se houver
-  raw?: unknown;           // opcional (se backend mandar payload bruto)
+  status: string;          
+  score?: number;          
+  imagemUrl?: string;      
+  raw?: unknown;           
 };
 
 export async function criarSessaoLiveness(signal?: AbortSignal) {
