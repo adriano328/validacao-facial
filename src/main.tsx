@@ -1,10 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-
 import "./styles/globalStyles.css";
-import App from "./app";
+import '@aws-amplify/ui-react/styles.css';
+import '@aws-amplify/ui-react-liveness/styles.css';
 import { Amplify } from "aws-amplify";
+import App from "./App";
 
 Amplify.configure({
     Auth: {

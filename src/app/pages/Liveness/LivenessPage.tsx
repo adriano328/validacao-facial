@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { FaceLivenessDetector } from '@aws-amplify/ui-react-liveness'
+import { obterResultadoSessaoLiveness } from '../../../services/liveness'
 
 type CreateSessionResponse = {
     sessionId: string
@@ -89,7 +90,10 @@ export default function LivenessPage() {
                     sessionId={sessionId}
                     region="us-east-1"
                     onAnalysisComplete={async () => {
-                        console.log('✅ Análise de liveness concluída')
+                        const res = obterResultadoSessaoLiveness(sessionId, '123');
+                        while ((await res).status != 'SUCCEEDED') {
+                            obterResultadoSessaoLiveness(sessionId, '123')
+                        }
                     }}
                     onError={(err: any) => {
                         console.error('Erro no FaceLivenessDetector:', err)
