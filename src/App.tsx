@@ -22,9 +22,9 @@ export default function App() {
 
         try {
             const res = await fetch(
-                'https://tue7xhg2he.execute-api.us-east-1.amazonaws.com/teste/create-session',
+                'http://localhost:8080/liveness/criar-sessao',
                 {
-                    method: 'GET',
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     }
@@ -90,15 +90,6 @@ export default function App() {
                     region="us-east-1"
                     onAnalysisComplete={async () => {
                         console.log('✅ Análise de liveness concluída')
-
-                        // 🔴 PRÓXIMO PASSO (backend):
-                        // Chamar:
-                        // GET /liveness/result?sessionId=...
-                        //
-                        // Esse endpoint irá:
-                        // 1. GetFaceLivenessSessionResults
-                        // 2. Salvar imagem final no S3
-                        // 3. Retornar score + status
                     }}
                     onError={(err: any) => {
                         console.error('Erro no FaceLivenessDetector:', err)
