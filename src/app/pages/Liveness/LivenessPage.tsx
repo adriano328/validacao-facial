@@ -1,144 +1,114 @@
-import { useEffect, useRef, useState } from "react";
-import { FaceLivenessDetector } from "@aws-amplify/ui-react-liveness";
-import {
-  criarSessaoLiveness,
-  obterResultadoSessaoLiveness,
-} from "../../../services/liveness";
+import { useEffect, useRef, useState } from 'react'
+import { FaceLivenessDetector } from '@aws-amplify/ui-react-liveness'
 
-export function LivenessPage() {
-  const [sessionId, setSessionId] = useState<string | null>(null); // AWS sessionId
-  const [idSessao, setIdSessao] = useState<string | null>(null);   // id interno backend
+type CreateSessionResponse = {
+    sessionId: string
+}
 
-  const idPessoa = "123"; 
+export default function LivenessPage() {
+    const [sessionId, setSessionId] = useState<string | null>(null)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+    // Evita criar a sessão duas vezes (React StrictMode)
+    const sessionRequestedRef = useRef(false)
 
-  const sessionRequestedRef = useRef(false);
-  const abortRef = useRef<AbortController | null>(null);
+    async function createLivenessSession() {
+        if (sessionRequestedRef.current) return
+        sessionRequestedRef.current = true
 
-  async function createLivenessSession() {
-    if (sessionRequestedRef.current) return;
-    sessionRequestedRef.current = true;
+        setLoading(true)
+        setError(null)
 
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
+        try {
+            const res = await fetch(
+                'http://85.31.63.50:1030/liveness/criar-sessao',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            )
 
-    setLoading(true);
-    setError(null);
+            if (!res.ok) {
+                throw new Error('Falha ao criar sessão de liveness')
+            }
 
-    const hasMediaDevices =
-      typeof navigator !== "undefined" &&
-      !!navigator.mediaDevices &&
-      typeof navigator.mediaDevices.getUserMedia === "function";
+            const data = (await res.json()) as CreateSessionResponse
 
-    if (!hasMediaDevices) {
-      return (
-        <div style={{ maxWidth: 520, margin: "40px auto", textAlign: "center" }}>
-          <h2>Validação Facial</h2>
-          <p>
-            Seu navegador ou ambiente não liberou acesso à câmera.
-            Abra em <b>HTTPS</b> ou em <b>http://localhost</b>.
-          </p>
-          <p style={{ fontSize: 12, opacity: 0.7 }}>
-            Dica: acessar via IP (ex.: 192.x.x.x) sem HTTPS bloqueia o uso da câmera.
-          </p>
+            if (!data.sessionId) {
+                throw new Error('sessionId não retornado pela API')
+            }
+
+            setSessionId(data.sessionId)
+        } catch (err: any) {
+            console.error(err)
+            setError(err?.message ?? 'Erro desconhecido')
+            sessionRequestedRef.current = false
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        createLivenessSession()
+    }, [])
+
+    if (loading && !sessionId) {
+        return (
+            <p style={{ textAlign: 'center', marginTop: 40 }}>
+                Preparando câmera e sessão de validação facial…
+            </p>
+        )
+    }
+
+    if (error) {
+        return (
+            <div style={{ maxWidth: 520, margin: '40px auto', textAlign: 'center' }}>
+                <p>{error}</p>
+                <button
+                    onClick={() => {
+                        sessionRequestedRef.current = false
+                        setSessionId(null)
+                        createLivenessSession()
+                    }}
+                >
+                    Tentar novamente
+                </button>
+            </div>
+        )
+    }
+
+    return (
+        <div style={{ maxWidth: 520, margin: '40px auto' }}>
+            <h2>Validação Facial (Liveness)</h2>
+
+            {sessionId ? (
+                <FaceLivenessDetector
+                    sessionId={sessionId}
+                    region="us-east-1"
+                    onAnalysisComplete={async () => {
+                        console.log('✅ Análise de liveness concluída')
+                    }}
+                    onError={(err: any) => {
+                        console.error('Erro no FaceLivenessDetector:', err)
+
+                        if (err?.state === 'MOBILE_LANDSCAPE_ERROR') {
+                            setError(
+                                'Use o celular em modo retrato (vertical) para continuar.'
+                            )
+                            return
+                        }
+
+                        setError('Falha durante a validação facial')
+                    }}
+                />
+            ) : (
+                <button onClick={createLivenessSession}>
+                    Iniciar validação facial
+                </button>
+            )}
         </div>
-      );
-    }
-
-    try {
-      const data = await criarSessaoLiveness(controller.signal);
-      console.log("criarSessaoLiveness:", data);
-      const backendIdSessao = "idSessao" in data ? (data as any).idSessao : undefined;
-      const awsSessionId = "sessionId" in data ? (data as any).sessionId : undefined;
-      if (!awsSessionId) throw new Error("sessionId não retornado pela API");
-      if (backendIdSessao) setIdSessao(String(backendIdSessao));
-      setSessionId(String(awsSessionId));
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Erro desconhecido";
-      setError(msg);
-      sessionRequestedRef.current = false;
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    createLivenessSession();
-    return () => abortRef.current?.abort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  if (loading && !sessionId) {
-    return (
-      <p style={{ textAlign: "center", marginTop: 40 }}>
-        Preparando câmera e sessão de validação facial…
-      </p>
-    );
-  }
-
-  if (error) {
-    return (
-      <div style={{ maxWidth: 520, margin: "40px auto", textAlign: "center" }}>
-        <p>{error}</p>
-        <button
-          onClick={() => {
-            sessionRequestedRef.current = false;
-            setSessionId(null);
-            setIdSessao(null);
-            createLivenessSession();
-          }}
-        >
-          Tentar novamente
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <div style={{ maxWidth: 520, margin: "40px auto" }}>
-      <h2>Validação Facial (Liveness)</h2>
-
-      {/* ✅ assim que sessionId existir, o detector renderiza */}
-      {sessionId ? (
-        <FaceLivenessDetector
-          sessionId={sessionId}
-          region="us-east-1"
-          onAnalysisComplete={async () => {
-            console.log("✅ Análise de liveness concluída");
-
-            // só chama resultado se você tiver idSessao
-            if (!idSessao) return;
-
-            try {
-              const result = await obterResultadoSessaoLiveness(idSessao, idPessoa);
-              console.log("📌 Resultado:", result);
-            } catch (e: unknown) {
-              const msg = e instanceof Error ? e.message : "Falha ao obter resultado";
-              setError(msg);
-            }
-          }}
-          onError={(err: unknown) => {
-            console.error("Erro no FaceLivenessDetector:", err);
-
-            if (
-              typeof err === "object" &&
-              err !== null &&
-              "state" in err &&
-              (err as { state?: string }).state === "MOBILE_LANDSCAPE_ERROR"
-            ) {
-              setError("Use o celular em modo retrato (vertical) para continuar.");
-              return;
-            }
-
-            setError("Falha durante a validação facial");
-          }}
-        />
-      ) : (
-        <button onClick={createLivenessSession}>Iniciar validação facial</button>
-      )}
-    </div>
-  );
+    )
 }
