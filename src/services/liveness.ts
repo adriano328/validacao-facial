@@ -6,10 +6,13 @@ export type CriarSessaoLivenessResponse = {
 };
 
 export type ResultadoSessaoLivenessResponse = {
-  status: string;          
-  score?: number;          
-  imagemUrl?: string;      
-  raw?: unknown;           
+  status: string;
+  sessionId: string;
+  confidence: number,
+  foto: string;
+  score?: number;
+  imagemUrl?: string;
+  raw?: unknown;
 };
 
 export async function criarSessaoLiveness(signal?: AbortSignal) {

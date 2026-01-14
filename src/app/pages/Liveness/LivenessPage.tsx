@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { FaceLivenessDetector } from '@aws-amplify/ui-react-liveness'
 import { obterResultadoSessaoLiveness } from '../../../services/liveness'
+import { SuccessDialog } from '../../../components/successDialog/SuccessDialog'
 
 type CreateSessionResponse = {
     sessionId: string
@@ -10,8 +11,15 @@ export default function LivenessPage() {
     const [sessionId, setSessionId] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [successOpen, setSuccessOpen] = useState(false);
+    const MAX_TENTATIVAS = 10;
+    const INTERVALO_MS = 1000;
+    const CONFIDENCE_MIN = 90;
 
-    // Evita criar a sessão duas vezes (React StrictMode)
+    function delay(ms: number) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     const sessionRequestedRef = useRef(false)
 
     async function createLivenessSession() {
@@ -82,6 +90,7 @@ export default function LivenessPage() {
     }
 
     return (
+
         <div style={{ maxWidth: 520, margin: '40px auto' }}>
             <h2>Validação Facial (Liveness)</h2>
 
@@ -90,22 +99,46 @@ export default function LivenessPage() {
                     sessionId={sessionId}
                     region="us-east-1"
                     onAnalysisComplete={async () => {
-                        const res = obterResultadoSessaoLiveness(sessionId, '123');
-                        while ((await res).status != 'SUCCEEDED') {
-                            obterResultadoSessaoLiveness(sessionId, '123')
+                        let tentativas = 0;
+                        let resultado: {
+                            status: string;
+                            confidence: number;
+                        } | null = null;
+                        try {
+                            while (tentativas < MAX_TENTATIVAS) {
+                                resultado = await obterResultadoSessaoLiveness(sessionId, "123");
+                                console.log(
+                                    `Tentativa ${tentativas + 1}`,
+                                    resultado
+                                );
+
+                                if (
+                                    resultado.status === "SUCCEEDED" &&
+                                    resultado.confidence >= CONFIDENCE_MIN
+                                ) {
+                                    setError(null)
+                                    setSuccessOpen(true)
+                                    return;
+                                }
+
+                                tentativas++;
+                                await delay(INTERVALO_MS);
+                            }
+                            throw new Error("Liveness não aprovado após várias tentativas");
+                        } catch (err) {
+                            console.error("Erro no polling do liveness:", err);
+                            setError("Falha na validação facial. Tente novamente.");
                         }
                     }}
                     onError={(err: any) => {
-                        console.error('Erro no FaceLivenessDetector:', err)
-
-                        if (err?.state === 'MOBILE_LANDSCAPE_ERROR') {
+                        console.error("Erro no FaceLivenessDetector:", err);
+                        if (err?.state === "MOBILE_LANDSCAPE_ERROR") {
                             setError(
-                                'Use o celular em modo retrato (vertical) para continuar.'
-                            )
-                            return
+                                "Use o celular em modo retrato (vertical) para continuar."
+                            );
+                            return;
                         }
-
-                        setError('Falha durante a validação facial')
+                        setError("Falha durante a validação facial");
                     }}
                 />
             ) : (
@@ -113,6 +146,15 @@ export default function LivenessPage() {
                     Iniciar validação facial
                 </button>
             )}
+            <SuccessDialog
+                open={successOpen}
+                onOpenChange={setSuccessOpen}
+                autoCloseMs={1800} // opcional: fecha sozinho
+                onAutoClose={() => {
+                    // opcional: redirecionar após fechar
+                    // navigate("/proxima-rota");
+                }}
+            />
         </div>
     )
 }

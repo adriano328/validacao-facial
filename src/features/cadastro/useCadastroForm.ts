@@ -8,6 +8,7 @@ import {
 } from "./validator";
 import { salvarPessoa } from "../../services/pessoa";
 import { brDateToISO } from "../../utils/formataData";
+import { useNavigate } from "react-router-dom";
 
 type TouchedState = Partial<Record<keyof Pessoa, boolean>>;
 
@@ -17,6 +18,7 @@ export function useCadastroForm() {
   const [touched, setTouched] = useState<TouchedState>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const abortRef = useRef<AbortController | null>(null);
 
@@ -109,11 +111,9 @@ export function useCadastroForm() {
     const result = validate();
     if (!result.ok) {
       window.alert("Ops! Revise os campos obrigatórios.");
-      // aqui você pode trocar por toast
       return;
     }
 
-    // cancela qualquer request anterior (se houver)
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -128,9 +128,8 @@ export function useCadastroForm() {
     try {
       await salvarPessoa(payload, controller.signal);
       window.alert("Sucesso! Membro cadastrado com sucesso!");
-      // opcional: reset();
+      navigate("/liveness");
     } catch (err) {
-      // se foi abort, pode ignorar
       if (err instanceof DOMException && err.name === "AbortError") return;
       window.alert("Erro. Não foi possível cadastrar.");
     } finally {
