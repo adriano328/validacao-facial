@@ -9,6 +9,9 @@ import {
 import { salvarPessoa } from "../../services/pessoa";
 import { brDateToISO } from "../../utils/formataData";
 import { useNavigate } from "react-router-dom";
+import { handleAxiosError } from "../../utils/messageErro";
+import { alerts } from "../../lib/swal";
+import { usePessoa } from "../../context/PessoaContext";
 
 type TouchedState = Partial<Record<keyof Pessoa, boolean>>;
 
@@ -19,6 +22,7 @@ export function useCadastroForm() {
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { setPessoaId } = usePessoa();
 
   const abortRef = useRef<AbortController | null>(null);
 
@@ -110,7 +114,7 @@ export function useCadastroForm() {
 
     const result = validate();
     if (!result.ok) {
-      window.alert("Ops! Revise os campos obrigatórios.");
+      alerts.warn({ text: "Ops! Revise os campos obrigatórios." });
       return;
     }
 
@@ -121,17 +125,16 @@ export function useCadastroForm() {
     const payload: Pessoa = {
       ...formCadastro,
       dataNascimento: brDateToISO(formCadastro.dataNascimento) ?? "",
-      linkFoto: "lslslslslsl",
     };
 
     setIsSubmitting(true);
     try {
-      await salvarPessoa(payload, controller.signal);
-      window.alert("Sucesso! Membro cadastrado com sucesso!");
+      const pessoaId = await salvarPessoa(payload, controller.signal);
+      setPessoaId(pessoaId);
       navigate("/liveness");
     } catch (err) {
-      if (err instanceof DOMException && err.name === "AbortError") return;
-      window.alert("Erro. Não foi possível cadastrar.");
+      const message = handleAxiosError(err);
+      alerts.error({ text: message });
     } finally {
       setIsSubmitting(false);
     }

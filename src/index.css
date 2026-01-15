@@ -66,3 +66,28 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* Texto */
+.swal-small-title {
+  font-size: 14px !important;
+}
+
+.swal-small-text {
+  font-size: 14px !important;
+}
+
+/* Ícone (success, error, warning etc) */
+.swal-small-icon {
+  width: 48px !important;
+  height: 48px !important;
+}
+
+.swal-small-icon .swal2-icon-content {
+  font-size: 22px !important;
+}
+
+/* Botão */
+.swal-small-button {
+  font-size: 14px !important;
+  padding: 6px 14px !important;
+}
