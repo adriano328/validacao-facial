@@ -5,7 +5,6 @@ import {
   obterResultadoSessaoLiveness,
   type CompararFacesRequest,
 } from "../../../services/liveness";
-import { useNavigate } from "react-router-dom";
 import { alerts } from "../../../lib/swal";
 import { usePessoa } from "../../../context/PessoaContext";
 import { livenessDisplayTextPtBR } from "../../../i18n/livenessPtBR";
@@ -16,12 +15,17 @@ type Phase = "idle" | "running" | "success";
 export default function ValidPage() {
   const { email } = usePessoa();
 
+  const emailRef = useRef<string | null>(null);
+  useEffect(() => {
+    emailRef.current = email ?? null;
+    console.log("email atualizado:", emailRef.current);
+  }, [email]);
+
   const [phase, setPhase] = useState<Phase>("idle");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const navigate = useNavigate();
   const [detectorKey, setDetectorKey] = useState(0);
 
   const MAX_TENTATIVAS = 1;
@@ -47,7 +51,6 @@ export default function ValidPage() {
     setDetectorKey((k) => k + 1);
   }
 
-  // ✅ para e volta pro idle (sem restart automático)
   function stopWithError(message: string) {
     cancelPolling();
     sessionRequestedRef.current = false;
@@ -58,16 +61,19 @@ export default function ValidPage() {
     setError(message);
   }
 
-  // ✅ agora async + valida email + await compararFaces
   async function handleSuccess(foto: string) {
-    if (!email) {
-      await resetAndRestartScanner("Email não encontrado. Volte e tente novamente.");
+    const currentEmail = emailRef.current;
+
+    if (!currentEmail) {
+      await resetAndRestartScanner(
+        "Email não encontrado. Volte e tente novamente.",
+      );
       return;
     }
 
     const payload: CompararFacesRequest = {
       source: foto,
-      email,
+      email: currentEmail,
     };
 
     try {
@@ -77,11 +83,6 @@ export default function ValidPage() {
       cancelPolling();
       setError(null);
       setPhase("success");
-
-      // se quiser decidir por score:
-      // if (score >= 90) { ... } else { ... }
-
-      // navigate("/login");
     } catch (e) {
       console.error("Erro no compararFaces:", e);
       await resetAndRestartScanner("Falha ao comparar faces. Tente novamente.");
@@ -135,8 +136,6 @@ export default function ValidPage() {
   }
 
   useEffect(() => {
-    console.log(email);
-    
     mountedRef.current = true;
     createLivenessSession();
 
@@ -208,12 +207,17 @@ export default function ValidPage() {
                 if (pollingCancelRef.current.cancelled) return;
 
                 if (resultado.status === "SUCCEEDED") {
-                  await handleSuccess(resultado.foto); // ✅ await
+                  await handleSuccess(resultado.foto);
                   return;
                 }
 
-                if (resultado.status === "FAILED" || resultado.status === "EXPIRED") {
-                  await resetAndRestartScanner("Não foi possível validar. Tente novamente.");
+                if (
+                  resultado.status === "FAILED" ||
+                  resultado.status === "EXPIRED"
+                ) {
+                  await resetAndRestartScanner(
+                    "Não foi possível validar. Tente novamente.",
+                  );
                   return;
                 }
 
@@ -221,7 +225,9 @@ export default function ValidPage() {
                 await delay(INTERVALO_MS);
               }
 
-              await resetAndRestartScanner("Não foi possível validar na primeira tentativa. Tente novamente.");
+              await resetAndRestartScanner(
+                "Não foi possível validar na primeira tentativa. Tente novamente.",
+              );
             } catch (err) {
               console.error("Erro no polling do liveness:", err);
               await resetAndRestartScanner("Falha ao validar. Tente novamente.");
@@ -232,18 +238,6 @@ export default function ValidPage() {
             handlingErrorRef.current = true;
 
             console.error("Erro no FaceLivenessDetector:", err);
-
-            if (err?.state === "MOBILE_LANDSCAPE_ERROR") {
-              await resetAndRestartScanner("Use o celular em modo retrato (vertical) e tente novamente.");
-              return;
-            }
-
-            if (err?.state === "CAMERA_ACCESS_ERROR") {
-              await resetAndRestartScanner(
-                "Não foi possível acessar a câmera. Verifique permissão e se há câmera disponível.",
-              );
-              return;
-            }
 
             await resetAndRestartScanner(
               "Falha durante a validação facial. Verifique a câmera e tente novamente.",
