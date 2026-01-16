@@ -17,11 +17,9 @@ export function useTwoFactorConfirm() {
   const navigate = useNavigate();
 
   const { status, secret, clearSecret, setActive, resetTwoFactor } = useTwoFactor();
-  const { email, clearPessoa, setEmail } = usePessoa();
+  const { email, clearPessoa } = usePessoa();
 
   useEffect(() => {
-    console.log(email);
-    
     return () => abortRef.current?.abort();
   }, []);
 
@@ -59,7 +57,6 @@ export function useTwoFactorConfirm() {
 
   async function confirm(): Promise<boolean> {    
     setTouched(true);
-
     if (!email) {
       alerts.warn({ text: "E-mail não encontrado. Faça login novamente." });
       return false;

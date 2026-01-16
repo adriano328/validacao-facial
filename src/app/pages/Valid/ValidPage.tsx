@@ -135,6 +135,8 @@ export default function ValidPage() {
   }
 
   useEffect(() => {
+    console.log(email);
+    
     mountedRef.current = true;
     createLivenessSession();
 
