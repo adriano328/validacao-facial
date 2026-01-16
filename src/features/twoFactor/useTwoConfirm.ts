@@ -52,7 +52,7 @@ export function useTwoFactorConfirm() {
     resetLocalInput();
     clearSecret();
     resetTwoFactor();
-    clearPessoa();
+    // clearPessoa();
   }
 
   async function confirm(): Promise<boolean> {    
@@ -107,7 +107,7 @@ export function useTwoFactorConfirm() {
       // ✅ ativou com sucesso
       setActive(); // define status active e já limpa secret no context
       resetLocalInput();
-      clearPessoa();
+      // clearPessoa();
 
       alerts.success({ text: "Two-factor ativado com sucesso! Faça login novamente." });
       navigate("/login");
