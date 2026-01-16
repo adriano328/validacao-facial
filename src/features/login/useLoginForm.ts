@@ -4,7 +4,7 @@ import { alerts } from "../../lib/swal";
 import { handleAxiosError } from "../../utils/messageErro";
 
 import { hasErrors, validateField, validateLogin, type LoginErrors } from "./validator";
-import { twoFactorAtivado } from "../../services/usuario";
+import { ativarTwoFactor, twoFactorAtivado } from "../../services/usuario";
 import { initialLoginForm, type LoginForm } from "./type";
 
 type TouchedState = Partial<Record<keyof LoginForm, boolean>>;
@@ -15,7 +15,10 @@ export function useLoginForm() {
   const [touched, setTouched] = useState<TouchedState>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [qrCodeData, setQrCodeData] = useState<{
+    secret: string;
+    qrCodeUrl: string;
+  } | null>(null);
   const navigate = useNavigate();
   const abortRef = useRef<AbortController | null>(null);
 
@@ -66,7 +69,7 @@ export function useLoginForm() {
     setTouched((prev) => ({ ...prev, email: true, password: true }));
   };
 
-  function irCadastrar () {
+  function irCadastrar() {
     navigate('/cadastro')
   }
 
@@ -92,7 +95,12 @@ export function useLoginForm() {
       );
 
       console.log(ativado);
-      
+      if (!ativado) {
+        const result = await ativarTwoFactor();
+        setQrCodeData(result);
+        return;
+      }
+
       // if (ativado) navigate("/two-factor");
       // else navigate("/home");
     } catch (err) {
@@ -133,6 +141,8 @@ export function useLoginForm() {
     validate,
     canSubmit,
     reset,
+    qrCodeData,
+    setQrCodeData,
     handleLogin,
     irCadastrar
   };

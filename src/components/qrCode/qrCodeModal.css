@@ -1,0 +1,80 @@
+.qr-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+}
+
+.qr-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.qr-card {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+
+  width: min(420px, calc(100% - 32px));
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.qr-title {
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.qr-text {
+  font-size: 14px;
+  text-align: center;
+  color: #555;
+}
+
+.qr-qrWrap {
+  background: #f6f8fc;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.qr-qr {
+  width: 200px;
+  height: 200px;
+}
+
+.qr-secret {
+  font-size: 13px;
+  color: #333;
+  text-align: center;
+}
+
+.qr-secret strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+
+.qr-button {
+  height: 44px;
+  width: 100%;
+  border-radius: 12px;
+  border: none;
+  background: #4f6f8a;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.qr-button:hover {
+  opacity: 0.9;
+}

@@ -1,4 +1,5 @@
 import { api } from "../api/api";
+import type { AtivarTwoFactorResponse } from "../features/login/type";
 
 export async function twoFactorAtivado(
   payload: { email: string; password: string },
@@ -12,4 +13,15 @@ export async function twoFactorAtivado(
   });
 
   return response.data; // true | false
+}
+
+export async function ativarTwoFactor(
+  signal?: AbortSignal
+): Promise<AtivarTwoFactorResponse> {
+  const response = await api.get<AtivarTwoFactorResponse>(
+    "/usuario/ativar-two-factor",
+    { signal }
+  );
+
+  return response.data;
 }
