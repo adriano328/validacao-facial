@@ -9,6 +9,18 @@ import { usePessoa } from "../../context/PessoaContext";
 
 const onlyDigits = (s: string) => s.replace(/\D/g, "").slice(0, 6);
 
+function isAbortError(err: unknown) {
+  // fetch abort
+  if (err instanceof DOMException && err.name === "AbortError") return true;
+
+  // axios abort/cancel (caso use axios em algum ponto)
+  const anyErr = err as any;
+  if (anyErr?.code === "ERR_CANCELED") return true;
+  if (anyErr?.name === "CanceledError") return true;
+
+  return false;
+}
+
 export function useTwoFactorConfirm() {
   const [code, setCode] = useState("");
   const [touched, setTouched] = useState(false);
@@ -17,7 +29,7 @@ export function useTwoFactorConfirm() {
   const navigate = useNavigate();
 
   const { status, secret, clearSecret, setActive, resetTwoFactor } = useTwoFactor();
-  const { email, clearPessoa } = usePessoa();
+  const { email } = usePessoa();
 
   useEffect(() => {
     return () => abortRef.current?.abort();
@@ -54,8 +66,9 @@ export function useTwoFactorConfirm() {
     resetTwoFactor();
   }
 
-  async function confirm(): Promise<boolean> {    
+  async function confirm(): Promise<boolean> {
     setTouched(true);
+
     if (!email) {
       alerts.warn({ text: "E-mail não encontrado. Faça login novamente." });
       return false;
@@ -71,53 +84,66 @@ export function useTwoFactorConfirm() {
       return false;
     }
 
+    // cancela tentativa anterior e cria uma nova
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
 
     setIsSubmitting(true);
+
     try {
-      let ok = false;
+      // ✅ status active: apenas verifica
       if (status === "active") {
-        ok = await verificarTwoFactor({ email, code }, controller.signal);
+        const ok = await verificarTwoFactor({ email, code }, controller.signal);
 
         if (!ok) {
-          clearAll();
-          alerts.error({ text: "Código inválido. Faça login novamente." });
+          // ✅ não navega, só libera para tentar de novo
+          setCode("");
+          alerts.error({ text: "Código inválido. Tente novamente." });
           return false;
         }
 
+        // ✅ sucesso
         clearAll();
         navigate("/valid");
         return true;
-      } else {
-
       }
 
-      // ✅ inativo: confirmar/ativar (payload com secret)
-      ok = await validarTwoFactor({ email, secret: secret!, code }, controller.signal);
+      // ✅ status inactive: valida/ativa com secret
+      const ok = await validarTwoFactor(
+        { email, secret: secret!, code },
+        controller.signal,
+      );
 
       if (!ok) {
-        clearAll();
-        alerts.error({ text: "Código inválido. Faça login novamente." });
+        // ✅ não derruba o contexto inteiro; só permite tentar de novo
+        setCode("");
+        alerts.error({ text: "Código inválido. Tente novamente." });
         return false;
       }
 
-      // ✅ ativou com sucesso
-      setActive(); // define status active e já limpa secret no context
+      setActive(); // define status active e limpa secret
       resetLocalInput();
-      // clearPessoa();
 
       alerts.success({ text: "Two-factor ativado com sucesso! Faça login novamente." });
       navigate("/login");
       return true;
     } catch (err) {
-      clearAll();
+      // ✅ se foi cancelamento (nova tentativa), não faz nada
+      if (isAbortError(err)) return false;
+
+      // ✅ erro real: libera o form para tentar novamente
+      setCode("");
       alerts.error({ text: handleAxiosError(err) });
-      navigate("/login");
       return false;
     } finally {
+      // ✅ SEMPRE destrava
       setIsSubmitting(false);
+
+      // ✅ evita ficar com controller "pendurado"
+      if (abortRef.current === controller) {
+        abortRef.current = null;
+      }
     }
   }
 
