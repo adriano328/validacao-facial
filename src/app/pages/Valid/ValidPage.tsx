@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { FaceLivenessDetector } from "@aws-amplify/ui-react-liveness";
-import { obterResultadoSessaoLiveness } from "../../../services/liveness";
+import { compararFaces, obterResultadoSessaoLiveness, type CompararFacesRequest } from "../../../services/liveness";
 import { useNavigate } from "react-router-dom";
 import { alerts } from "../../../lib/swal";
 import { usePessoa } from "../../../context/PessoaContext";
@@ -9,6 +9,7 @@ type CreateSessionResponse = { sessionId: string };
 type Phase = "idle" | "running" | "success";
 
 export default function ValidPage() {
+  const { email } = usePessoa();
   const [phase, setPhase] = useState<Phase>("idle");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -20,7 +21,7 @@ export default function ValidPage() {
 
   const MAX_TENTATIVAS = 1;
   const INTERVALO_MS = 1000;
-  const CONFIDENCE_MIN = 90;
+  const CONFIDENCE_MIN = 98;
 
   const sessionRequestedRef = useRef(false);
   const pollingCancelRef = useRef({ cancelled: false });
@@ -44,12 +45,20 @@ export default function ValidPage() {
     setDetectorKey((k) => k + 1);
   }
 
-  function handleSuccess() {
-    cancelPolling();
-    setError(null);
-    alerts.success({ text: "Cadastro validado com sucesso!" });
-    setPhase("success");
-    navigate("/login");
+  function handleSuccess(foto: string) {
+    const payload: CompararFacesRequest = {
+      source: foto,
+      email: email!
+    }
+    const res = compararFaces(payload);
+    console.log(res);
+    
+    // cancelPolling();
+    // setError(null);
+
+    // // alerts.success({ text: "Cadastro validado com sucesso!" });
+    // setPhase("success");
+    // navigate("/login");
   }
 
   // ✅ para e volta pro idle (sem restart automático)
@@ -187,13 +196,10 @@ export default function ValidPage() {
 
                 if (pollingCancelRef.current.cancelled) return;
 
-                console.log(`Tentativa ${tentativas + 1}`, resultado);
 
                 if (
-                  resultado.status === "SUCCEEDED" &&
-                  resultado.confidence >= CONFIDENCE_MIN
-                ) {
-                  handleSuccess();
+                  resultado.status === "SUCCEEDED") {
+                  handleSuccess(resultado.foto);
                   return;
                 }
 

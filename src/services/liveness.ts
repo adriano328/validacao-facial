@@ -15,10 +15,15 @@ export type ResultadoSessaoLivenessResponse = {
   raw?: unknown;
 };
 
+export type CompararFacesRequest = {
+  source: string;
+  email: string;
+};
+
 export async function criarSessaoLiveness(signal?: AbortSignal) {
   const { data } = await api.post<CriarSessaoLivenessResponse>(
     "/liveness/criar-sessao",
-    {}, // POST sem body
+    {}, 
     { signal }
   );
   return data;
@@ -33,5 +38,18 @@ export async function obterResultadoSessaoLiveness(
     `/liveness/resultado-sessao/${encodeURIComponent(idSessao)}/${encodeURIComponent(idPessoa)}`,
     { signal }
   );
+  return data;
+}
+
+export async function compararFaces(
+  payload: CompararFacesRequest,
+  signal?: AbortSignal,
+): Promise<number> {
+  const { data } = await api.post<number>(
+    "/liveness/comparar-faces",
+    payload,
+    { signal },
+  );
+
   return data;
 }
