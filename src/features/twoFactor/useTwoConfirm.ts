@@ -13,14 +13,15 @@ export function useTwoFactorConfirm() {
   const [code, setCode] = useState("");
   const [touched, setTouched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const abortRef = useRef<AbortController | null>(null);
   const navigate = useNavigate();
 
   const { status, secret, clearSecret, setActive, resetTwoFactor } = useTwoFactor();
-  const { email, clearPessoa } = usePessoa();
+  const { email, clearPessoa, setEmail } = usePessoa();
 
   useEffect(() => {
+    console.log(email);
+    
     return () => abortRef.current?.abort();
   }, []);
 
@@ -56,7 +57,7 @@ export function useTwoFactorConfirm() {
     clearPessoa();
   }
 
-  async function confirm(): Promise<boolean> {
+  async function confirm(): Promise<boolean> {    
     setTouched(true);
 
     if (!email) {
@@ -80,7 +81,7 @@ export function useTwoFactorConfirm() {
 
     setIsSubmitting(true);
     try {
-      let ok = false;      
+      let ok = false;
       if (status === "active") {
         ok = await verificarTwoFactor({ email, code }, controller.signal);
 
