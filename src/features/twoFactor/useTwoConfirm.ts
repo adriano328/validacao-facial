@@ -52,7 +52,6 @@ export function useTwoFactorConfirm() {
     resetLocalInput();
     clearSecret();
     resetTwoFactor();
-    // clearPessoa();
   }
 
   async function confirm(): Promise<boolean> {    

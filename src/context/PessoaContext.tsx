@@ -4,7 +4,9 @@ import type { ReactNode } from "react";
 type PessoaContextType = {
   pessoaId: number | null;
   email: string | null;
+  senha: string | null,
   setPessoaId: (id: number | null) => void;
+  setSenha: (senha: string | null) => void;
   setEmail: (email: string | null) => void;
   clearPessoa: () => void;
 };
@@ -18,18 +20,22 @@ type PessoaProviderProps = {
 export function PessoaProvider({ children }: PessoaProviderProps) {
   const [pessoaId, setPessoaId] = useState<number | null>(null);
   const [email, setEmail] = useState<string | null>(null);
+  const [senha, setSenha] = useState<string | null>(null);
 
   function clearPessoa() {
     setPessoaId(null);
-    setEmail(null);
+    setEmail(null),
+      setEmail(null);
   }
 
   return (
     <PessoaContext.Provider
       value={{
         pessoaId,
+        senha,
         email,
         setPessoaId,
+        setSenha,
         setEmail,
         clearPessoa,
       }}

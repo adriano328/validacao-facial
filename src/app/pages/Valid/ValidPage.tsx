@@ -13,12 +13,14 @@ type CreateSessionResponse = { sessionId: string };
 type Phase = "idle" | "running" | "success";
 
 export default function ValidPage() {
-  const { email } = usePessoa();
+  const { email, senha } = usePessoa();
 
   const emailRef = useRef<string | null>(null);
+  const senhaRef = useRef<string | null>(null);
+
   useEffect(() => {
     emailRef.current = email ?? null;
-    console.log("email atualizado:", emailRef.current);
+    senhaRef.current = senha ?? null;
   }, [email]);
 
   const [phase, setPhase] = useState<Phase>("idle");
@@ -63,6 +65,7 @@ export default function ValidPage() {
 
   async function handleSuccess(foto: string) {
     const currentEmail = emailRef.current;
+    const currentSenha = senhaRef.current
 
     if (!currentEmail) {
       await resetAndRestartScanner(
@@ -71,18 +74,28 @@ export default function ValidPage() {
       return;
     }
 
+    if (!currentSenha) {
+      await resetAndRestartScanner(
+        "Senha não encontrado. Volte e tente novamente.",
+      );
+      return;
+    }
+
     const payload: CompararFacesRequest = {
       source: foto,
       email: currentEmail,
+      senha: currentSenha
     };
 
     try {
       const score = await compararFaces(payload);
       console.log("Score compararFaces:", score);
+      if (score >= 98) {
 
-      cancelPolling();
-      setError(null);
-      setPhase("success");
+        cancelPolling();
+        setError(null);
+        setPhase("success");
+      }
     } catch (e) {
       console.error("Erro no compararFaces:", e);
       await resetAndRestartScanner("Falha ao comparar faces. Tente novamente.");

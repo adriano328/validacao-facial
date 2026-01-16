@@ -27,7 +27,7 @@ export function useLoginForm() {
   const navigate = useNavigate();
   const abortRef = useRef<AbortController | null>(null);
 
-  const { setEmail } = usePessoa();
+  const { setEmail, setSenha } = usePessoa();
   const { setSecret, clearSecret, setActive, resetTwoFactor } = useTwoFactor();
 
   useEffect(() => {
@@ -110,9 +110,10 @@ export function useLoginForm() {
     const controller = new AbortController();
     abortRef.current = controller;
 
-    const email = form.email.trim();    
-    console.log(email);
-    
+    const email = form.email.trim();
+    const senha = form.password.trim();
+
+    setSenha(senha)
     setEmail(email);
 
     setIsSubmitting(true);

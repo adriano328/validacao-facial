@@ -18,6 +18,7 @@ export type ResultadoSessaoLivenessResponse = {
 export type CompararFacesRequest = {
   source: string;
   email: string;
+  senha: string;
 };
 
 export async function criarSessaoLiveness(signal?: AbortSignal) {
