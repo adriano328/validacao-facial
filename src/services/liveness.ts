@@ -31,13 +31,19 @@ export async function criarSessaoLiveness(signal?: AbortSignal) {
 
 export async function obterResultadoSessaoLiveness(
   idSessao: string,
-  idPessoa: string,
-  signal?: AbortSignal
+  idPessoa?: string,
+  signal?: AbortSignal,
 ) {
-  const { data } = await api.get<ResultadoSessaoLivenessResponse>(
-    `/liveness/resultado-sessao/${encodeURIComponent(idSessao)}/${encodeURIComponent(idPessoa)}`,
-    { signal }
-  );
+  const base = `/liveness/resultado-sessao/${encodeURIComponent(idSessao)}`;
+
+  const url = idPessoa
+    ? `${base}/${encodeURIComponent(idPessoa)}`
+    : base;
+
+  const { data } = await api.get<ResultadoSessaoLivenessResponse>(url, {
+    signal,
+  });
+
   return data;
 }
 

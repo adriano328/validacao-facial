@@ -142,7 +142,6 @@ export default function ValidPage() {
 
         <button
           onClick={() => {
-            // ✅ libera novas tentativas manuais
             handlingErrorRef.current = false;
             handlingAnalysisRef.current = false;
             pollingCancelRef.current = { cancelled: false };
@@ -193,7 +192,6 @@ export default function ValidPage() {
 
                 const resultado = await obterResultadoSessaoLiveness(
                   sessionId,
-                  String(pessoaId),
                 );
 
                 if (pollingCancelRef.current.cancelled) return;
