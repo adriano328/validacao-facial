@@ -27,11 +27,9 @@ export default function ValidPage() {
   const sessionRequestedRef = useRef(false);
   const pollingCancelRef = useRef({ cancelled: false });
 
-  // ✅ evita repetir callbacks e ficar em loop
   const handlingErrorRef = useRef(false);
   const handlingAnalysisRef = useRef(false);
 
-  // ✅ evita setState depois de unmount
   const mountedRef = useRef(true);
 
   function delay(ms: number) {
@@ -47,6 +45,8 @@ export default function ValidPage() {
   }
 
   function handleSuccess(foto: string) {
+    console.log(email, 'email');
+    
     const payload: CompararFacesRequest = {
       source: foto,
       email: email!

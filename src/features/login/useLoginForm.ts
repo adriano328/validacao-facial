@@ -34,9 +34,6 @@ export function useLoginForm() {
     return () => abortRef.current?.abort();
   }, []);
 
-  /* ========================
-   * FORM HANDLERS
-   * ======================== */
 
   const setFormLogin = <K extends keyof LoginForm>(key: K, value: LoginForm[K]) => {
     setForm((prev) => {
@@ -114,6 +111,8 @@ export function useLoginForm() {
     abortRef.current = controller;
 
     const email = form.email.trim();
+    console.log(email);
+    
     setEmail(email);
 
     setIsSubmitting(true);
