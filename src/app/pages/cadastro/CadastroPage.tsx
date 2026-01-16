@@ -1,10 +1,10 @@
-import React from "react";
 import "../../../styles/globalStyles.css";
 import { useCadastroForm } from "../../../features/cadastro/useCadastroForm";
 import { FormField } from "../../../components/form/FormField";
 import { DropdownField } from "../../../components/dropdown/DropdownField";
 import { MUNICIPIOS_MT } from "../../../data/municipiosMt";
 import { maskDateBR, maskPhoneBR } from "../../../utils/masks";
+import "./styles.css"
 
 export function CadastroPage() {
   const { formCadastro, setFormCadastro, touchField, showError, handleCadastrar, isSubmitting } =

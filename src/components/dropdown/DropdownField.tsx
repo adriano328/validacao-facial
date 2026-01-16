@@ -77,20 +77,16 @@ export function DropdownField<T extends string | number = string>({
     setOpen(false);
   }
 
-  // limpa busca quando abre
   useEffect(() => {
     if (open) setQuery("");
   }, [open]);
 
-  // foco no input de busca quando abrir
   useEffect(() => {
     if (open && searchable) {
-      // aguarda render
       requestAnimationFrame(() => searchRef.current?.focus());
     }
   }, [open, searchable]);
 
-  // fechar com ESC
   useEffect(() => {
     if (!open) return;
 
@@ -102,7 +98,6 @@ export function DropdownField<T extends string | number = string>({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
-  // impedir scroll do body com modal aberto
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;

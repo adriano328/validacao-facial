@@ -19,8 +19,8 @@ export type Pessoa = {
 
 export const initialCadastroForm: Pessoa = {
   nome: "asdasdadasds",
-  dataNascimento: "26041995",
-  telefone: "555555555",
+  dataNascimento: "26/04/1995",
+  telefone: "(55) 55555-5555",
   endereco: "adasd55sa5",
   bairro: "asdasdas",
   numero: "56",
