@@ -21,6 +21,7 @@ export function useTwoFactorConfirm() {
 
   useEffect(() => {
     console.log(email);
+    setEmail(email)
     
     return () => abortRef.current?.abort();
   }, []);
