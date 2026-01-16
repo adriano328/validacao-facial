@@ -25,12 +25,9 @@ export default function LivenessPage() {
 
   const sessionRequestedRef = useRef(false);
   const pollingCancelRef = useRef({ cancelled: false });
-
-  // ✅ trava para evitar loop de onError / onAnalysisComplete
   const handlingErrorRef = useRef(false);
   const handlingAnalysisRef = useRef(false);
 
-  // ✅ evita setState após unmount
   const mountedRef = useRef(true);
 
   function delay(ms: number) {
@@ -53,7 +50,6 @@ export default function LivenessPage() {
     navigate("/login");
   }
 
-  // ✅ para tudo e volta para idle (sem reiniciar automaticamente)
   function stopWithError(message: string) {
     cancelPolling();
     sessionRequestedRef.current = false;
@@ -104,7 +100,6 @@ export default function LivenessPage() {
       mountedRef.current = false;
       cancelPolling();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (phase === "idle") {
@@ -151,11 +146,8 @@ export default function LivenessPage() {
           region="us-east-1"
           displayText={livenessDisplayTextPtBR}
           onAnalysisComplete={async () => {
-            // ✅ evita duplicar polling se o callback disparar mais de uma vez
             if (handlingAnalysisRef.current) return;
             handlingAnalysisRef.current = true;
-
-            // token de cancelamento para este polling
             pollingCancelRef.current = { cancelled: false };
 
             try {
@@ -218,7 +210,6 @@ export default function LivenessPage() {
             }
           }}
           onError={async (err: any) => {
-            // ✅ impede repetição / loop
             if (handlingErrorRef.current) return;
             handlingErrorRef.current = true;
 
@@ -234,8 +225,6 @@ export default function LivenessPage() {
             if (!mountedRef.current) return;
 
             alerts.warn({ text: msg });
-
-            // ✅ para no erro (sem reiniciar automaticamente)
             stopWithError(msg);
           }}
         />
