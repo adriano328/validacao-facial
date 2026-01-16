@@ -8,7 +8,7 @@ import { usePessoa } from "../../../context/PessoaContext";
 type CreateSessionResponse = { sessionId: string };
 type Phase = "idle" | "running" | "success";
 
-export default function LivenessPage() {
+export default function ValidPage() {
   const [phase, setPhase] = useState<Phase>("idle");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -25,11 +25,11 @@ export default function LivenessPage() {
   const sessionRequestedRef = useRef(false);
   const pollingCancelRef = useRef({ cancelled: false });
 
-  // ✅ trava para evitar loop de onError / onAnalysisComplete
+  // ✅ evita repetir callbacks e ficar em loop
   const handlingErrorRef = useRef(false);
   const handlingAnalysisRef = useRef(false);
 
-  // ✅ evita setState após unmount
+  // ✅ evita setState depois de unmount
   const mountedRef = useRef(true);
 
   function delay(ms: number) {
@@ -52,7 +52,7 @@ export default function LivenessPage() {
     navigate("/login");
   }
 
-  // ✅ para tudo e volta para idle (sem reiniciar automaticamente)
+  // ✅ para e volta pro idle (sem restart automático)
   function stopWithError(message: string) {
     cancelPolling();
     sessionRequestedRef.current = false;
@@ -95,6 +95,23 @@ export default function LivenessPage() {
     }
   }
 
+  // ✅ agora NÃO reinicia sozinho. Só mostra mensagem e para.
+  async function resetAndRestartScanner(msg?: string) {
+    const text = msg ?? "Falha durante a validação facial. Tente novamente.";
+    if (!mountedRef.current) return;
+
+    alerts.warn({ text });
+    stopWithError(text);
+
+    // opcional: força remontar o detector na próxima tentativa manual
+    resetDetectorOnly();
+
+    // reseta tokens pra permitir nova tentativa ao clicar no botão
+    pollingCancelRef.current = { cancelled: false };
+    handlingErrorRef.current = false;
+    handlingAnalysisRef.current = false;
+  }
+
   useEffect(() => {
     mountedRef.current = true;
     createLivenessSession();
@@ -118,6 +135,8 @@ export default function LivenessPage() {
             // ✅ libera novas tentativas manuais
             handlingErrorRef.current = false;
             handlingAnalysisRef.current = false;
+            pollingCancelRef.current = { cancelled: false };
+            sessionRequestedRef.current = false;
 
             setError(null);
             createLivenessSession();
@@ -149,11 +168,10 @@ export default function LivenessPage() {
           sessionId={sessionId}
           region="us-east-1"
           onAnalysisComplete={async () => {
-            // ✅ evita duplicar polling se o callback disparar mais de uma vez
+            // ✅ se disparar mais de uma vez, ignora
             if (handlingAnalysisRef.current) return;
             handlingAnalysisRef.current = true;
 
-            // token de cancelamento para este polling
             pollingCancelRef.current = { cancelled: false };
 
             try {
@@ -183,12 +201,9 @@ export default function LivenessPage() {
                   resultado.status === "FAILED" ||
                   resultado.status === "EXPIRED"
                 ) {
-                  if (!mountedRef.current) return;
-
-                  alerts.warn({
-                    text: "Não foi possível validar. Tente novamente.",
-                  });
-                  stopWithError("Não foi possível validar. Tente novamente.");
+                  await resetAndRestartScanner(
+                    "Não foi possível validar. Tente novamente.",
+                  );
                   return;
                 }
 
@@ -196,47 +211,38 @@ export default function LivenessPage() {
                 await delay(INTERVALO_MS);
               }
 
-              if (!mountedRef.current) return;
-
-              alerts.warn({
-                text: "Não foi possível validar na primeira tentativa. Tente novamente.",
-              });
-              stopWithError(
+              await resetAndRestartScanner(
                 "Não foi possível validar na primeira tentativa. Tente novamente.",
               );
             } catch (err) {
               console.error("Erro no polling do liveness:", err);
-              if (!mountedRef.current) return;
-
-              alerts.warn({
-                text: "Falha ao validar. Tente novamente.",
-              });
-              stopWithError("Falha ao validar. Tente novamente.");
-            } finally {
-              // ✅ permite nova tentativa depois (apertando o botão)
-              // (não libera automaticamente aqui para não reiniciar sozinho)
+              await resetAndRestartScanner("Falha ao validar. Tente novamente.");
             }
           }}
           onError={async (err: any) => {
-            // ✅ impede repetição / loop
+            // ✅ se disparar repetido, ignora
             if (handlingErrorRef.current) return;
             handlingErrorRef.current = true;
 
             console.error("Erro no FaceLivenessDetector:", err);
 
-            const msg =
-              err?.state === "MOBILE_LANDSCAPE_ERROR"
-                ? "Use o celular em modo retrato (vertical) e tente novamente."
-                : err?.state === "CAMERA_ACCESS_ERROR"
-                  ? "Não foi possível acessar a câmera. Verifique permissão e se há câmera disponível."
-                  : "Falha durante a validação facial. Verifique a câmera e tente novamente.";
+            if (err?.state === "MOBILE_LANDSCAPE_ERROR") {
+              await resetAndRestartScanner(
+                "Use o celular em modo retrato (vertical) e tente novamente.",
+              );
+              return;
+            }
 
-            if (!mountedRef.current) return;
+            if (err?.state === "CAMERA_ACCESS_ERROR") {
+              await resetAndRestartScanner(
+                "Não foi possível acessar a câmera. Verifique permissão e se há câmera disponível.",
+              );
+              return;
+            }
 
-            alerts.warn({ text: msg });
-
-            // ✅ para no erro (sem reiniciar automaticamente)
-            stopWithError(msg);
+            await resetAndRestartScanner(
+              "Falha durante a validação facial. Verifique a câmera e tente novamente.",
+            );
           }}
         />
       ) : null}

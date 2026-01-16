@@ -83,7 +83,6 @@ export function useTwoFactorConfirm() {
       let ok = false;
 
       if (status === "active") {
-        // ✅ já ativo: só verificar (payload sem secret)
         ok = await verificarTwoFactor({ email, code }, controller.signal);
 
         if (!ok) {
@@ -92,10 +91,8 @@ export function useTwoFactorConfirm() {
           return false;
         }
 
-        // ✅ sucesso: ir pra home e limpar tudo
         clearAll();
-        alerts.success({ text: "Login confirmado!" });
-        navigate("/home");
+        navigate("/valid");
         return true;
       }
 
