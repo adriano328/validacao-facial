@@ -8,7 +8,7 @@ import ValidPage from "../pages/Valid/ValidPage";
 export function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<CadastroPage />} />
+      <Route path="/" element={<LoginPage />} />
       <Route path="/cadastro" element={<CadastroPage />} />
       <Route path="/liveness" element={<LivenessPage />} />
       <Route path="/valid" element={<ValidPage />} />
