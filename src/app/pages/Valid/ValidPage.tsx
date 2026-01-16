@@ -8,15 +8,19 @@ import {
 import { alerts } from "../../../lib/swal";
 import { usePessoa } from "../../../context/PessoaContext";
 import { livenessDisplayTextPtBR } from "../../../i18n/livenessPtBR";
+import { useAuthToken } from "../../../context/AuthTokenContext";
+import { useNavigate } from "react-router-dom";
+
 
 type CreateSessionResponse = { sessionId: string };
 type Phase = "idle" | "running" | "success";
 
 export default function ValidPage() {
   const { email, senha } = usePessoa();
-
+  const { setToken } = useAuthToken();
   const emailRef = useRef<string | null>(null);
   const senhaRef = useRef<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     emailRef.current = email ?? null;
@@ -27,18 +31,13 @@ export default function ValidPage() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   const [detectorKey, setDetectorKey] = useState(0);
-
   const MAX_TENTATIVAS = 1;
   const INTERVALO_MS = 1000;
-
   const sessionRequestedRef = useRef(false);
   const pollingCancelRef = useRef({ cancelled: false });
-
   const handlingErrorRef = useRef(false);
   const handlingAnalysisRef = useRef(false);
-
   const mountedRef = useRef(true);
 
   function delay(ms: number) {
@@ -56,7 +55,6 @@ export default function ValidPage() {
   function stopWithError(message: string) {
     cancelPolling();
     sessionRequestedRef.current = false;
-
     setLoading(false);
     setSessionId(null);
     setPhase("idle");
@@ -88,10 +86,10 @@ export default function ValidPage() {
     };
 
     try {
-      const score = await compararFaces(payload);
-      console.log("Score compararFaces:", score);
-      if (score >= 98) {
-
+      const res = await compararFaces(payload);
+      if (res.token) {
+        setToken(res.token);
+        navigate('/home')
         cancelPolling();
         setError(null);
         setPhase("success");

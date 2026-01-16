@@ -15,6 +15,10 @@ export type ResultadoSessaoLivenessResponse = {
   raw?: unknown;
 };
 
+export type token = {
+  token: string
+}
+
 export type CompararFacesRequest = {
   source: string;
   email: string;
@@ -51,8 +55,8 @@ export async function obterResultadoSessaoLiveness(
 export async function compararFaces(
   payload: CompararFacesRequest,
   signal?: AbortSignal,
-): Promise<number> {
-  const { data } = await api.post<number>(
+): Promise<token> {
+  const { data } = await api.post<token>(
     "/liveness/comparar-faces",
     payload,
     { signal },

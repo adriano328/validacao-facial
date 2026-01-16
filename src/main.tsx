@@ -12,6 +12,7 @@ import { I18n } from "aws-amplify/utils";
 import "./i18n/livenessPtBR"; // ✅ troque para este arquivo
 import { TwoFactorProvider } from "./context/TwoFactorContext";
 import App from "./app";
+import { AuthTokenProvider } from "./context/AuthTokenContext";
 
 I18n.setLanguage("pt"); // ✅ troque pt-BR por pt
 
@@ -26,12 +27,14 @@ Amplify.configure({
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <PessoaProvider>
-      <TwoFactorProvider>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </TwoFactorProvider>
-    </PessoaProvider>
+    <AuthTokenProvider>
+      <PessoaProvider>
+        <TwoFactorProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </TwoFactorProvider>
+      </PessoaProvider>
+    </AuthTokenProvider>
   </React.StrictMode>
 );
