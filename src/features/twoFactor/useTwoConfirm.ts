@@ -81,7 +81,8 @@ export function useTwoFactorConfirm() {
     setIsSubmitting(true);
     try {
       let ok = false;
-
+      console.log(status);
+      
       if (status === "active") {
         ok = await verificarTwoFactor({ email, code }, controller.signal);
 
@@ -94,6 +95,8 @@ export function useTwoFactorConfirm() {
         clearAll();
         navigate("/valid");
         return true;
+      } else {
+
       }
 
       // ✅ inativo: confirmar/ativar (payload com secret)

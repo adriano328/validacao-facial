@@ -10,7 +10,7 @@ type CreateSessionResponse = { sessionId: string };
 type Phase = "idle" | "running" | "success";
 
 export default function ValidPage() {
-  const { email } = usePessoa();
+  const { email, pessoaId, clearPessoa } = usePessoa();
   const [phase, setPhase] = useState<Phase>("idle");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -18,7 +18,6 @@ export default function ValidPage() {
 
   const navigate = useNavigate();
   const [detectorKey, setDetectorKey] = useState(0);
-  const { pessoaId } = usePessoa();
 
   const MAX_TENTATIVAS = 1;
   const INTERVALO_MS = 1000;
@@ -54,11 +53,11 @@ export default function ValidPage() {
     const res = compararFaces(payload);
     console.log(res);
     
-    // cancelPolling();
-    // setError(null);
+    cancelPolling();
+    setError(null);
 
     // // alerts.success({ text: "Cadastro validado com sucesso!" });
-    // setPhase("success");
+    setPhase("success");
     // navigate("/login");
   }
 
