@@ -1,0 +1,36 @@
+.twofaHint {
+  font-size: 13px;
+  opacity: 0.75;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.twofaCode {
+  text-align: center;
+  font-size: 20px;
+  letter-spacing: 6px;
+  font-weight: 700;
+}
+
+.twofaActions {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.twofaBack {
+  height: 48px;
+  border-radius: 12px;
+  border: 1px solid #e6e6e6;
+  background: #ffffff;
+  cursor: pointer;
+  padding: 0 14px;
+  font-weight: 700;
+  flex: 1;
+}
+
+.twofaBack:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

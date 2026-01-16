@@ -5,10 +5,10 @@ import "./styles/globalStyles.css";
 import "@aws-amplify/ui-react/styles.css";
 import "@aws-amplify/ui-react-liveness/styles.css";
 import { Amplify } from "aws-amplify";
-import App from "./App";
 import "./styles/swal.css";
 import { PessoaProvider } from "./context/PessoaContext";
-
+import { TwoFactorProvider } from "./context/TwoFactorContext";
+import App from "./app";
 
 Amplify.configure({
   Auth: {
@@ -22,9 +22,11 @@ Amplify.configure({
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <PessoaProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <TwoFactorProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </TwoFactorProvider>
     </PessoaProvider>
   </React.StrictMode>
 );

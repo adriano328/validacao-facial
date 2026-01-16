@@ -1,3 +1,4 @@
+// src/features/login/useLoginForm.ts
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { alerts } from "../../lib/swal";
@@ -6,8 +7,11 @@ import { handleAxiosError } from "../../utils/messageErro";
 import { hasErrors, validateField, validateLogin, type LoginErrors } from "./validator";
 import { ativarTwoFactor, twoFactorAtivado } from "../../services/usuario";
 import { initialLoginForm, type LoginForm } from "./type";
+import { usePessoa } from "../../context/PessoaContext";
+import { useTwoFactor } from "../../context/TwoFactorContext";
 
 type TouchedState = Partial<Record<keyof LoginForm, boolean>>;
+type TwoFactorData = { secret: string; qrCodeUrl: string };
 
 export function useLoginForm() {
   const [form, setForm] = useState<LoginForm>(initialLoginForm);
@@ -15,12 +19,17 @@ export function useLoginForm() {
   const [touched, setTouched] = useState<TouchedState>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [qrCodeData, setQrCodeData] = useState<{
-    secret: string;
-    qrCodeUrl: string;
-  } | null>(null);
+
+  // Modal/Fluxo 2FA
+  const [qrCodeData, setQrCodeData] = useState<TwoFactorData | null>(null);
+  const [twoFactorStep, setTwoFactorStep] = useState<"qr" | "confirm">("qr");
+
   const navigate = useNavigate();
   const abortRef = useRef<AbortController | null>(null);
+
+  // Contexts
+  const { setEmail } = usePessoa();        // ✅ agora salvamos o email aqui
+  const { setSecret, clearSecret } = useTwoFactor(); // ✅ salvamos/limpamos o secret aqui
 
   useEffect(() => {
     return () => abortRef.current?.abort();
@@ -70,7 +79,12 @@ export function useLoginForm() {
   };
 
   function irCadastrar() {
-    navigate('/cadastro')
+    navigate("/cadastro");
+  }
+
+  function closeTwoFactorFlow() {
+    setQrCodeData(null);     
+    setTwoFactorStep("qr");
   }
 
   async function handleLogin() {
@@ -87,28 +101,41 @@ export function useLoginForm() {
     const controller = new AbortController();
     abortRef.current = controller;
 
+    const email = form.email.trim();
+    setEmail(email);
     setIsSubmitting(true);
     try {
       const ativado = await twoFactorAtivado(
-        { email: form.email.trim(), password: form.password },
+        { email, password: form.password },
         controller.signal
       );
 
-      console.log(ativado);
       if (!ativado) {
-        const result = await ativarTwoFactor();
-        setQrCodeData(result);
+        const twoFactor = await ativarTwoFactor(controller.signal);
+        setSecret(twoFactor.secret);
+        setQrCodeData(twoFactor);
+        setTwoFactorStep("qr");
         return;
+      } else {
+
       }
 
-      // if (ativado) navigate("/two-factor");
-      // else navigate("/home");
+      navigate("/home");
     } catch (err) {
       const message = handleAxiosError(err);
       alerts.error({ text: message });
+      clearSecret();
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  function goTwoFactorConfirm() {
+    setTwoFactorStep("confirm");
+  }
+
+  function goTwoFactorQr() {
+    setTwoFactorStep("qr");
   }
 
   const canSubmit = useMemo(() => {
@@ -124,6 +151,10 @@ export function useLoginForm() {
     setTouched({});
     setSubmitAttempted(false);
     setIsSubmitting(false);
+
+    setQrCodeData(null);
+    setTwoFactorStep("qr");
+    clearSecret();
   };
 
   const showError = <K extends keyof LoginForm>(key: K) =>
@@ -141,9 +172,15 @@ export function useLoginForm() {
     validate,
     canSubmit,
     reset,
+    handleLogin,
+    irCadastrar,
+
+    // 2FA flow
     qrCodeData,
     setQrCodeData,
-    handleLogin,
-    irCadastrar
+    twoFactorStep,
+    goTwoFactorConfirm,
+    goTwoFactorQr,
+    closeTwoFactorFlow,
   };
 }

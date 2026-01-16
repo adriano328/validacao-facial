@@ -4,35 +4,31 @@ type QrCodeModalProps = {
   open: boolean;
   qrCodeUrl: string;
   secret: string;
-  onClose: () => void;
+  onContinue: () => void;
 };
 
 export function QrCodeModal({
   open,
   qrCodeUrl,
   secret,
-  onClose,
+  onContinue,
 }: QrCodeModalProps) {
   if (!open) return null;
 
   return (
     <div className="qr-modal">
-      <div className="qr-backdrop" onClick={onClose} />
+      <div className="qr-backdrop" />
 
       <div className="qr-card">
         <h2 className="qr-title">Ativar autenticação em duas etapas</h2>
 
         <p className="qr-text">
-          Escaneie o QR Code abaixo com o aplicativo autenticador
-          (Google Authenticator, Authy, Microsoft Authenticator).
+          Escaneie o QR Code abaixo com o aplicativo autenticador (Google Authenticator,
+          Authy, Microsoft Authenticator).
         </p>
 
         <div className="qr-qrWrap">
-          <img
-            src={qrCodeUrl}
-            alt="QR Code para autenticação em duas etapas"
-            className="qr-qr"
-          />
+          <img src={qrCodeUrl} alt="QR Code do Two-Factor" className="qr-qr" />
         </div>
 
         <div className="qr-secret">
@@ -40,7 +36,7 @@ export function QrCodeModal({
           <strong>{secret}</strong>
         </div>
 
-        <button className="qr-button" onClick={onClose}>
+        <button className="qr-button" onClick={onContinue}>
           Continuar
         </button>
       </div>
