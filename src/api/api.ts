@@ -2,7 +2,7 @@ import axios from "axios";
 
 let authToken: string | null = null;
 
-const baseURL = "http://85.31.63.50:1030";
+const baseURL = "https://ihvjqtwvo5.execute-api.us-east-1.amazonaws.com/test";
 
 export const api = axios.create({
   baseURL,
