@@ -1,9 +1,9 @@
 // src/features/twoFactor/useTwoFactorConfirm.ts
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { alerts } from "../../lib/swal";
 import { handleAxiosError } from "../../utils/messageErro";
-import { validarTwoFactor } from "../../services/usuario";
+import { validarTwoFactor, verificarTwoFactor } from "../../services/usuario";
 import { useTwoFactor } from "../../context/TwoFactorContext";
 import { usePessoa } from "../../context/PessoaContext";
 
@@ -17,8 +17,12 @@ export function useTwoFactorConfirm() {
   const abortRef = useRef<AbortController | null>(null);
   const navigate = useNavigate();
 
-  const { secret, clearSecret } = useTwoFactor();
+  const { status, secret, clearSecret, setActive, resetTwoFactor } = useTwoFactor();
   const { email, clearPessoa } = usePessoa();
+
+  useEffect(() => {
+    return () => abortRef.current?.abort();
+  }, []);
 
   const error = useMemo(() => {
     if (!touched) return undefined;
@@ -28,8 +32,9 @@ export function useTwoFactorConfirm() {
   }, [code, touched]);
 
   const canSubmit = useMemo(() => {
-    return !!secret && !!email && code.length === 6 && !isSubmitting;
-  }, [secret, email, code, isSubmitting]);
+    if (status === "inactive") return !!secret && !!email && code.length === 6 && !isSubmitting;
+    return !!email && code.length === 6 && !isSubmitting;
+  }, [status, secret, email, code, isSubmitting]);
 
   function onChangeCode(v: string) {
     setCode(onlyDigits(v));
@@ -39,21 +44,28 @@ export function useTwoFactorConfirm() {
     setTouched(true);
   }
 
-  /**
-   * Retorna:
-   * - true  => confirmou com sucesso
-   * - false => falhou/invalidou
-   */
+  function resetLocalInput() {
+    setCode("");
+    setTouched(false);
+  }
+
+  function clearAll() {
+    resetLocalInput();
+    clearSecret();
+    resetTwoFactor();
+    clearPessoa();
+  }
+
   async function confirm(): Promise<boolean> {
     setTouched(true);
 
-    if (!secret) {
-      alerts.warn({ text: "Secret não encontrado. Gere o QR Code novamente." });
+    if (!email) {
+      alerts.warn({ text: "E-mail não encontrado. Faça login novamente." });
       return false;
     }
 
-    if (!email) {
-      alerts.warn({ text: "E-mail não encontrado. Faça login novamente." });
+    if (status === "inactive" && !secret) {
+      alerts.warn({ text: "Secret não encontrado. Gere o QR Code novamente." });
       return false;
     }
 
@@ -68,27 +80,44 @@ export function useTwoFactorConfirm() {
 
     setIsSubmitting(true);
     try {
-      const ok = await validarTwoFactor({ email, secret, code }, controller.signal);
+      let ok = false;
+
+      if (status === "active") {
+        // ✅ já ativo: só verificar (payload sem secret)
+        ok = await verificarTwoFactor({ email, code }, controller.signal);
+
+        if (!ok) {
+          clearAll();
+          alerts.error({ text: "Código inválido. Faça login novamente." });
+          return false;
+        }
+
+        // ✅ sucesso: ir pra home e limpar tudo
+        clearAll();
+        alerts.success({ text: "Login confirmado!" });
+        navigate("/home");
+        return true;
+      }
+
+      // ✅ inativo: confirmar/ativar (payload com secret)
+      ok = await validarTwoFactor({ email, secret: secret!, code }, controller.signal);
 
       if (!ok) {
-        // ❗Inválido: limpa tudo e volta pro login
-        clearSecret();
-        clearPessoa();
+        clearAll();
         alerts.error({ text: "Código inválido. Faça login novamente." });
-        navigate("/login");
         return false;
       }
 
-      // ✅ Sucesso: limpa tudo e volta pro login (como você pediu)
-      clearSecret();
+      // ✅ ativou com sucesso
+      setActive(); // define status active e já limpa secret no context
+      resetLocalInput();
       clearPessoa();
-      alerts.success({ text: "Two-factor confirmado com sucesso!" });
+
+      alerts.success({ text: "Two-factor ativado com sucesso! Faça login novamente." });
       navigate("/login");
       return true;
     } catch (err) {
-      // ❗Erro: limpa tudo e volta pro login
-      clearSecret();
-      clearPessoa();
+      clearAll();
       alerts.error({ text: handleAxiosError(err) });
       navigate("/login");
       return false;

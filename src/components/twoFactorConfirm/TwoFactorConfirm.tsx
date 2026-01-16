@@ -51,8 +51,11 @@ export function TwoFactorConfirm({ open, onBack, onDone }: TwoFactorConfirmProps
         </FormField>
 
         <div className="twofaActions">
-          <button className="twofaBack" type="button" onClick={onBack} disabled={isSubmitting}>
+          {/* <button className="twofaBack " type="button" onClick={onBack} disabled={isSubmitting}>
             Voltar
+          </button> */}
+          <button className="botao voltar" type="button" onClick={onBack} disabled={isSubmitting}>
+            <span className="textoBotao">Cancelar</span>
           </button>
 
           <button className="botao" type="button" onClick={handleConfirm} disabled={!canSubmit}>

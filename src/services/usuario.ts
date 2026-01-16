@@ -1,5 +1,5 @@
 import { api } from "../api/api";
-import type { AtivarTwoFactorResponse, ValidarTwoFactorPayload } from "../features/login/type";
+import type { AtivarTwoFactorResponse, TwoFactorPayload } from "../features/login/type";
 
 export async function twoFactorAtivado(
   payload: { email: string; password: string },
@@ -27,21 +27,27 @@ export async function ativarTwoFactor(
 }
 
 export async function validarTwoFactor(
-  payload: ValidarTwoFactorPayload,
+  payload: TwoFactorPayload,
   signal?: AbortSignal
 ): Promise<boolean> {
   const res = await api.post("/usuario/confirmar-two-factor", payload, { signal });
-
-  // Caso o backend retorne boolean no body
   if (typeof res.data === "boolean") return res.data;
-
-  // Caso retorne { ok: true } ou { success: true } (se um dia mudarem)
   if (res.data && typeof res.data === "object") {
     const anyData = res.data as Record<string, unknown>;
     if (typeof anyData.ok === "boolean") return anyData.ok;
     if (typeof anyData.success === "boolean") return anyData.success;
   }
 
-  // Seu caso atual: 201 com body vazio -> sucesso se status 2xx
+  return res.status >= 200 && res.status < 300;
+}
+
+export async function verificarTwoFactor(
+  payload: TwoFactorPayload,
+  signal?: AbortSignal
+): Promise<boolean> {
+  const res = await api.post("/usuario/verificar-two-factor", payload, {
+    signal,
+  });
+
   return res.status >= 200 && res.status < 300;
 }

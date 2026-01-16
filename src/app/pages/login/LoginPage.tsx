@@ -4,8 +4,9 @@ import "./styles.css";
 
 import { FormField } from "../../../components/form/FormField";
 import { useLoginForm } from "../../../features/login/useLoginForm";
-import { QrCodeModal } from "../../../components/qrCode/QrCodeModal";
+import { useTwoFactor } from "../../../context/TwoFactorContext";
 import { TwoFactorConfirm } from "../../../components/twoFactorConfirm/TwoFactorConfirm";
+import { QrCodeModal } from "../../../components/qrCode/QrCodeModal";
 
 export function LoginPage() {
   const {
@@ -16,13 +17,13 @@ export function LoginPage() {
     handleLogin,
     isSubmitting,
     irCadastrar,
-    closeTwoFactorFlow,
-    // 2FA flow
     qrCodeData,
+    setQrCodeData,
     twoFactorStep,
-    goTwoFactorConfirm,
-    goTwoFactorQr,
+    setTwoFactorStep,
   } = useLoginForm();
+
+  const { resetTwoFactor } = useTwoFactor();
 
   return (
     <div className="safe">
@@ -77,20 +78,34 @@ export function LoginPage() {
         </div>
       </div>
 
-      {/* 2FA - etapa QR Code */}
-      {qrCodeData && twoFactorStep === "qr" && (
+      {/* ✅ Modal QR */}
+      {qrCodeData && (
         <QrCodeModal
-          open
+          open={twoFactorStep === "qr"}
           qrCodeUrl={qrCodeData.qrCodeUrl}
           secret={qrCodeData.secret}
-          onContinue={goTwoFactorConfirm}
+          onContinue={() => {
+            // fecha QR e abre confirm
+            setTwoFactorStep("confirm");
+          }}
         />
       )}
 
-      {/* 2FA - etapa Confirmar código */}
-      {qrCodeData && twoFactorStep === "confirm" && (
-        <TwoFactorConfirm open onBack={goTwoFactorQr} onDone={closeTwoFactorFlow} />
-      )}
+      {/* ✅ Modal Confirm */}
+      <TwoFactorConfirm
+        open={twoFactorStep === "confirm"}
+        onBack={() => {
+          // volta pro QR se ainda tiver dados, senão fecha tudo
+          if (qrCodeData) setTwoFactorStep("qr");
+          else setTwoFactorStep("none");
+        }}
+        onDone={() => {
+          // quando confirmar com sucesso, você pediu limpar tudo
+          setQrCodeData(null);
+          setTwoFactorStep("none");
+          resetTwoFactor();
+        }}
+      />
     </div>
   );
 }

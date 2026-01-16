@@ -12,6 +12,7 @@ import { useTwoFactor } from "../../context/TwoFactorContext";
 
 type TouchedState = Partial<Record<keyof LoginForm, boolean>>;
 type TwoFactorData = { secret: string; qrCodeUrl: string };
+type TwoFactorStep = "none" | "qr" | "confirm";
 
 export function useLoginForm() {
   const [form, setForm] = useState<LoginForm>(initialLoginForm);
@@ -20,20 +21,22 @@ export function useLoginForm() {
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Modal/Fluxo 2FA
   const [qrCodeData, setQrCodeData] = useState<TwoFactorData | null>(null);
-  const [twoFactorStep, setTwoFactorStep] = useState<"qr" | "confirm">("qr");
+  const [twoFactorStep, setTwoFactorStep] = useState<TwoFactorStep>("none");
 
   const navigate = useNavigate();
   const abortRef = useRef<AbortController | null>(null);
 
-  // Contexts
-  const { setEmail } = usePessoa();        // ✅ agora salvamos o email aqui
-  const { setSecret, clearSecret } = useTwoFactor(); // ✅ salvamos/limpamos o secret aqui
+  const { setEmail } = usePessoa();
+  const { setSecret, clearSecret, setActive, resetTwoFactor } = useTwoFactor();
 
   useEffect(() => {
     return () => abortRef.current?.abort();
   }, []);
+
+  /* ========================
+   * FORM HANDLERS
+   * ======================== */
 
   const setFormLogin = <K extends keyof LoginForm>(key: K, value: LoginForm[K]) => {
     setForm((prev) => {
@@ -75,16 +78,25 @@ export function useLoginForm() {
   };
 
   const markAllTouched = () => {
-    setTouched((prev) => ({ ...prev, email: true, password: true }));
+    setTouched({ email: true, password: true });
   };
+
+  /* ========================
+   * NAV
+   * ======================== */
 
   function irCadastrar() {
     navigate("/cadastro");
   }
 
+  /* ========================
+   * 2FA FLOW
+   * ======================== */
+
   function closeTwoFactorFlow() {
-    setQrCodeData(null);     
-    setTwoFactorStep("qr");
+    setQrCodeData(null);
+    setTwoFactorStep("none");
+    clearSecret();
   }
 
   async function handleLogin() {
@@ -103,6 +115,7 @@ export function useLoginForm() {
 
     const email = form.email.trim();
     setEmail(email);
+
     setIsSubmitting(true);
     try {
       const ativado = await twoFactorAtivado(
@@ -115,12 +128,12 @@ export function useLoginForm() {
         setSecret(twoFactor.secret);
         setQrCodeData(twoFactor);
         setTwoFactorStep("qr");
-        return;
-      } else {
 
+        return;
       }
 
-      navigate("/home");
+      setActive();
+      setTwoFactorStep("confirm");
     } catch (err) {
       const message = handleAxiosError(err);
       alerts.error({ text: message });
@@ -153,14 +166,15 @@ export function useLoginForm() {
     setIsSubmitting(false);
 
     setQrCodeData(null);
-    setTwoFactorStep("qr");
-    clearSecret();
+    setTwoFactorStep("none");
+    resetTwoFactor();
   };
 
   const showError = <K extends keyof LoginForm>(key: K) =>
     submitAttempted || touched[key] ? errors[key] : undefined;
 
   return {
+    // form
     formLogin: form,
     setFormLogin,
     errors,
@@ -174,8 +188,7 @@ export function useLoginForm() {
     reset,
     handleLogin,
     irCadastrar,
-
-    // 2FA flow
+    setTwoFactorStep,
     qrCodeData,
     setQrCodeData,
     twoFactorStep,

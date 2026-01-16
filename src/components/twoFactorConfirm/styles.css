@@ -15,12 +15,14 @@
 .twofaActions {
   width: 100%;
   display: flex;
+  justify-content: space-between;
   gap: 10px;
   margin-top: 6px;
 }
 
 .twofaBack {
   height: 48px;
+  width: 40px;
   border-radius: 12px;
   border: 1px solid #e6e6e6;
   background: #ffffff;
@@ -30,7 +32,12 @@
   flex: 1;
 }
 
+.voltar {
+  background-color: red;
+}
+
 .twofaBack:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
+

@@ -13,8 +13,8 @@ export type AtivarTwoFactorResponse = {
   qrCodeUrl: string;
 };
 
-export type ValidarTwoFactorPayload = {
+export type TwoFactorPayload = {
   email: string;
-  secret: string;
+  secret?: string;
   code: string; // 6 dígitos
 };
