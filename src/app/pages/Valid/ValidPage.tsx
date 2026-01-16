@@ -15,7 +15,7 @@ type Phase = "idle" | "running" | "success";
 
 export default function ValidPage() {
   // ✅ UMA ÚNICA CHAMADA
-  const { email, pessoaId, clearPessoa } = usePessoa();
+  const { email } = usePessoa();
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [sessionId, setSessionId] = useState<string | null>(null);
