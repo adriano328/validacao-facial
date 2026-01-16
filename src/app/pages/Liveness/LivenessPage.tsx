@@ -171,8 +171,6 @@ export default function LivenessPage() {
 
                 if (pollingCancelRef.current.cancelled) return;
 
-                console.log(`Tentativa ${tentativas + 1}`, resultado);
-
                 if (
                   resultado.status === "SUCCEEDED" &&
                   resultado.confidence >= CONFIDENCE_MIN

@@ -110,9 +110,7 @@ export function useLoginForm() {
     const controller = new AbortController();
     abortRef.current = controller;
 
-    const email = form.email.trim();
-    console.log(email);
-    
+    const email = form.email.trim();    
     setEmail(email);
 
     setIsSubmitting(true);

@@ -80,9 +80,7 @@ export function useTwoFactorConfirm() {
 
     setIsSubmitting(true);
     try {
-      let ok = false;
-      console.log(status);
-      
+      let ok = false;      
       if (status === "active") {
         ok = await verificarTwoFactor({ email, code }, controller.signal);
 
