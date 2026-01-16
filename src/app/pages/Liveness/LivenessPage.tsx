@@ -6,6 +6,8 @@ import { alerts } from "../../../lib/swal";
 import { usePessoa } from "../../../context/PessoaContext";
 import { livenessDisplayTextPtBR } from "../../../i18n/livenessPtBR";
 
+import "./LivenessPage.css";
+
 type CreateSessionResponse = { sessionId: string };
 type Phase = "idle" | "running" | "success";
 
@@ -27,7 +29,6 @@ export default function LivenessPage() {
   const pollingCancelRef = useRef({ cancelled: false });
   const handlingErrorRef = useRef(false);
   const handlingAnalysisRef = useRef(false);
-
   const mountedRef = useRef(true);
 
   function delay(ms: number) {
@@ -102,133 +103,162 @@ export default function LivenessPage() {
     };
   }, []);
 
+  /* ───────────────────────── IDLE ───────────────────────── */
+
   if (phase === "idle") {
     return (
-      <div style={{ maxWidth: 520, margin: "40px auto", textAlign: "center" }}>
-        <h2>Validação Facial (Liveness)</h2>
+      <div className="livenessPage">
+        <div className="livenessCard">
+          <div className="livenessHeader">
+            <h2 className="livenessTitle">Validação Facial</h2>
+            <p className="livenessSubtitle">
+              Precisamos confirmar sua identidade usando a câmera.
+            </p>
+          </div>
 
-        {error && <p style={{ marginTop: 12 }}>{error}</p>}
+          <div className="livenessBody">
+            <div className="livenessHint">
+              <div className="livenessHintIcon">i</div>
+              <div>
+                <strong>Dica importante</strong>
+                <br />
+                Fique em um ambiente bem iluminado e mantenha o rosto centralizado
+                na câmera.
+              </div>
+            </div>
 
-        <button
-          onClick={() => {
-            // ✅ libera novas tentativas manuais
-            handlingErrorRef.current = false;
-            handlingAnalysisRef.current = false;
+            {error && <div className="livenessError">{error}</div>}
 
-            setError(null);
-            createLivenessSession();
-          }}
-          disabled={loading}
-          style={{ marginTop: 12 }}
-        >
-          {loading ? "Iniciando..." : "Iniciar validação facial"}
-        </button>
+            <div className="livenessActions">
+              <button
+                className="livenessButton"
+                onClick={() => {
+                  handlingErrorRef.current = false;
+                  handlingAnalysisRef.current = false;
+                  setError(null);
+                  createLivenessSession();
+                }}
+                disabled={loading}
+              >
+                {loading ? "Iniciando..." : "Iniciar validação facial"}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
+  /* ───────────────────────── LOADING ───────────────────────── */
+
   if (loading && !sessionId) {
     return (
-      <p style={{ textAlign: "center", marginTop: 40 }}>
-        Preparando câmera e sessão de validação facial…
-      </p>
+      <div className="livenessPage">
+        <div className="livenessCard livenessLoading">
+          <div className="livenessSpinner" />
+          <p className="livenessLoadingText">
+            Preparando câmera e sessão de validação facial…
+          </p>
+        </div>
+      </div>
     );
   }
 
+  /* ───────────────────────── RUNNING ───────────────────────── */
+
   return (
-    <div style={{ maxWidth: 520, margin: "40px auto" }}>
-      <h2>Validação Facial (Liveness)</h2>
+    <div className="livenessPage">
+      <div className="livenessCard">
+        <div className="livenessHeader">
+          <h2 className="livenessTitle">Validação Facial</h2>
+          <p className="livenessSubtitle">
+            Centralize o rosto e siga as instruções na tela.
+          </p>
+        </div>
 
-      {phase === "running" && sessionId ? (
-        <FaceLivenessDetector
-          key={`${detectorKey}-${sessionId}`}
-          sessionId={sessionId}
-          region="us-east-1"
-          displayText={livenessDisplayTextPtBR}
-          onAnalysisComplete={async () => {
-            if (handlingAnalysisRef.current) return;
-            handlingAnalysisRef.current = true;
-            pollingCancelRef.current = { cancelled: false };
+        <div className="livenessBody">
+          {phase === "running" && sessionId && (
+            <div className="livenessDetectorWrap">
+              <FaceLivenessDetector
+                key={`${detectorKey}-${sessionId}`}
+                sessionId={sessionId}
+                region="us-east-1"
+                displayText={livenessDisplayTextPtBR}
+                onAnalysisComplete={async () => {
+                  if (handlingAnalysisRef.current) return;
+                  handlingAnalysisRef.current = true;
 
-            try {
-              let tentativas = 0;
+                  pollingCancelRef.current = { cancelled: false };
 
-              while (tentativas < MAX_TENTATIVAS) {
-                if (pollingCancelRef.current.cancelled) return;
+                  try {
+                    let tentativas = 0;
 
-                const resultado = await obterResultadoSessaoLiveness(
-                  sessionId,
-                  String(pessoaId),
-                );
+                    while (tentativas < MAX_TENTATIVAS) {
+                      if (pollingCancelRef.current.cancelled) return;
 
-                if (pollingCancelRef.current.cancelled) return;
+                      const resultado = await obterResultadoSessaoLiveness(
+                        sessionId,
+                        String(pessoaId),
+                      );
 
-                if (
-                  resultado.status === "SUCCEEDED" &&
-                  resultado.confidence >= CONFIDENCE_MIN
-                ) {
-                  handleSuccess();
-                  return;
-                }
+                      if (pollingCancelRef.current.cancelled) return;
 
-                if (
-                  resultado.status === "FAILED" ||
-                  resultado.status === "EXPIRED"
-                ) {
-                  if (!mountedRef.current) return;
+                      if (
+                        resultado.status === "SUCCEEDED" &&
+                        resultado.confidence >= CONFIDENCE_MIN
+                      ) {
+                        handleSuccess();
+                        return;
+                      }
 
-                  alerts.warn({
-                    text: "Não foi possível validar. Tente novamente.",
-                  });
-                  stopWithError("Não foi possível validar. Tente novamente.");
-                  return;
-                }
+                      if (
+                        resultado.status === "FAILED" ||
+                        resultado.status === "EXPIRED"
+                      ) {
+                        alerts.warn({
+                          text: "Não foi possível validar. Tente novamente.",
+                        });
+                        stopWithError(
+                          "Não foi possível validar. Tente novamente.",
+                        );
+                        return;
+                      }
 
-                tentativas++;
-                await delay(INTERVALO_MS);
-              }
+                      tentativas++;
+                      await delay(INTERVALO_MS);
+                    }
 
-              if (!mountedRef.current) return;
+                    alerts.warn({
+                      text: "Não foi possível validar na primeira tentativa.",
+                    });
+                    stopWithError(
+                      "Não foi possível validar na primeira tentativa.",
+                    );
+                  } catch (err) {
+                    console.error("Erro no polling do liveness:", err);
+                    alerts.warn({ text: "Falha ao validar. Tente novamente." });
+                    stopWithError("Falha ao validar. Tente novamente.");
+                  }
+                }}
+                onError={async (err: any) => {
+                  if (handlingErrorRef.current) return;
+                  handlingErrorRef.current = true;
 
-              alerts.warn({
-                text: "Não foi possível validar na primeira tentativa. Tente novamente.",
-              });
-              stopWithError(
-                "Não foi possível validar na primeira tentativa. Tente novamente.",
-              );
-            } catch (err) {
-              console.error("Erro no polling do liveness:", err);
-              if (!mountedRef.current) return;
+                  const msg =
+                    err?.state === "MOBILE_LANDSCAPE_ERROR"
+                      ? "Use o celular em modo retrato (vertical)."
+                      : err?.state === "CAMERA_ACCESS_ERROR"
+                        ? "Não foi possível acessar a câmera."
+                        : "Falha durante a validação facial.";
 
-              alerts.warn({
-                text: "Falha ao validar. Tente novamente.",
-              });
-              stopWithError("Falha ao validar. Tente novamente.");
-            } finally {
-              // ✅ permite nova tentativa depois (apertando o botão)
-              // (não libera automaticamente aqui para não reiniciar sozinho)
-            }
-          }}
-          onError={async (err: any) => {
-            if (handlingErrorRef.current) return;
-            handlingErrorRef.current = true;
-
-            console.error("Erro no FaceLivenessDetector:", err);
-
-            const msg =
-              err?.state === "MOBILE_LANDSCAPE_ERROR"
-                ? "Use o celular em modo retrato (vertical) e tente novamente."
-                : err?.state === "CAMERA_ACCESS_ERROR"
-                  ? "Não foi possível acessar a câmera. Verifique permissão e se há câmera disponível."
-                  : "Falha durante a validação facial. Verifique a câmera e tente novamente.";
-
-            if (!mountedRef.current) return;
-
-            alerts.warn({ text: msg });
-            stopWithError(msg);
-          }}
-        />
-      ) : null}
+                  alerts.warn({ text: msg });
+                  stopWithError(msg);
+                }}
+              />
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -11,6 +11,7 @@ import { livenessDisplayTextPtBR } from "../../../i18n/livenessPtBR";
 import { useAuthToken } from "../../../context/AuthTokenContext";
 import { useNavigate } from "react-router-dom";
 
+import "./ValidPage.css";
 
 type CreateSessionResponse = { sessionId: string };
 type Phase = "idle" | "running" | "success";
@@ -18,22 +19,25 @@ type Phase = "idle" | "running" | "success";
 export default function ValidPage() {
   const { email, senha } = usePessoa();
   const { setToken } = useAuthToken();
+  const navigate = useNavigate();
+
   const emailRef = useRef<string | null>(null);
   const senhaRef = useRef<string | null>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     emailRef.current = email ?? null;
     senhaRef.current = senha ?? null;
-  }, [email]);
+  }, [email, senha]);
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [detectorKey, setDetectorKey] = useState(0);
+
   const MAX_TENTATIVAS = 1;
   const INTERVALO_MS = 1000;
+
   const sessionRequestedRef = useRef(false);
   const pollingCancelRef = useRef({ cancelled: false });
   const handlingErrorRef = useRef(false);
@@ -55,6 +59,7 @@ export default function ValidPage() {
   function stopWithError(message: string) {
     cancelPolling();
     sessionRequestedRef.current = false;
+
     setLoading(false);
     setSessionId(null);
     setPhase("idle");
@@ -63,18 +68,18 @@ export default function ValidPage() {
 
   async function handleSuccess(foto: string) {
     const currentEmail = emailRef.current;
-    const currentSenha = senhaRef.current
+    const currentSenha = senhaRef.current;
 
     if (!currentEmail) {
       await resetAndRestartScanner(
-        "Email não encontrado. Volte e tente novamente.",
+        "E-mail não encontrado. Volte e tente novamente.",
       );
       return;
     }
 
     if (!currentSenha) {
       await resetAndRestartScanner(
-        "Senha não encontrado. Volte e tente novamente.",
+        "Senha não encontrada. Volte e tente novamente.",
       );
       return;
     }
@@ -82,18 +87,24 @@ export default function ValidPage() {
     const payload: CompararFacesRequest = {
       source: foto,
       email: currentEmail,
-      senha: currentSenha
+      senha: currentSenha,
     };
 
     try {
       const res = await compararFaces(payload);
-      if (res.token) {
+
+      if (res?.token) {
         setToken(res.token);
-        navigate('/home')
         cancelPolling();
         setError(null);
         setPhase("success");
+        navigate("/home");
+        return;
       }
+
+      await resetAndRestartScanner(
+        "Não foi possível concluir a validação. Tente novamente.",
+      );
     } catch (e) {
       console.error("Erro no compararFaces:", e);
       await resetAndRestartScanner("Falha ao comparar faces. Tente novamente.");
@@ -133,7 +144,9 @@ export default function ValidPage() {
   }
 
   async function resetAndRestartScanner(msg?: string) {
-    const text = msg ?? "Falha durante a validação facial. Tente novamente.";
+    const text =
+      msg ??
+      "Falha durante a validação facial. Verifique a câmera e tente novamente.";
     if (!mountedRef.current) return;
 
     alerts.warn({ text });
@@ -159,103 +172,149 @@ export default function ValidPage() {
 
   if (phase === "idle") {
     return (
-      <div style={{ maxWidth: 520, margin: "40px auto", textAlign: "center" }}>
-        <h2>Validação Facial (Liveness)</h2>
+      <div className="validPage">
+        <div className="validCard">
+          <div className="validHeader">
+            <h2 className="validTitle">Validação Facial</h2>
+            <p className="validSubtitle">
+              Para sua segurança, confirme sua identidade usando a câmera.
+            </p>
+          </div>
 
-        {error && <p style={{ marginTop: 12 }}>{error}</p>}
+          <div className="validBody">
+            <div className="validHint">
+              <div className="validHintIcon">i</div>
+              <div>
+                <strong>Dica rápida</strong>
+                <br />
+                Use boa iluminação, retire acessórios que cubram o rosto e
+                mantenha a câmera estável.
+              </div>
+            </div>
 
-        <button
-          onClick={() => {
-            handlingErrorRef.current = false;
-            handlingAnalysisRef.current = false;
-            pollingCancelRef.current = { cancelled: false };
-            sessionRequestedRef.current = false;
+            {error && <div className="validError">{error}</div>}
 
-            setError(null);
-            createLivenessSession();
-          }}
-          disabled={loading}
-          style={{ marginTop: 12 }}
-        >
-          {loading ? "Iniciando..." : "Iniciar validação facial"}
-        </button>
+            <div className="validActions">
+              <button
+                className="validButton"
+                onClick={() => {
+                  handlingErrorRef.current = false;
+                  handlingAnalysisRef.current = false;
+                  pollingCancelRef.current = { cancelled: false };
+                  sessionRequestedRef.current = false;
+
+                  setError(null);
+                  createLivenessSession();
+                }}
+                disabled={loading}
+              >
+                {loading ? "Iniciando..." : "Iniciar validação facial"}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (loading && !sessionId) {
     return (
-      <p style={{ textAlign: "center", marginTop: 40 }}>
-        Preparando câmera e sessão de validação facial…
-      </p>
+      <div className="validPage">
+        <div className="validCard validLoading">
+          <div className="validSpinner" />
+          <p className="validLoadingText">
+            Preparando câmera e sessão de validação…
+          </p>
+        </div>
+      </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: 520, margin: "40px auto" }}>
-      <h2>Validação Facial (Liveness)</h2>
+    <div className="validPage">
+      <div className="validCard">
+        <div className="validHeader">
+          <h2 className="validTitle">Validação Facial</h2>
+          <p className="validSubtitle">
+            Centralize o rosto e siga as instruções na tela.
+          </p>
+        </div>
 
-      {phase === "running" && sessionId ? (
-        <FaceLivenessDetector
-          key={`${detectorKey}-${sessionId}`}
-          sessionId={sessionId}
-          region="us-east-1"
-          displayText={livenessDisplayTextPtBR}
-          onAnalysisComplete={async () => {
-            if (handlingAnalysisRef.current) return;
-            handlingAnalysisRef.current = true;
+        <div className="validBody">
+          {phase === "running" && sessionId ? (
+            <div className="validDetectorWrap">
+              <FaceLivenessDetector
+                key={`${detectorKey}-${sessionId}`}
+                sessionId={sessionId}
+                region="us-east-1"
+                displayText={livenessDisplayTextPtBR}
+                onAnalysisComplete={async () => {
+                  if (handlingAnalysisRef.current) return;
+                  handlingAnalysisRef.current = true;
 
-            pollingCancelRef.current = { cancelled: false };
+                  pollingCancelRef.current = { cancelled: false };
 
-            try {
-              let tentativas = 0;
+                  try {
+                    let tentativas = 0;
 
-              while (tentativas < MAX_TENTATIVAS) {
-                if (pollingCancelRef.current.cancelled) return;
+                    while (tentativas < MAX_TENTATIVAS) {
+                      if (pollingCancelRef.current.cancelled) return;
 
-                const resultado = await obterResultadoSessaoLiveness(sessionId);
+                      const resultado = await obterResultadoSessaoLiveness(
+                        sessionId,
+                      );
 
-                if (pollingCancelRef.current.cancelled) return;
+                      if (pollingCancelRef.current.cancelled) return;
 
-                if (resultado.status === "SUCCEEDED") {
-                  await handleSuccess(resultado.foto);
-                  return;
-                }
+                      if (resultado.status === "SUCCEEDED") {
+                        await handleSuccess(resultado.foto);
+                        return;
+                      }
 
-                if (
-                  resultado.status === "FAILED" ||
-                  resultado.status === "EXPIRED"
-                ) {
-                  await resetAndRestartScanner(
-                    "Não foi possível validar. Tente novamente.",
-                  );
-                  return;
-                }
+                      if (
+                        resultado.status === "FAILED" ||
+                        resultado.status === "EXPIRED"
+                      ) {
+                        await resetAndRestartScanner(
+                          "Não foi possível validar. Tente novamente.",
+                        );
+                        return;
+                      }
 
-                tentativas++;
-                await delay(INTERVALO_MS);
-              }
+                      tentativas++;
+                      await delay(INTERVALO_MS);
+                    }
 
-              await resetAndRestartScanner(
-                "Não foi possível validar na primeira tentativa. Tente novamente.",
-              );
-            } catch (err) {
-              console.error("Erro no polling do liveness:", err);
-              await resetAndRestartScanner("Falha ao validar. Tente novamente.");
-            }
-          }}
-          onError={async (err: any) => {
-            if (handlingErrorRef.current) return;
-            handlingErrorRef.current = true;
+                    await resetAndRestartScanner(
+                      "Não foi possível validar na primeira tentativa. Tente novamente.",
+                    );
+                  } catch (err) {
+                    console.error("Erro no polling do liveness:", err);
+                    await resetAndRestartScanner(
+                      "Falha ao validar. Tente novamente.",
+                    );
+                  }
+                }}
+                onError={async (err: any) => {
+                  if (handlingErrorRef.current) return;
+                  handlingErrorRef.current = true;
 
-            console.error("Erro no FaceLivenessDetector:", err);
+                  console.error("Erro no FaceLivenessDetector:", err);
 
-            await resetAndRestartScanner(
-              "Falha durante a validação facial. Verifique a câmera e tente novamente.",
-            );
-          }}
-        />
-      ) : null}
+                  const msg =
+                    err?.state === "MOBILE_LANDSCAPE_ERROR"
+                      ? "Use o celular em modo retrato (vertical) e tente novamente."
+                      : err?.state === "CAMERA_ACCESS_ERROR"
+                        ? "Não foi possível acessar a câmera. Verifique a permissão e tente novamente."
+                        : "Falha durante a validação facial. Verifique a câmera e tente novamente.";
+
+                  await resetAndRestartScanner(msg);
+                }}
+              />
+            </div>
+          ) : null}
+        </div>
+      </div>
     </div>
   );
 }

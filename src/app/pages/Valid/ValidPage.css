@@ -1,0 +1,144 @@
+/* ValidPage.css
+   Mesmo “layout simples” do primeiro: card central, largura fixa, fundo neutro,
+   sem gradientes/efeitos fortes. */
+
+.validPage {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+  background: #f6f7fb;
+  color: #111827;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.validCard {
+  width: 100%;
+  max-width: 520px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(17, 24, 39, 0.08);
+  overflow: hidden;
+}
+
+.validHeader {
+  padding: 20px 20px 12px;
+  text-align: center;
+}
+
+.validTitle {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.validSubtitle {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #6b7280;
+}
+
+.validBody {
+  padding: 16px 20px 20px;
+}
+
+.validError {
+  margin-top: 12px;
+  padding: 12px 12px;
+  border-radius: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.validHint {
+  margin-top: 12px;
+  padding: 12px 12px;
+  border-radius: 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.validActions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+}
+
+.validButton {
+  width: 100%;
+  border: 1px solid #111827;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-weight: 800;
+  font-size: 14px;
+  background: #111827;
+  color: #ffffff;
+  cursor: pointer;
+  transition: transform 0.08s ease, opacity 0.15s ease;
+}
+
+.validButton:hover {
+  opacity: 0.95;
+}
+
+.validButton:active {
+  transform: translateY(1px);
+}
+
+.validButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.validLoading {
+  text-align: center;
+  padding: 22px 20px;
+}
+
+.validLoadingText {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.validSpinner {
+  width: 34px;
+  height: 34px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  border: 3px solid #e5e7eb;
+  border-top-color: #111827;
+  animation: validSpin 0.9s linear infinite;
+}
+
+@keyframes validSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.validDetectorWrap {
+  margin-top: 12px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+/* garante que o detector ocupe a largura do card */
+.validDetectorWrap > * {
+  width: 100%;
+}

@@ -1,0 +1,211 @@
+/* LivenessPage.css */
+/* Objetivo: centralizar, deixar mais “app-like”, com card, melhor feedback visual, e estilizar o FaceLivenessDetector. */
+
+:root {
+  --bg-1: #0b1220;
+  --bg-2: #0f172a;
+  --card: rgba(255, 255, 255, 0.06);
+  --card-border: rgba(255, 255, 255, 0.12);
+  --text: rgba(255, 255, 255, 0.92);
+  --muted: rgba(255, 255, 255, 0.70);
+  --muted-2: rgba(255, 255, 255, 0.55);
+  --danger: #ff5a6a;
+  --primary: #7c3aed;
+  --primary-2: #a78bfa;
+  --shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+  --radius: 18px;
+}
+
+.livenessPage {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 28px 16px;
+  color: var(--text);
+  background:
+    radial-gradient(900px 500px at 20% 15%, rgba(124, 58, 237, 0.30), transparent 60%),
+    radial-gradient(900px 500px at 80% 0%, rgba(59, 130, 246, 0.22), transparent 55%),
+    radial-gradient(900px 500px at 40% 90%, rgba(236, 72, 153, 0.18), transparent 55%),
+    linear-gradient(180deg, var(--bg-1), var(--bg-2));
+}
+
+.livenessCard {
+  width: min(560px, 100%);
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  overflow: hidden;
+}
+
+.livenessHeader {
+  padding: 22px 22px 14px;
+  text-align: center;
+}
+
+.livenessTitle {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: 0.2px;
+  font-weight: 700;
+}
+
+.livenessSubtitle {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.livenessBody {
+  padding: 18px 22px 22px;
+}
+
+.livenessHint {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.livenessHint strong {
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 700;
+}
+
+.livenessHintIcon {
+  width: 26px;
+  height: 26px;
+  border-radius: 10px;
+  flex: 0 0 26px;
+  display: grid;
+  place-items: center;
+  background: rgba(124, 58, 237, 0.20);
+  border: 1px solid rgba(124, 58, 237, 0.35);
+  color: rgba(255, 255, 255, 0.92);
+  user-select: none;
+}
+
+.livenessError {
+  margin: 14px 0 0;
+  padding: 12px 12px;
+  border-radius: 14px;
+  background: rgba(255, 90, 106, 0.12);
+  border: 1px solid rgba(255, 90, 106, 0.35);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.livenessActions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.livenessButton {
+  border: 0;
+  cursor: pointer;
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-weight: 700;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.95);
+  background: linear-gradient(135deg, var(--primary), #4f46e5);
+  box-shadow: 0 12px 28px rgba(124, 58, 237, 0.35);
+  transition: transform 0.12s ease, filter 0.12s ease, opacity 0.12s ease;
+  min-width: 220px;
+}
+
+.livenessButton:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.livenessButton:active {
+  transform: translateY(0px);
+  filter: brightness(0.98);
+}
+
+.livenessButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
+.livenessLoading {
+  padding: 26px 22px 28px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.livenessSpinner {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  border-top-color: rgba(255, 255, 255, 0.85);
+  animation: spin 0.9s linear infinite;
+  margin-bottom: 14px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.livenessLoadingText {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+/* Área do detector (deixa a câmera “enquadrada” e centralizada) */
+.livenessDetectorWrap {
+  margin-top: 16px;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+/* Amplify UI (FaceLivenessDetector) tweaks */
+.livenessDetectorWrap .amplify-liveness {
+  border-radius: 18px;
+}
+
+/* Se o Amplify estiver usando classes antigas/variantes, esses seletores ajudam */
+.livenessDetectorWrap video {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Responsividade */
+@media (max-width: 420px) {
+  .livenessHeader {
+    padding: 18px 16px 10px;
+  }
+  .livenessBody {
+    padding: 14px 16px 18px;
+  }
+  .livenessTitle {
+    font-size: 20px;
+  }
+  .livenessButton {
+    min-width: 100%;
+  }
+}
