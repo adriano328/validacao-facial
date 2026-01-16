@@ -1,0 +1,46 @@
+.safe {
+  width: 100%;
+  background: #f6f8fc;
+  display: flex;
+  justify-content: center;
+  height: 100%;
+  align-items: center;
+  padding: 24px;
+}
+
+.container {
+  width: 100%;
+  max-width: 600px;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(17, 24, 39, 0.08);
+  display: flex;
+  justify-content: center;
+}
+
+.containerBotao {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.botao {
+  width: 100px;
+  border-radius: 6px;
+  height: 40px;
+  padding: 2px;
+}
+
+.cadastrar {
+  background-color: #4682B4;
+}
+
+.entrar {
+  background-color: #3CB371;
+}
+
+.textoBotao {
+  font-weight: 400;
+  font-size: 13px;
+}
