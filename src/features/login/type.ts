@@ -4,8 +4,8 @@ export type LoginForm = {
 };
 
 export const initialLoginForm: LoginForm = {
-  email: "alefepdias@gmail.com",
-  password: "alefek159",
+  email: "",
+  password: "",
 };
 
 export type AtivarTwoFactorResponse = {
