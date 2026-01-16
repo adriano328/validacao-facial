@@ -4,6 +4,7 @@ import { compararFaces, obterResultadoSessaoLiveness, type CompararFacesRequest 
 import { useNavigate } from "react-router-dom";
 import { alerts } from "../../../lib/swal";
 import { usePessoa } from "../../../context/PessoaContext";
+import { livenessDisplayTextPtBR } from "../../../i18n/livenessPtBR";
 
 type CreateSessionResponse = { sessionId: string };
 type Phase = "idle" | "running" | "success";
@@ -176,6 +177,7 @@ export default function ValidPage() {
           key={`${detectorKey}-${sessionId}`}
           sessionId={sessionId}
           region="us-east-1"
+          displayText={livenessDisplayTextPtBR}
           onAnalysisComplete={async () => {
             // ✅ se disparar mais de uma vez, ignora
             if (handlingAnalysisRef.current) return;

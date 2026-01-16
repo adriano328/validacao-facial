@@ -4,6 +4,7 @@ import { obterResultadoSessaoLiveness } from "../../../services/liveness";
 import { useNavigate } from "react-router-dom";
 import { alerts } from "../../../lib/swal";
 import { usePessoa } from "../../../context/PessoaContext";
+import { livenessDisplayTextPtBR } from "../../../i18n/livenessPtBR";
 
 type CreateSessionResponse = { sessionId: string };
 type Phase = "idle" | "running" | "success";
@@ -148,6 +149,7 @@ export default function LivenessPage() {
           key={`${detectorKey}-${sessionId}`}
           sessionId={sessionId}
           region="us-east-1"
+          displayText={livenessDisplayTextPtBR}
           onAnalysisComplete={async () => {
             // ✅ evita duplicar polling se o callback disparar mais de uma vez
             if (handlingAnalysisRef.current) return;

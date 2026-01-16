@@ -7,8 +7,13 @@ import "@aws-amplify/ui-react-liveness/styles.css";
 import { Amplify } from "aws-amplify";
 import "./styles/swal.css";
 import { PessoaProvider } from "./context/PessoaContext";
+
+import { I18n } from "aws-amplify/utils";
+import "./i18n/livenessPtBR"; // ✅ troque para este arquivo
 import { TwoFactorProvider } from "./context/TwoFactorContext";
-import App from "./app";
+import App from "./App";
+
+I18n.setLanguage("pt"); // ✅ troque pt-BR por pt
 
 Amplify.configure({
   Auth: {
