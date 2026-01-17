@@ -12,7 +12,7 @@ import { I18n } from "aws-amplify/utils";
 import "./i18n/livenessPtBR"; // ✅ troque para este arquivo
 import { TwoFactorProvider } from "./context/TwoFactorContext";
 import { AuthTokenProvider } from "./context/AuthTokenContext";
-import App from "./App";
+import App from "./app";
 
 I18n.setLanguage("pt"); // ✅ troque pt-BR por pt
 
