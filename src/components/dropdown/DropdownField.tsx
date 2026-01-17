@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "./dropdownField.css";
 
 export type DropdownOption<T extends string | number = string> = {

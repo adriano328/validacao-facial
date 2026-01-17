@@ -24,7 +24,7 @@ export const initialCadastroForm: Pessoa = {
   endereco: "",
   bairro: "",
   numero: "",
-  complemento: "asdasd",
+  complemento: "",
   municipioResidencia: "",
   municipioCongregacao: "",
   setorCongregacao: "",

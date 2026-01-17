@@ -111,7 +111,6 @@ export default function LivenessPage() {
 
         <button
           onClick={() => {
-            // ✅ libera novas tentativas manuais
             handlingErrorRef.current = false;
             handlingAnalysisRef.current = false;
 
@@ -136,7 +135,7 @@ export default function LivenessPage() {
   }
 
   return (
-    <div style={{ maxWidth: 520, margin: "40px auto" }}>
+    <div style={{ maxWidth: 520, height: 300, margin: "40px auto" }}>
       <h2>Validação Facial (Liveness)</h2>
 
       {phase === "running" && sessionId ? (

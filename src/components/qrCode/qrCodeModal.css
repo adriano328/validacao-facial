@@ -78,3 +78,15 @@
 .qr-button:hover {
   opacity: 0.9;
 }
+
+.qr-button.secondary {
+  background: transparent;
+  color: #4f6f8a;
+  border: 1px solid #4f6f8a;
+  margin-bottom: 12px;
+}
+
+.qr-button.secondary:hover {
+  background: #4f6f8a;
+  color: #fff;
+}
