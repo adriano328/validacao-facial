@@ -15,6 +15,7 @@ export function LoginPage() {
     handleLogin,
     isSubmitting,
     irCadastrar,
+    validaDocs,
     qrCodeData,
     setQrCodeData,
     twoFactorStep,
@@ -60,6 +61,16 @@ export function LoginPage() {
             >
               <span className="textoBotao">{isSubmitting ? "Entrando..." : "Entrar"}</span>
             </button>
+
+            <button
+              className="botao doc"
+              type="button"
+              onClick={validaDocs}
+              disabled={isSubmitting}
+            >
+              <span className="textoBotao">Docs</span>
+            </button>
+
             <button
               className="botao cadastrar"
               type="button"
@@ -68,6 +79,7 @@ export function LoginPage() {
             >
               <span className="textoBotao">Cadastrar</span>
             </button>
+
           </div>
         </div>
       </div>

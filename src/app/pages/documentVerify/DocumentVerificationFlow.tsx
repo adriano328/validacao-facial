@@ -3,9 +3,11 @@ import { DocumentCaptureStep } from "./steps/DocumentCaptureStept";
 import { DocumentTypeStep } from "./steps/DocumentTypeStep";
 import { ReviewSubmitStep } from "./steps/ReviewSubmitStep";
 
-export function DocumentVerificationFlow(props: { livenessSessionId: string }) {
-  const vm = useDocumentVerification(props.livenessSessionId);
+// export function DocumentVerificationFlow(props: { livenessSessionId: string }) {
+  // const vm = useDocumentVerification(props.livenessSessionId);
 
+export function DocumentVerificationFlow() {
+  const vm = useDocumentVerification('123');
   return (
     <div style={{ maxWidth: 720 }}>
       {vm.error ? (

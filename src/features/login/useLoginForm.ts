@@ -86,6 +86,10 @@ export function useLoginForm() {
     navigate("/cadastro");
   }
 
+  function validaDocs() {
+    navigate("/docs");
+  }
+
   /* ========================
    * 2FA FLOW
    * ======================== */
@@ -188,6 +192,7 @@ export function useLoginForm() {
     reset,
     handleLogin,
     irCadastrar,
+    validaDocs,
     setTwoFactorStep,
     qrCodeData,
     setQrCodeData,
