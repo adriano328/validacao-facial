@@ -1,6 +1,6 @@
-import React, { useId } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import type { DocumentSide } from "../../../../features/documentoVerification/types";
-
+import { CameraCapture } from "./CameraCapture";
 
 type Props = {
   side: DocumentSide;
@@ -9,68 +9,75 @@ type Props = {
   onPick: (file: File) => void;
 };
 
-export function DocumentImagePicker({ side, label, disabled, onPick }: Props) {
-  const baseId = useId();
-  const cameraId = `${baseId}-${side}-camera`;
-  const fileId = `${baseId}-${side}-file`;
+function isMobile() {
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+export function DocumentImagePicker({ label, disabled, onPick }: Props) {
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const mobile = useMemo(() => isMobile(), []);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const mobileCameraInputRef = useRef<HTMLInputElement | null>(null);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) onPick(file);
-    // permite selecionar o mesmo arquivo novamente
     e.currentTarget.value = "";
+  }
+
+  function handleTakePhoto() {
+    if (disabled) return;
+
+    // Mobile: usar input com capture (abre câmera do celular)
+    if (mobile) {
+      mobileCameraInputRef.current?.click();
+      return;
+    }
+
+    // Desktop: abrir modal WebRTC
+    setCameraOpen(true);
   }
 
   return (
     <div style={{ border: "1px solid #ddd", padding: 12, borderRadius: 8 }}>
       <strong>{label}</strong>
 
-      <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
-        {/* Botão: Tirar foto (abre câmera no mobile) */}
-        <label htmlFor={cameraId} style={{ cursor: disabled ? "not-allowed" : "pointer" }}>
-          <input
-            id={cameraId}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            disabled={disabled}
-            style={{ display: "none" }}
-            onChange={handleChange}
-          />
-          <span
-            style={{
-              padding: "6px 10px",
-              border: "1px solid #ccc",
-              borderRadius: 6,
-              opacity: disabled ? 0.6 : 1,
-            }}
-          >
-            Tirar foto
-          </span>
-        </label>
+      {/* Mobile camera input */}
+      <input
+        ref={mobileCameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        disabled={disabled}
+        style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none" }}
+        onChange={handleChange}
+      />
 
-        {/* Botão: Escolher arquivo (galeria/arquivos) */}
-        <label htmlFor={fileId} style={{ cursor: disabled ? "not-allowed" : "pointer" }}>
-          <input
-            id={fileId}
-            type="file"
-            accept="image/*"
-            disabled={disabled}
-            style={{ display: "none" }}
-            onChange={handleChange}
-          />
-          <span
-            style={{
-              padding: "6px 10px",
-              border: "1px solid #ccc",
-              borderRadius: 6,
-              opacity: disabled ? 0.6 : 1,
-            }}
-          >
-            Enviar arquivo
-          </span>
-        </label>
+      {/* File picker */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        disabled={disabled}
+        style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none" }}
+        onChange={handleChange}
+      />
+
+      <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
+        <button type="button" disabled={disabled} onClick={handleTakePhoto}>
+          Tirar foto
+        </button>
+
+        <button type="button" disabled={disabled} onClick={() => fileInputRef.current?.click()}>
+          Enviar arquivo
+        </button>
       </div>
+
+      <CameraCapture
+        open={cameraOpen}
+        onClose={() => setCameraOpen(false)}
+        onCapture={onPick}
+      />
     </div>
   );
 }

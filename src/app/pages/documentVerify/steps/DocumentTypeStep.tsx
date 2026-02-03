@@ -9,10 +9,6 @@ export function DocumentTypeStep(props: { onSelect: (t: DocumentType) => void })
         <button type="button" onClick={() => props.onSelect("CNH")}>CNH</button>
         <button type="button" onClick={() => props.onSelect("RG")}>RG</button>
       </div>
-
-      <p style={{ marginTop: 12 }}>
-        Para passaporte, envie a página de dados (onde fica a MRZ).
-      </p>
     </div>
   );
 }
