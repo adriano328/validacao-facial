@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
+import type { DocumentType, DocumentSide } from "./types";
+import type { VerifyResponse } from "./types";
 import { criarPresignedUpload, uploadDocumentoS3, verificarDocumento } from "../../services/docverification";
-import type { DocumentSide, DocumentType, VerifyResponse } from "./types";
 
 type Step = "TYPE" | "CAPTURE" | "REVIEW" | "RESULT";
 
@@ -13,22 +14,20 @@ export function useDocumentVerification(livenessSessionId: string) {
   const [step, setStep] = useState<Step>("TYPE");
   const [documentType, setDocumentType] = useState<DocumentType | null>(null);
 
-  // Guardamos os arquivos localmente para preview/review
   const [files, setFiles] = useState<Partial<Record<DocumentSide, File>>>({});
-  // Guardamos as chaves do S3 após upload
   const [s3Keys, setS3Keys] = useState<Partial<Record<DocumentSide, string>>>({});
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<VerifyResponse | null>(null);
 
-  const requiredSides = useMemo(() => {
-    if (!documentType) return [];
-    return requiredSidesByType[documentType];
+  const requiredSides = useMemo<DocumentSide[]>(() => {
+    return documentType ? requiredSidesByType[documentType] : [];
   }, [documentType]);
 
-  const canGoCapture = !!documentType;
-  const canGoReview = requiredSides.every((s) => !!files[s]);
+  const canGoReview = useMemo(() => {
+    return requiredSides.every((side) => Boolean(files[side]));
+  }, [requiredSides, files]);
 
   const selectType = useCallback((type: DocumentType) => {
     setDocumentType(type);
@@ -45,24 +44,27 @@ export function useDocumentVerification(livenessSessionId: string) {
   }, []);
 
   const goToReview = useCallback(() => {
-    if (!canGoReview) return;
-    setStep("REVIEW");
+    if (canGoReview) setStep("REVIEW");
   }, [canGoReview]);
 
   const goBack = useCallback(() => {
     setError(null);
+
     if (step === "CAPTURE") setStep("TYPE");
     else if (step === "REVIEW") setStep("CAPTURE");
     else if (step === "RESULT") setStep("REVIEW");
   }, [step]);
 
   const submit = useCallback(async () => {
-    if (!documentType) return;
+    if (!documentType) {
+      setError("Tipo de documento não selecionado.");
+      return;
+    }
     if (!livenessSessionId) {
       setError("livenessSessionId não informado.");
       return;
     }
-    if (!requiredSides.every((s) => files[s])) {
+    if (!requiredSides.every((side) => files[side])) {
       setError("Envie todas as imagens necessárias.");
       return;
     }
@@ -70,30 +72,30 @@ export function useDocumentVerification(livenessSessionId: string) {
     setLoading(true);
     setError(null);
 
+    const controller = new AbortController();
+
     try {
-      // 1) Para cada lado requerido, cria presign e faz upload
       const nextS3Keys: Partial<Record<DocumentSide, string>> = {};
 
+      // 1) Presign + upload para cada lado
       for (const side of requiredSides) {
         const file = files[side]!;
-        const presign = await criarPresignedUpload({
-          documentType,
-          side,
-          mimeType: file.type,
-        });
+        const presign = await criarPresignedUpload(
+          { documentType, side, mimeType: file.type },
+          controller.signal
+        );
 
-        await uploadDocumentoS3(presign.uploadUrl, file);
+        await uploadDocumentoS3(presign.uploadUrl, file, controller.signal);
         nextS3Keys[side] = presign.s3Key;
       }
 
       setS3Keys(nextS3Keys);
 
-      // 2) Chama verificação (OCR + MRZ + face match via reference image do liveness)
-      const verify = await verificarDocumento({
-        documentType,
-        livenessSessionId,
-        s3Keys: nextS3Keys,
-      });
+      // 2) Verificação (OCR + faceMatch via liveness)
+      const verify = await verificarDocumento(
+        { documentType, livenessSessionId, s3Keys: nextS3Keys },
+        controller.signal
+      );
 
       setResult(verify);
       setStep("RESULT");
@@ -102,7 +104,7 @@ export function useDocumentVerification(livenessSessionId: string) {
     } finally {
       setLoading(false);
     }
-  }, [documentType, files, livenessSessionId, requiredSides]);
+  }, [documentType, livenessSessionId, requiredSides, files]);
 
   return {
     step,
@@ -110,18 +112,17 @@ export function useDocumentVerification(livenessSessionId: string) {
     requiredSides,
     files,
     s3Keys,
+
     loading,
     error,
     result,
 
-    // actions
     selectType,
     setSideFile,
     goToReview,
     goBack,
     submit,
 
-    canGoCapture,
     canGoReview,
   };
 }
