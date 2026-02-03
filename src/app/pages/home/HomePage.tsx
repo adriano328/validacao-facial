@@ -24,6 +24,11 @@ export function HomePage() {
               Validação Facial
             </button>
           </Link>
+          <Link to="/liveness" className="link">
+            <button className="home-button secondary" type="button">
+              Verificação de Documentos
+            </button>
+          </Link>
         </div>
       </div>
     </div>

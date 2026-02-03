@@ -1,5 +1,3 @@
-// src/app/pages/login/LoginPage.tsx
-import "../../../styles/globalStyles.css";
 import "./styles.css";
 
 import { FormField } from "../../../components/form/FormField";
@@ -30,7 +28,6 @@ export function LoginPage() {
       <div className="container">
         <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 12 }}>
           <h1 className="titulo">Entrar</h1>
-
           <FormField label="E-mail" required error={showError("email")}>
             <input
               className="campo"
@@ -43,7 +40,6 @@ export function LoginPage() {
               autoComplete="email"
             />
           </FormField>
-
           <FormField label="Senha" required error={showError("password")}>
             <input
               className="campo"
@@ -55,7 +51,6 @@ export function LoginPage() {
               autoComplete="current-password"
             />
           </FormField>
-
           <div className="containerBotao">
             <button
               className="botao entrar"
@@ -65,7 +60,6 @@ export function LoginPage() {
             >
               <span className="textoBotao">{isSubmitting ? "Entrando..." : "Entrar"}</span>
             </button>
-
             <button
               className="botao cadastrar"
               type="button"
@@ -78,20 +72,17 @@ export function LoginPage() {
         </div>
       </div>
 
-      {/* ✅ Modal QR */}
       {qrCodeData && (
         <QrCodeModal
           open={twoFactorStep === "qr"}
           qrCodeUrl={qrCodeData.qrCodeUrl}
           secret={qrCodeData.secret}
           onContinue={() => {
-            // fecha QR e abre confirm
             setTwoFactorStep("confirm");
           }}
         />
       )}
 
-      {/* ✅ Modal Confirm */}
       <TwoFactorConfirm
         open={twoFactorStep === "confirm"}
         onBack={() => {
