@@ -11,12 +11,11 @@ type Props = {
 type FrameSpec = {
   title: string;
   subtitle: string;
-  aspect: number;      // largura / altura
-  widthRatio: number;  // 0..1
+  aspect: number; // largura / altura
+  widthRatio: number; // 0..1
 };
 
 function getFrameSpec(type: DocumentType): FrameSpec {
-  // Ajuste fino se quiser: CNH costuma ficar bom em 1.58~1.66
   const base = { aspect: 1.58, widthRatio: 0.86 };
 
   if (type === "CNH") {
@@ -36,6 +35,36 @@ function getFrameSpec(type: DocumentType): FrameSpec {
 
 function isMobile() {
   return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+// Tenta aplicar melhorias no track (quando suportado)
+async function enhanceTrack(track: MediaStreamTrack) {
+  try {
+    // Alguns browsers expõem capabilities; outros não.
+    const anyTrack = track as any;
+    const caps = typeof anyTrack.getCapabilities === "function" ? anyTrack.getCapabilities() : null;
+
+    const advanced: any[] = [];
+
+    // Preferir foco contínuo se suportado (Android/Chrome geralmente)
+    if (caps?.focusMode?.includes?.("continuous")) {
+      advanced.push({ focusMode: "continuous" });
+    }
+
+    // Preferir exposição contínua se suportado
+    if (caps?.exposureMode?.includes?.("continuous")) {
+      advanced.push({ exposureMode: "continuous" });
+    }
+
+    // Torch só se você quiser ligar lanterna; aqui só deixo preparado (não liga sozinho)
+    // if (caps?.torch) advanced.push({ torch: true });
+
+    if (advanced.length) {
+      await anyTrack.applyConstraints({ advanced });
+    }
+  } catch {
+    // ignore (não suportado)
+  }
 }
 
 export function DocumentCameraCapture({ open, documentType, onClose, onCapture }: Props) {
@@ -58,11 +87,13 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
         setError(null);
         setReady(false);
 
+        // 🎯 Constraints melhores: tenta alta resolução
         const constraints: MediaStreamConstraints = {
           video: {
             ...(isMobile() ? { facingMode: { ideal: "environment" } } : {}),
-            width: { ideal: 1920 },
-            height: { ideal: 1080 },
+            // tenta 4K/2K; se não suportar, cai para o máximo possível
+            width: { ideal: 4096 },
+            height: { ideal: 2160 },
           },
           audio: false,
         };
@@ -76,8 +107,23 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
 
         streamRef.current = stream;
 
+        // melhora autofocus/exposure quando possível
+        const track = stream.getVideoTracks()[0];
+        if (track) enhanceTrack(track);
+
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
+
+          // ✅ garante que metadata carregou (videoWidth/videoHeight corretos)
+          await new Promise<void>((resolve) => {
+            const v = videoRef.current!;
+            const onLoaded = () => {
+              v.removeEventListener("loadedmetadata", onLoaded);
+              resolve();
+            };
+            v.addEventListener("loadedmetadata", onLoaded);
+          });
+
           await videoRef.current.play();
           setReady(true);
         }
@@ -102,41 +148,59 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
     const frame = frameRef.current;
     if (!video || !frame) return;
 
-    // Medidas reais do vídeo
     const vw = video.videoWidth || 1280;
     const vh = video.videoHeight || 720;
 
-    // Retângulos em CSS px (tela)
     const videoRect = video.getBoundingClientRect();
     const frameRect = frame.getBoundingClientRect();
 
-    // Escala: tela -> pixels do vídeo
     const scaleX = vw / videoRect.width;
     const scaleY = vh / videoRect.height;
 
-    // Origem do frame relativo ao vídeo
     const sx = Math.max(0, Math.round((frameRect.left - videoRect.left) * scaleX));
     const sy = Math.max(0, Math.round((frameRect.top - videoRect.top) * scaleY));
 
-    // Tamanho do frame em pixels do vídeo
     const sw = Math.min(vw - sx, Math.round(frameRect.width * scaleX));
     const sh = Math.min(vh - sy, Math.round(frameRect.height * scaleY));
 
+    // 🔥 Upscale leve melhora leitura de texto
+    const UPSCALE = 1.25;
+
     const canvas = document.createElement("canvas");
-    canvas.width = sw;
-    canvas.height = sh;
+    canvas.width = Math.round(sw * UPSCALE);
+    canvas.height = Math.round(sh * UPSCALE);
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    ctx.drawImage(video, sx, sy, sw, sh, 0, 0, sw, sh);
+    // 🔥 melhora nitidez
+    ctx.imageSmoothingEnabled = true;
+    (ctx as any).imageSmoothingQuality = "high";
 
-    canvas.toBlob((blob) => {
-      if (!blob) return;
-      const file = new File([blob], `${documentType}-${Date.now()}.jpg`, { type: "image/jpeg" });
-      onCapture(file);
-      onClose();
-    }, "image/jpeg", 0.92);
+    ctx.drawImage(
+      video,
+      sx,
+      sy,
+      sw,
+      sh,
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) return;
+        const file = new File([blob], `${documentType}-${Date.now()}.jpg`, {
+          type: "image/jpeg",
+        });
+        onCapture(file);
+        onClose();
+      },
+      "image/jpeg",
+      0.95 // 🔥 melhor qualidade para documento
+    );
   }
 
   return (
@@ -154,7 +218,6 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
             <div style={styles.videoWrap}>
               <video ref={videoRef} playsInline muted style={styles.video} />
 
-              {/* Moldura (retângulo exato do recorte) */}
               <div
                 ref={frameRef}
                 style={{
@@ -164,7 +227,6 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
                 }}
               />
 
-              {/* Máscara escura baseada no MESMO retângulo */}
               <div
                 style={{
                   ...styles.mask,
@@ -180,7 +242,12 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
           <button type="button" onClick={onClose} style={btn(false)}>
             Cancelar
           </button>
-          <button type="button" onClick={capture} disabled={!ready || !!error} style={btn(true, !ready || !!error)}>
+          <button
+            type="button"
+            onClick={capture}
+            disabled={!ready || !!error}
+            style={btn(true, !ready || !!error)}
+          >
             Capturar
           </button>
         </div>
@@ -231,7 +298,7 @@ const styles: Record<string, React.CSSProperties> = {
     inset: 0,
     width: "100%",
     height: "100%",
-    objectFit: "cover", // ESSENCIAL: evita desalinhamento
+    objectFit: "cover",
     background: "#000",
   },
   frame: {

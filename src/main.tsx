@@ -9,12 +9,12 @@ import "./styles/swal.css";
 import { PessoaProvider } from "./context/PessoaContext";
 
 import { I18n } from "aws-amplify/utils";
-import "./i18n/livenessPtBR"; // ✅ troque para este arquivo
+import "./i18n/livenessPtBR"; 
 import { TwoFactorProvider } from "./context/TwoFactorContext";
 import { AuthTokenProvider } from "./context/AuthTokenContext";
-import App from "./app";
+import App from "./App";
 
-I18n.setLanguage("pt"); // ✅ troque pt-BR por pt
+I18n.setLanguage("pt"); 
 
 Amplify.configure({
   Auth: {

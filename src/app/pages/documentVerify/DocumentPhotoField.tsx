@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { DocumentType } from "../../../features/documentoVerification/types";
 import { DocumentCameraCapture } from "./steps/DocumentCameraCapture";
 
