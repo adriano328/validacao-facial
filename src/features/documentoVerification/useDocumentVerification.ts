@@ -1,7 +1,10 @@
 import { useCallback, useMemo, useState } from "react";
-import type { DocumentType, DocumentSide } from "./types";
-import type { VerifyResponse } from "./types";
-import { criarPresignedUpload, uploadDocumentoS3, verificarDocumento } from "../../services/docverification";
+import type { DocumentType, DocumentSide, VerifyResponse } from "./types";
+import {
+  criarPresignedUpload,
+  uploadDocumentoS3,
+  verificarDocumento,
+} from "../../services/docverification";
 
 type Step = "TYPE" | "CAPTURE" | "REVIEW" | "RESULT";
 
@@ -15,24 +18,23 @@ export function useDocumentVerification(livenessSessionId: string) {
   const [documentType, setDocumentType] = useState<DocumentType | null>(null);
 
   const [files, setFiles] = useState<Partial<Record<DocumentSide, File>>>({});
-  const [s3Keys, setS3Keys] = useState<Partial<Record<DocumentSide, string>>>({});
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<VerifyResponse | null>(null);
 
-  const requiredSides = useMemo<DocumentSide[]>(() => {
-    return documentType ? requiredSidesByType[documentType] : [];
-  }, [documentType]);
+  const requiredSides = useMemo(
+    () => (documentType ? requiredSidesByType[documentType] : []),
+    [documentType]
+  );
 
-  const canGoReview = useMemo(() => {
-    return requiredSides.every((side) => Boolean(files[side]));
-  }, [requiredSides, files]);
+  const canGoReview = useMemo(
+    () => requiredSides.every((s) => !!files[s]),
+    [requiredSides, files]
+  );
 
   const selectType = useCallback((type: DocumentType) => {
     setDocumentType(type);
     setFiles({});
-    setS3Keys({});
     setResult(null);
     setError(null);
     setStep("CAPTURE");
@@ -40,89 +42,68 @@ export function useDocumentVerification(livenessSessionId: string) {
 
   const setSideFile = useCallback((side: DocumentSide, file: File) => {
     setFiles((prev) => ({ ...prev, [side]: file }));
-    setError(null);
   }, []);
 
-  const goToReview = useCallback(() => {
-    if (canGoReview) setStep("REVIEW");
-  }, [canGoReview]);
-
   const goBack = useCallback(() => {
-    setError(null);
-
     if (step === "CAPTURE") setStep("TYPE");
     else if (step === "REVIEW") setStep("CAPTURE");
     else if (step === "RESULT") setStep("REVIEW");
   }, [step]);
 
+  const goToReview = useCallback(() => {
+    if (canGoReview) setStep("REVIEW");
+  }, [canGoReview]);
+
   const submit = useCallback(async () => {
-    if (!documentType) {
-      setError("Tipo de documento não selecionado.");
-      return;
-    }
-    if (!livenessSessionId) {
-      setError("livenessSessionId não informado.");
-      return;
-    }
-    if (!requiredSides.every((side) => files[side])) {
-      setError("Envie todas as imagens necessárias.");
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    const controller = new AbortController();
+    if (!documentType) return;
 
     try {
-      const nextS3Keys: Partial<Record<DocumentSide, string>> = {};
+      setLoading(true);
+      setError(null);
 
-      // 1) Presign + upload para cada lado
+      const s3Keys: Partial<Record<DocumentSide, string>> = {};
+
       for (const side of requiredSides) {
         const file = files[side]!;
-        const presign = await criarPresignedUpload(
-          { documentType, side, mimeType: file.type },
-          controller.signal
-        );
+        const presign = await criarPresignedUpload({
+          documentType,
+          side,
+          mimeType: file.type,
+        });
 
-        await uploadDocumentoS3(presign.uploadUrl, file, controller.signal);
-        nextS3Keys[side] = presign.s3Key;
+        await uploadDocumentoS3(presign.uploadUrl, file);
+        s3Keys[side] = presign.s3Key;
       }
 
-      setS3Keys(nextS3Keys);
+      const res = await verificarDocumento({
+        documentType,
+        livenessSessionId,
+        s3Keys,
+      });
 
-      // 2) Verificação (OCR + faceMatch via liveness)
-      const verify = await verificarDocumento(
-        { documentType, livenessSessionId, s3Keys: nextS3Keys },
-        controller.signal
-      );
-
-      setResult(verify);
+      setResult(res);
       setStep("RESULT");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Erro desconhecido.");
+      setError(e instanceof Error ? e.message : "Erro inesperado");
     } finally {
       setLoading(false);
     }
-  }, [documentType, livenessSessionId, requiredSides, files]);
+  }, [documentType, files, requiredSides, livenessSessionId]);
 
   return {
     step,
     documentType,
     requiredSides,
     files,
-    s3Keys,
-
     loading,
     error,
     result,
 
     selectType,
     setSideFile,
-    goToReview,
     goBack,
+    goToReview,
     submit,
-
     canGoReview,
   };
 }

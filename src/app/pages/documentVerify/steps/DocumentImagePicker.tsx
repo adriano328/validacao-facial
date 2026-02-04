@@ -1,81 +1,51 @@
-import React, { useMemo, useRef, useState } from "react";
-import type { DocumentSide } from "../../../../features/documentoVerification/types";
-import { CameraCapture } from "./CameraCapture";
+import React, { useRef, useState } from "react";
+import type { DocumentType, DocumentSide } from "../../../../features/documentoVerification/types";
+import { DocumentCameraCapture } from "./DocumentCameraCapture";
 
 type Props = {
   side: DocumentSide;
   label: string;
+  documentType: DocumentType;
   disabled?: boolean;
   onPick: (file: File) => void;
 };
 
-function isMobile() {
-  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-}
-
-export function DocumentImagePicker({ label, disabled, onPick }: Props) {
-  const [cameraOpen, setCameraOpen] = useState(false);
-  const mobile = useMemo(() => isMobile(), []);
+export function DocumentImagePicker({ label, documentType, disabled, onPick }: Props) {
+  const [openCam, setOpenCam] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const mobileCameraInputRef = useRef<HTMLInputElement | null>(null);
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) onPick(file);
     e.currentTarget.value = "";
-  }
-
-  function handleTakePhoto() {
-    if (disabled) return;
-
-    // Mobile: usar input com capture (abre câmera do celular)
-    if (mobile) {
-      mobileCameraInputRef.current?.click();
-      return;
-    }
-
-    // Desktop: abrir modal WebRTC
-    setCameraOpen(true);
   }
 
   return (
     <div style={{ border: "1px solid #ddd", padding: 12, borderRadius: 8 }}>
       <strong>{label}</strong>
 
-      {/* Mobile camera input */}
-      <input
-        ref={mobileCameraInputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        disabled={disabled}
-        style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none" }}
-        onChange={handleChange}
-      />
-
-      {/* File picker */}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
         disabled={disabled}
         style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none" }}
-        onChange={handleChange}
+        onChange={handleFile}
       />
 
-      <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
-        <button type="button" disabled={disabled} onClick={handleTakePhoto}>
+      <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+        <button type="button" disabled={disabled} onClick={() => setOpenCam(true)}>
           Tirar foto
         </button>
-
         <button type="button" disabled={disabled} onClick={() => fileInputRef.current?.click()}>
           Enviar arquivo
         </button>
       </div>
 
-      <CameraCapture
-        open={cameraOpen}
-        onClose={() => setCameraOpen(false)}
+      <DocumentCameraCapture
+        open={openCam}
+        documentType={documentType}
+        onClose={() => setOpenCam(false)}
         onCapture={onPick}
       />
     </div>

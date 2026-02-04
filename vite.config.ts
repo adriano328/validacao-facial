@@ -1,10 +1,14 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import fs from "node:fs";
 
 export default defineConfig({
-    plugins: [react()],
-    server: {
-        host: true,
-        allowedHosts: true
-    }
-})
+  server: {
+    host: true,
+    port: 5173,
+    strictPort: true,
+    https: {
+      key: fs.readFileSync("./192.168.18.6+2-key.pem"),
+      cert: fs.readFileSync("./192.168.18.6+2.pem"),
+    },
+  },
+});

@@ -1,12 +1,11 @@
 import type { DocumentSide, DocumentType } from "../../../../features/documentoVerification/types";
-
 import { DocumentImagePicker } from "./DocumentImagePicker";
 
-function sideTitle(side: DocumentSide) {
-  return side === "front" ? "Frente" : "Verso"; 
+function title(side: DocumentSide) {
+  return side === "front" ? "Frente" : "Verso";
 }
 
-type Props = {
+export function DocumentCaptureStep(props: {
   documentType: DocumentType;
   requiredSides: DocumentSide[];
   files: Partial<Record<DocumentSide, File>>;
@@ -14,47 +13,23 @@ type Props = {
   onBack: () => void;
   onNext: () => void;
   canNext: boolean;
-};
-
-export function DocumentCaptureStep({
-  documentType,
-  requiredSides,
-  files,
-  onPickFile,
-  onBack,
-  onNext,
-  canNext,
-}: Props) {
+}) {
   return (
     <div>
-      <h2>Envio do documento ({documentType})</h2>
+      <h2>Captura do documento</h2>
 
-      <div style={{ display: "grid", gap: 16 }}>
-        {requiredSides.map((side) => (
-          <div key={side}>
-            <DocumentImagePicker
-              side={side}
-              label={sideTitle(side)}
-              onPick={(file) => onPickFile(side, file)}
-            />
+      {props.requiredSides.map((side) => (
+        <DocumentImagePicker
+          key={side}
+          side={side}
+          label={title(side)}
+          documentType={props.documentType}
+          onPick={(file) => props.onPickFile(side, file)}
+        />
+      ))}
 
-            {files[side] ? (
-              <p style={{ marginTop: 8, color: "green" }}>Imagem adicionada</p>
-            ) : (
-              <p style={{ marginTop: 8, color: "#666" }}>Nenhuma imagem enviada</p>
-            )}
-          </div>
-        ))}
-      </div>
-
-      <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
-        <button type="button" onClick={onBack}>
-          Voltar
-        </button>
-        <button type="button" onClick={onNext} disabled={!canNext}>
-          Revisar
-        </button>
-      </div>
+      <button onClick={props.onBack}>Voltar</button>
+      <button disabled={!props.canNext} onClick={props.onNext}>Revisar</button>
     </div>
   );
 }

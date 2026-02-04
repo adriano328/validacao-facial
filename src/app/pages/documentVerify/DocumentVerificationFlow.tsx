@@ -1,5 +1,5 @@
+import { DocumentTypeStep } from "../../../features/documentoVerification/DocumentTypeStep";
 import { useDocumentVerification } from "../../../features/documentoVerification/useDocumentVerification";
-import { DocumentTypeStep } from "./steps/DocumentTypeStep";
 import { DocumentCaptureStep } from "./steps/DocumentCaptureStep";
 import { ReviewSubmitStep } from "./steps/ReviewSubmitStep";
 
