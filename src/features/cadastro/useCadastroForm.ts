@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { handleAxiosError } from "../../utils/messageErro";
 import { alerts } from "../../lib/swal";
 import { usePessoa } from "../../context/PessoaContext";
+import { stripDataUrl } from "../../utils/formataBase64";
 
 type TouchedState = Partial<Record<keyof Pessoa, boolean>>;
 
@@ -21,6 +22,7 @@ export function useCadastroForm() {
   const [touched, setTouched] = useState<TouchedState>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const navigate = useNavigate();
   const { setPessoaId } = usePessoa();
 
@@ -105,8 +107,11 @@ export function useCadastroForm() {
       email: true,
       senha: true,
       senhaConfirmacao: true,
+      fotoDocumento: true, // ✅ agora obrigatório no fluxo
     }));
   };
+
+ 
 
   async function handleCadastrar() {
     setSubmitAttempted(true);
@@ -125,13 +130,14 @@ export function useCadastroForm() {
     const payload: Pessoa = {
       ...formCadastro,
       dataNascimento: brDateToISO(formCadastro.dataNascimento) ?? "",
+      fotoDocumento: stripDataUrl(formCadastro.fotoDocumento), // ✅ aqui
     };
 
     setIsSubmitting(true);
     try {
       const pessoaId = await salvarPessoa(payload, controller.signal);
       setPessoaId(pessoaId);
-      navigate("/liveness");
+      navigate("/login");
     } catch (err) {
       const message = handleAxiosError(err);
       alerts.error({ text: message });
@@ -146,6 +152,7 @@ export function useCadastroForm() {
       !!formCadastro.email &&
       !!formCadastro.senha &&
       !!formCadastro.senhaConfirmacao &&
+      !!formCadastro.fotoDocumento && // ✅ exige documento
       !isSubmitting
     );
   }, [
@@ -153,6 +160,7 @@ export function useCadastroForm() {
     formCadastro.email,
     formCadastro.senha,
     formCadastro.senhaConfirmacao,
+    formCadastro.fotoDocumento,
     isSubmitting,
   ]);
 

@@ -1,35 +1,148 @@
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { DocumentTypeStep } from "../../../features/documentoVerification/DocumentTypeStep";
 import { useDocumentVerification } from "../../../features/documentoVerification/useDocumentVerification";
 import { DocumentCaptureStep } from "./steps/DocumentCaptureStep";
 import { ReviewSubmitStep } from "./steps/ReviewSubmitStep";
 
+import { alerts } from "../../../lib/swal";
+import type { DocumentSide } from "../../../features/documentoVerification/types";
+
 type Props = {
   livenessSessionId: string;
 };
 
+type Phase = "idle" | "running" | "success";
+
 export function DocumentVerificationFlow({ livenessSessionId }: Props) {
-  const vm = useDocumentVerification('1231');
+  const navigate = useNavigate();
+  const vm = useDocumentVerification(livenessSessionId);
+
+  const [phase, setPhase] = useState<Phase>("idle");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handlingSubmitRef = useRef(false);
+  const mountedRef = useRef(true);
+  const [flowKey, setFlowKey] = useState(0);
+
+  // ✅ agora é só frente
+  const requiredSides = useMemo(() => ["front"] as DocumentSide[], []);
+
+  function resetFlowUIOnly() {
+    setFlowKey((k) => k + 1);
+  }
+
+  function start() {
+    handlingSubmitRef.current = false;
+    setError(null);
+    setPhase("running");
+    resetFlowUIOnly();
+  }
+
+  function stopWithError(message: string) {
+    handlingSubmitRef.current = false;
+    setLoading(false);
+    setError(message);
+    setPhase("idle");
+  }
+
+  function handleSuccess() {
+    setError(null);
+    setLoading(false);
+    setPhase("success");
+    alerts.success({ text: "Documento validado com sucesso!" });
+    navigate("/login");
+  }
+
+  useEffect(() => {
+    mountedRef.current = true;
+    // se quiser iniciar automaticamente igual ao liveness, descomente:
+    // start();
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  async function submitWithGuards() {
+    if (handlingSubmitRef.current) return;
+    handlingSubmitRef.current = true;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      await vm.submit();
+
+      if (!mountedRef.current) return;
+
+      // Se o hook seta vm.error
+      if (vm.error) {
+        alerts.warn({ text: vm.error });
+        stopWithError(vm.error);
+        return;
+      }
+
+      // ✅ Ajuste de status: use apenas o domínio do teu VerifyStatus
+      if (vm.result?.status === "APPROVED") {
+        handleSuccess();
+        return;
+      }
+
+      if (vm.result?.status === "REJECTED") {
+        const msg =
+          vm.result?.reasons?.length
+            ? `Não foi possível validar: ${vm.result.reasons.join(", ")}`
+            : "Não foi possível validar o documento. Tente novamente.";
+
+        alerts.warn({ text: msg });
+        stopWithError(msg);
+        return;
+      }
+
+      // Qualquer outro status (PENDING/PROCESSING/etc)
+      alerts.warn({ text: "Não foi possível concluir a validação. Tente novamente." });
+      stopWithError("Não foi possível concluir a validação. Tente novamente.");
+    } catch (err: unknown) {
+      console.error("Erro ao enviar documento:", err);
+      if (!mountedRef.current) return;
+
+      const msg =
+        err instanceof Error ? err.message : "Falha ao validar o documento. Tente novamente.";
+
+      alerts.warn({ text: msg });
+      stopWithError(msg);
+    } finally {
+      if (mountedRef.current) {
+        setLoading(false);
+        handlingSubmitRef.current = false;
+      }
+    }
+  }
+
+  if (phase === "idle") {
+    return (
+      <div style={{ maxWidth: 520, margin: "40px auto", textAlign: "center" }}>
+        <h2>Validação do Documento</h2>
+
+        {error ? <p style={{ marginTop: 12 }}>{error}</p> : null}
+
+        <button onClick={start} disabled={loading} style={{ marginTop: 12 }}>
+          {loading ? "Iniciando..." : "Iniciar validação do documento"}
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ maxWidth: 720 }}>
+    <div key={flowKey} style={{ maxWidth: 720 }}>
       <div style={{ marginBottom: 12, padding: 10, background: "#f6f6f6", borderRadius: 8 }}>
         <div><strong>step:</strong> {vm.step}</div>
         <div><strong>documentType:</strong> {vm.documentType ?? "(null)"}</div>
+        <div><strong>livenessSessionId:</strong> {livenessSessionId}</div>
+        <div><strong>lado:</strong> frente</div>
       </div>
-
-      {vm.error ? (
-        <div
-          style={{
-            background: "#ffe6e6",
-            border: "1px solid #ffb3b3",
-            padding: 12,
-            borderRadius: 8,
-            marginBottom: 12,
-          }}
-        >
-          {vm.error}
-        </div>
-      ) : null}
 
       {vm.step === "TYPE" ? (
         <DocumentTypeStep onSelect={vm.selectType} />
@@ -38,7 +151,7 @@ export function DocumentVerificationFlow({ livenessSessionId }: Props) {
       {vm.step === "CAPTURE" && vm.documentType ? (
         <DocumentCaptureStep
           documentType={vm.documentType}
-          requiredSides={vm.requiredSides}
+          requiredSides={requiredSides}           // ✅ só frente
           files={vm.files}
           onPickFile={vm.setSideFile}
           onBack={vm.goBack}
@@ -50,11 +163,11 @@ export function DocumentVerificationFlow({ livenessSessionId }: Props) {
       {vm.step === "REVIEW" && vm.documentType ? (
         <ReviewSubmitStep
           documentType={vm.documentType}
-          requiredSides={vm.requiredSides}
+          requiredSides={requiredSides}           // ✅ só frente
           files={vm.files}
-          loading={vm.loading}
+          loading={loading || vm.loading}
           onBack={vm.goBack}
-          onSubmit={vm.submit}
+          onSubmit={submitWithGuards}             // ✅ estrutura liveness
         />
       ) : null}
 
@@ -62,15 +175,7 @@ export function DocumentVerificationFlow({ livenessSessionId }: Props) {
         <div>
           <h2>Resultado</h2>
 
-          <p>
-            <strong>Status:</strong> {vm.result.status}
-          </p>
-
-          {vm.result.similarity != null ? (
-            <p>
-              <strong>Similaridade (doc↔selfie):</strong> {vm.result.similarity}
-            </p>
-          ) : null}
+          <p><strong>Status:</strong> {vm.result.status}</p>
 
           {vm.result.reasons?.length ? (
             <>
@@ -99,13 +204,20 @@ export function DocumentVerificationFlow({ livenessSessionId }: Props) {
             </>
           ) : null}
 
-          <button type="button" onClick={vm.goBack} style={{ marginTop: 12 }}>
+          <button
+            type="button"
+            onClick={() => {
+              setError(null);
+              setPhase("idle");
+            }}
+            style={{ marginTop: 12 }}
+          >
             Voltar
           </button>
         </div>
       ) : null}
 
-      {/* Fallback para nunca ficar em branco */}
+      {/* Fallback */}
       {vm.step !== "TYPE" &&
       vm.step !== "CAPTURE" &&
       vm.step !== "REVIEW" &&

@@ -67,6 +67,9 @@ export function validateCadastro(data: CadastroForm): CadastroErrors {
   else if (data.senhaConfirmacao !== data.senha)
     errors.senhaConfirmacao = "Senhas não conferem";
 
+  // ✅ ADICIONAR: fotoDocumento obrigatório (base64 string)
+  if (isEmpty(data.fotoDocumento)) errors.fotoDocumento = "Campo obrigatório";
+
   return errors;
 }
 

@@ -5,6 +5,7 @@ import { DropdownField } from "../../../components/dropdown/DropdownField";
 import { MUNICIPIOS_MT } from "../../../data/municipiosMt";
 import { maskDateBR, maskPhoneBR } from "../../../utils/masks";
 import "./styles.css"
+import { DocumentPhotoField } from "../documentVerify/DocumentPhotoField";
 
 export function CadastroPage() {
   const { formCadastro, setFormCadastro, touchField, showError, handleCadastrar, isSubmitting } =
@@ -182,6 +183,13 @@ export function CadastroPage() {
             placeholder="••••••••"
           />
         </FormField>
+        <DocumentPhotoField
+          documentType="CNH"
+          value={formCadastro.fotoDocumento}
+          onChange={(base64) => setFormCadastro("fotoDocumento", base64)}
+          required
+          error={showError("fotoDocumento")}
+        />
 
         <div className="containerBotao">
           <button className="botao" type="button" onClick={handleCadastrar} disabled={isSubmitting}>

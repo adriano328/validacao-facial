@@ -15,6 +15,7 @@ export type Pessoa = {
   email: string;
   senha: string;
   senhaConfirmacao: string;
+  fotoDocumento: string
 };
 
 export const initialCadastroForm: Pessoa = {
@@ -28,6 +29,7 @@ export const initialCadastroForm: Pessoa = {
   municipioResidencia: "",
   municipioCongregacao: "",
   setorCongregacao: "",
+  fotoDocumento: "",
   linkFoto: "",
   atividadeProfissional: "",
   cargoEclesiastico: "",
