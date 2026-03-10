@@ -22,3 +22,12 @@ export function maskPhoneBR(value: string): string {
   const p2 = d.slice(7, 11);
   return [ddd ? `(${ddd})` : "", p1, p2 ? `-${p2}` : ""].join(" ").trim();
 }
+
+
+export function maskCPF(value: string): string {
+  return onlyDigits(value)
+    .slice(0, 11)
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+}

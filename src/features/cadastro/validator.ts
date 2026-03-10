@@ -1,6 +1,6 @@
-import type { Pessoa } from "./types";
+import { isValidCPF } from "../../utils/cpfValidator";
+import type { CadastroForm } from "./types";
 
-export type CadastroForm = Pessoa & { senhaConfirmacao: string };
 export type CadastroErrors = Partial<Record<keyof CadastroForm, string>>;
 
 const isEmpty = (v: unknown) =>
@@ -16,10 +16,12 @@ function isValidEmail(email: string) {
 
 function isValidDateBR(value: string) {
   if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) return false;
+
   const [dd, mm, yyyy] = value.split("/").map(Number);
   if (!dd || !mm || !yyyy) return false;
 
   const d = new Date(yyyy, mm - 1, dd);
+
   return (
     d.getFullYear() === yyyy &&
     d.getMonth() === mm - 1 &&
@@ -30,45 +32,57 @@ function isValidDateBR(value: string) {
 export function validateCadastro(data: CadastroForm): CadastroErrors {
   const errors: CadastroErrors = {};
 
-  if (isEmpty(data.nome)) errors.nome = "Campo obrigatório";
+  if (isEmpty(data.nome)) {
+    errors.nome = "Campo obrigatório";
+  }
 
-  if (isEmpty(data.dataNascimento)) errors.dataNascimento = "Campo obrigatório";
-  else if (typeof data.dataNascimento === "string" && !isValidDateBR(data.dataNascimento))
-    errors.dataNascimento = "Data inválida";
+  if (isEmpty(data.cpf)) {
+    errors.cpf = "Campo obrigatório";
+  } else if (!isValidCPF(data.cpf)) {
+    errors.cpf = "CPF inválido";
+  }
 
-  if (isEmpty(data.telefone)) errors.telefone = "Campo obrigatório";
-  else if (typeof data.telefone === "string" && onlyDigits(data.telefone).length < 10)
+  if (isEmpty(data.telefone)) {
+    errors.telefone = "Campo obrigatório";
+  } else if (onlyDigits(data.telefone).length < 10) {
     errors.telefone = "Telefone inválido";
+  }
 
-  if (isEmpty(data.endereco)) errors.endereco = "Campo obrigatório";
-  if (isEmpty(data.bairro)) errors.bairro = "Campo obrigatório";
+  if (isEmpty(data.dataNascimento)) {
+    errors.dataNascimento = "Campo obrigatório";
+  } else if (!isValidDateBR(data.dataNascimento)) {
+    errors.dataNascimento = "Data inválida";
+  }
 
-  if (isEmpty(data.numero)) errors.numero = "Campo obrigatório";
-  else if (
-    typeof data.numero === "string" &&
-    (data.numero.trim().length === 0 || Number.isNaN(Number(data.numero)))
-  )
-    errors.numero = "Número inválido";
-
-  if (isEmpty(data.municipioResidencia)) errors.municipioResidencia = "Campo obrigatório";
-  if (isEmpty(data.municipioCongregacao)) errors.municipioCongregacao = "Campo obrigatório";
-  if (isEmpty(data.setorCongregacao)) errors.setorCongregacao = "Campo obrigatório";
-  if (isEmpty(data.atividadeProfissional)) errors.atividadeProfissional = "Campo obrigatório";
-
-  if (isEmpty(data.email)) errors.email = "Campo obrigatório";
-  else if (typeof data.email === "string" && !isValidEmail(data.email))
+  if (isEmpty(data.email)) {
+    errors.email = "Campo obrigatório";
+  } else if (!isValidEmail(data.email)) {
     errors.email = "E-mail inválido";
+  }
 
-  if (isEmpty(data.senha)) errors.senha = "Campo obrigatório";
-  else if (typeof data.senha === "string" && data.senha.length < 6)
+  if (isEmpty(data.senha)) {
+    errors.senha = "Campo obrigatório";
+  } else if (data.senha.length < 6) {
     errors.senha = "Mínimo 6 caracteres";
+  }
 
-  if (isEmpty(data.senhaConfirmacao)) errors.senhaConfirmacao = "Campo obrigatório";
-  else if (data.senhaConfirmacao !== data.senha)
-    errors.senhaConfirmacao = "Senhas não conferem";
+   if (isEmpty(data.senhaConfirmacao)) {
+    errors.senhaConfirmacao = "Campo obrigatório";
+  } else if (data.senhaConfirmacao !== data.senha) {
+    errors.senhaConfirmacao = "As senhas não conferem";
+  }
 
-  // ✅ ADICIONAR: fotoDocumento obrigatório (base64 string)
-  if (isEmpty(data.fotoDocumento)) errors.fotoDocumento = "Campo obrigatório";
+  if (data.cargo === undefined) {
+    errors.cargo = "Campo obrigatório";
+  }
+
+  if (data.campoEclesiasticoId === undefined) {
+    errors.campoEclesiasticoId = "Campo obrigatório";
+  }
+
+  if (isEmpty(data.documento)) {
+    errors.documento = "Campo obrigatório";
+  }
 
   return errors;
 }

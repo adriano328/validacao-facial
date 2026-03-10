@@ -1,5 +1,9 @@
 import { useMemo, useRef, useState, useEffect } from "react";
-import { initialCadastroForm, type Pessoa } from "./types";
+import {
+  initialCadastroForm,
+  type CadastroForm,
+  type PessoaPayload,
+} from "./types";
 import {
   validateCadastro,
   validateField,
@@ -12,12 +16,11 @@ import { useNavigate } from "react-router-dom";
 import { handleAxiosError } from "../../utils/messageErro";
 import { alerts } from "../../lib/swal";
 import { usePessoa } from "../../context/PessoaContext";
-import { stripDataUrl } from "../../utils/formataBase64";
 
-type TouchedState = Partial<Record<keyof Pessoa, boolean>>;
+type TouchedState = Partial<Record<keyof CadastroForm, boolean>>;
 
 export function useCadastroForm() {
-  const [formCadastro, setForm] = useState<Pessoa>(initialCadastroForm);
+  const [formCadastro, setForm] = useState<CadastroForm>(initialCadastroForm);
   const [errors, setErrors] = useState<CadastroErrors>({});
   const [touched, setTouched] = useState<TouchedState>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
@@ -25,7 +28,6 @@ export function useCadastroForm() {
 
   const navigate = useNavigate();
   const { setPessoaId } = usePessoa();
-
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -34,23 +36,20 @@ export function useCadastroForm() {
     };
   }, []);
 
-  const setFormCadastro = <K extends keyof Pessoa>(key: K, value: Pessoa[K]) => {
+  const setFormCadastro = <K extends keyof CadastroForm>(
+    key: K,
+    value: CadastroForm[K]
+  ) => {
     setForm((prev) => {
       const next = { ...prev, [key]: value };
 
       if (submitAttempted || touched[key]) {
         setErrors((prevErr) => {
           const nextErr = { ...prevErr };
-
           const msg = validateField(next, key);
+
           if (msg) nextErr[key] = msg;
           else delete nextErr[key];
-
-          if (key === "senha" || key === "senhaConfirmacao") {
-            const msgConfirm = validateField(next, "senhaConfirmacao");
-            if (msgConfirm) nextErr.senhaConfirmacao = msgConfirm;
-            else delete nextErr.senhaConfirmacao;
-          }
 
           return nextErr;
         });
@@ -60,26 +59,23 @@ export function useCadastroForm() {
     });
   };
 
-  const touchField = <K extends keyof Pessoa>(key: K, nextValue?: Pessoa[K]) => {
+  const touchField = <K extends keyof CadastroForm>(
+    key: K,
+    nextValue?: CadastroForm[K]
+  ) => {
     setTouched((prev) => ({ ...prev, [key]: true }));
 
     const snapshot =
       nextValue !== undefined
-        ? ({ ...formCadastro, [key]: nextValue } as Pessoa)
+        ? ({ ...formCadastro, [key]: nextValue } as CadastroForm)
         : formCadastro;
 
     setErrors((prevErr) => {
       const nextErr = { ...prevErr };
-
       const msg = validateField(snapshot, key);
+
       if (msg) nextErr[key] = msg;
       else delete nextErr[key];
-
-      if (key === "senha" || key === "senhaConfirmacao") {
-        const msgConfirm = validateField(snapshot, "senhaConfirmacao");
-        if (msgConfirm) nextErr.senhaConfirmacao = msgConfirm;
-        else delete nextErr.senhaConfirmacao;
-      }
 
       return nextErr;
     });
@@ -92,26 +88,19 @@ export function useCadastroForm() {
   };
 
   const markAllTouched = () => {
-    setTouched((prev) => ({
-      ...prev,
+    setTouched({
       nome: true,
-      dataNascimento: true,
+      cargo: true,
       telefone: true,
-      endereco: true,
-      bairro: true,
-      numero: true,
-      municipioResidencia: true,
-      municipioCongregacao: true,
-      setorCongregacao: true,
-      atividadeProfissional: true,
+      dataNascimento: true,
+      senhaConfirmacao: true,
       email: true,
       senha: true,
-      senhaConfirmacao: true,
-      fotoDocumento: true, // ✅ agora obrigatório no fluxo
-    }));
+      cpf: true,
+      campoEclesiasticoId: true,
+      documento: true,
+    });
   };
-
- 
 
   async function handleCadastrar() {
     setSubmitAttempted(true);
@@ -127,13 +116,22 @@ export function useCadastroForm() {
     const controller = new AbortController();
     abortRef.current = controller;
 
-    const payload: Pessoa = {
-      ...formCadastro,
+    const payload: PessoaPayload = {
+      nome: formCadastro.nome,
+      cargo: formCadastro.cargo!,
+      telefone: formCadastro.telefone,
       dataNascimento: brDateToISO(formCadastro.dataNascimento) ?? "",
-      fotoDocumento: stripDataUrl(formCadastro.fotoDocumento), // ✅ aqui
+      email: formCadastro.email,
+      senha: formCadastro.senha,
+      cpf: formCadastro.cpf.replace(/\D/g, ""),
+      campoEclesiastico: {
+        id: formCadastro.campoEclesiasticoId!,
+      },
+      documento: formCadastro.documento,
     };
 
     setIsSubmitting(true);
+
     try {
       const pessoaId = await salvarPessoa(payload, controller.signal);
       setPessoaId(pessoaId);
@@ -149,18 +147,28 @@ export function useCadastroForm() {
   const canSubmit = useMemo(() => {
     return (
       !!formCadastro.nome &&
+      !!formCadastro.cpf &&
+      !!formCadastro.telefone &&
+      !!formCadastro.dataNascimento &&
       !!formCadastro.email &&
       !!formCadastro.senha &&
       !!formCadastro.senhaConfirmacao &&
-      !!formCadastro.fotoDocumento && // ✅ exige documento
+      !!formCadastro.documento &&
+      formCadastro.cargo !== undefined &&
+      formCadastro.campoEclesiasticoId !== undefined &&
       !isSubmitting
     );
   }, [
     formCadastro.nome,
+    formCadastro.cpf,
+    formCadastro.telefone,
+    formCadastro.dataNascimento,
+    formCadastro.senhaConfirmacao,
     formCadastro.email,
     formCadastro.senha,
-    formCadastro.senhaConfirmacao,
-    formCadastro.fotoDocumento,
+    formCadastro.documento,
+    formCadastro.cargo,
+    formCadastro.campoEclesiasticoId,
     isSubmitting,
   ]);
 
@@ -175,7 +183,7 @@ export function useCadastroForm() {
     setIsSubmitting(false);
   };
 
-  const showError = <K extends keyof Pessoa>(key: K) =>
+  const showError = <K extends keyof CadastroForm>(key: K) =>
     submitAttempted || touched[key] ? errors[key] : undefined;
 
   return {

@@ -1,39 +1,43 @@
-export type Pessoa = {
+export type CargoUsuario = "PASTOR" | "EVANGELISTA";
+
+export type CampoEclesiasticoPayload = {
+  id: number;
+};
+
+export type PessoaPayload = {
   nome: string;
-  dataNascimento: string;
+  cargo: CargoUsuario;
   telefone: string;
-  endereco: string;
-  bairro: string;
-  numero: string;
-  complemento: string;
-  municipioResidencia: string;
-  municipioCongregacao: string;
-  setorCongregacao: string;
-  linkFoto: string;
-  atividadeProfissional: string;
-  cargoEclesiastico: string;
+  dataNascimento: string;
+  email: string;
+  senha: string;
+  cpf: string;
+  campoEclesiastico: CampoEclesiasticoPayload;
+  documento: string;
+};
+
+export type CadastroForm = {
+  nome: string;
+  cargo: CargoUsuario | undefined;
+  telefone: string;
+  dataNascimento: string;
   email: string;
   senha: string;
   senhaConfirmacao: string;
-  fotoDocumento: string
+  cpf: string;
+  campoEclesiasticoId: number | undefined;
+  documento: string;
 };
 
-export const initialCadastroForm: Pessoa = {
+export const initialCadastroForm: CadastroForm = {
   nome: "",
-  dataNascimento: "",
+  cargo: undefined,
   telefone: "",
-  endereco: "",
-  bairro: "",
-  numero: "",
-  complemento: "",
-  municipioResidencia: "",
-  municipioCongregacao: "",
-  setorCongregacao: "",
-  fotoDocumento: "",
-  linkFoto: "",
-  atividadeProfissional: "",
-  cargoEclesiastico: "",
+  dataNascimento: "",
   email: "",
   senha: "",
   senhaConfirmacao: "",
+  cpf: "",
+  campoEclesiasticoId: undefined,
+  documento: "",
 };
