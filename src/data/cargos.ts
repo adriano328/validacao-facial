@@ -4,6 +4,6 @@ export const CARGOS_ECLESIASTICOS: Array<{
   label: string;
   value: CargoUsuario;
 }> = [
-  { label: "Pastor", value: 1 },
-  { label: "Evangelista", value: 2 },
+  { label: "Pastor", value: 'PASTOR' },
+  { label: "Evangelista", value: 'EVANGELISTA' },
 ];
