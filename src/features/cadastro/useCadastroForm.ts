@@ -25,6 +25,7 @@ export function useCadastroForm() {
   const [touched, setTouched] = useState<TouchedState>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const navigate = useNavigate();
   const { setPessoaId } = usePessoa();
   const abortRef = useRef<AbortController | null>(null);
@@ -46,8 +47,10 @@ export function useCadastroForm() {
         setErrors((prevErr) => {
           const nextErr = { ...prevErr };
           const msg = validateField(next, key);
+
           if (msg) nextErr[key] = msg;
           else delete nextErr[key];
+
           return nextErr;
         });
       }
@@ -66,11 +69,14 @@ export function useCadastroForm() {
       nextValue !== undefined
         ? ({ ...formCadastro, [key]: nextValue } as CadastroForm)
         : formCadastro;
+
     setErrors((prevErr) => {
       const nextErr = { ...prevErr };
       const msg = validateField(snapshot, key);
+
       if (msg) nextErr[key] = msg;
       else delete nextErr[key];
+
       return nextErr;
     });
   };
@@ -87,11 +93,10 @@ export function useCadastroForm() {
       cargo: true,
       telefone: true,
       dataNascimento: true,
-      senhaConfirmacao: true,
       email: true,
       senha: true,
+      senhaConfirmacao: true,
       cpf: true,
-      campoEclesiasticoId: true,
       documento: true,
     });
   };
@@ -101,6 +106,10 @@ export function useCadastroForm() {
     markAllTouched();
 
     const result = validate();
+
+    console.log("formCadastro", formCadastro);
+    console.log("errors", result.errors);
+
     if (!result.ok) {
       alerts.warn({ text: "Ops! Revise os campos obrigatórios." });
       return;
@@ -119,7 +128,7 @@ export function useCadastroForm() {
       senha: formCadastro.senha,
       cpf: formCadastro.cpf.replace(/\D/g, ""),
       campoEclesiastico: {
-        id: 1!,
+        id: 1,
       },
       documento: formCadastro.documento,
     };
@@ -149,7 +158,6 @@ export function useCadastroForm() {
       !!formCadastro.senhaConfirmacao &&
       !!formCadastro.documento &&
       formCadastro.cargo !== undefined &&
-      formCadastro.campoEclesiasticoId !== undefined &&
       !isSubmitting
     );
   }, [
@@ -157,12 +165,11 @@ export function useCadastroForm() {
     formCadastro.cpf,
     formCadastro.telefone,
     formCadastro.dataNascimento,
-    formCadastro.senhaConfirmacao,
     formCadastro.email,
     formCadastro.senha,
+    formCadastro.senhaConfirmacao,
     formCadastro.documento,
     formCadastro.cargo,
-    formCadastro.campoEclesiasticoId,
     isSubmitting,
   ]);
 

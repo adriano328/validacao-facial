@@ -76,10 +76,6 @@ export function validateCadastro(data: CadastroForm): CadastroErrors {
     errors.cargo = "Campo obrigatório";
   }
 
-  if (data.campoEclesiasticoId === undefined) {
-    errors.campoEclesiasticoId = "Campo obrigatório";
-  }
-
   if (isEmpty(data.documento)) {
     errors.documento = "Campo obrigatório";
   }
