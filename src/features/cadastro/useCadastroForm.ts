@@ -25,7 +25,6 @@ export function useCadastroForm() {
   const [touched, setTouched] = useState<TouchedState>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const navigate = useNavigate();
   const { setPessoaId } = usePessoa();
   const abortRef = useRef<AbortController | null>(null);
@@ -47,10 +46,8 @@ export function useCadastroForm() {
         setErrors((prevErr) => {
           const nextErr = { ...prevErr };
           const msg = validateField(next, key);
-
           if (msg) nextErr[key] = msg;
           else delete nextErr[key];
-
           return nextErr;
         });
       }
@@ -69,14 +66,11 @@ export function useCadastroForm() {
       nextValue !== undefined
         ? ({ ...formCadastro, [key]: nextValue } as CadastroForm)
         : formCadastro;
-
     setErrors((prevErr) => {
       const nextErr = { ...prevErr };
       const msg = validateField(snapshot, key);
-
       if (msg) nextErr[key] = msg;
       else delete nextErr[key];
-
       return nextErr;
     });
   };
@@ -175,7 +169,6 @@ export function useCadastroForm() {
   const reset = () => {
     abortRef.current?.abort();
     abortRef.current = null;
-
     setForm(initialCadastroForm);
     setErrors({});
     setTouched({});
