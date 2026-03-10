@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { handleAxiosError } from "../../utils/messageErro";
 import { alerts } from "../../lib/swal";
 import { usePessoa } from "../../context/PessoaContext";
+import { stripDataUrl } from "../../utils/formataBase64";
 
 type TouchedState = Partial<Record<keyof CadastroForm, boolean>>;
 
@@ -130,7 +131,7 @@ export function useCadastroForm() {
       campoEclesiastico: {
         id: 1,
       },
-      documento: formCadastro.documento,
+      documento: stripDataUrl(formCadastro.documento),
     };
 
     setIsSubmitting(true);
