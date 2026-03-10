@@ -125,7 +125,7 @@ export function useCadastroForm() {
       senha: formCadastro.senha,
       cpf: formCadastro.cpf.replace(/\D/g, ""),
       campoEclesiastico: {
-        id: formCadastro.campoEclesiasticoId!,
+        id: 1!,
       },
       documento: formCadastro.documento,
     };
