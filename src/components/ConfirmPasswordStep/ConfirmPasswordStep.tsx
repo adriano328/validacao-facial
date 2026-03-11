@@ -11,6 +11,8 @@ export function ConfirmacaoUuidPage() {
 
   useEffect(() => {
     async function confirmar() {
+      console.log(uuid);
+      
       if (!uuid) {
         setStatus("error");
         setMensagem("UUID não informado na URL.");

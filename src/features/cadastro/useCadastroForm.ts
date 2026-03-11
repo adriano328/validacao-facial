@@ -2,6 +2,7 @@ import { useMemo, useRef, useState, useEffect } from "react";
 import {
   initialCadastroForm,
   type CadastroForm,
+  type PessoaPayload,
 } from "./types";
 import {
   validateCadastro,
@@ -12,6 +13,10 @@ import {
 import { useNavigate } from "react-router-dom";
 import { alerts } from "../../lib/swal";
 import { usePessoa } from "../../context/PessoaContext";
+import { brDateToISO } from "../../utils/formataData";
+import { stripDataUrl } from "../../utils/formataBase64";
+import { salvarPessoa } from "../../services/pessoa";
+import { handleAxiosError } from "../../utils/messageErro";
 
 type TouchedState = Partial<Record<keyof CadastroForm, boolean>>;
 
@@ -107,49 +112,48 @@ export function useCadastroForm() {
   };
 
   async function handleCadastrar() {
-    // setStep("confirmarSenha");
-    navigate('/confirmacao/3f7c2c9e-9a5a-4f6a-9b3f-8c5c0c1e7d42')
+    navigate('/confirmacao')
 
-    // setSubmitAttempted(true);
-    // markAllTouched();
-    // const result = validate();
+    setSubmitAttempted(true);
+    markAllTouched();
+    const result = validate();
 
-    // if (!result.ok) {
-    //   alerts.warn({ text: "Ops! Revise os campos obrigatórios." });
-    //   return;
-    // }
+    if (!result.ok) {
+      alerts.warn({ text: "Ops! Revise os campos obrigatórios." });
+      return;
+    }
 
-    // abortRef.current?.abort();
-    // const controller = new AbortController();
-    // abortRef.current = controller;
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
 
-    // const payload: PessoaPayload = {
-    //   nome: formCadastro.nome,
-    //   cargo: formCadastro.cargo!,
-    //   telefone: formCadastro.telefone,
-    //   dataNascimento: brDateToISO(formCadastro.dataNascimento) ?? "",
-    //   email: formCadastro.email,
-    //   senha: formCadastro.senha,
-    //   cpf: formCadastro.cpf.replace(/\D/g, ""),
-    //   campoEclesiastico: {
-    //     id: 1,
-    //   },
-    //   documento: stripDataUrl(formCadastro.documento),
-    // };
+    const payload: PessoaPayload = {
+      nome: formCadastro.nome,
+      cargo: formCadastro.cargo!,
+      telefone: formCadastro.telefone,
+      dataNascimento: brDateToISO(formCadastro.dataNascimento) ?? "",
+      email: formCadastro.email,
+      senha: formCadastro.senha,
+      cpf: formCadastro.cpf.replace(/\D/g, ""),
+      campoEclesiastico: {
+        id: 1,
+      },
+      documento: stripDataUrl(formCadastro.documento),
+    };
 
-    // setIsSubmitting(true);
+    setIsSubmitting(true);
 
-    // try {
-    //   const pessoaId = await salvarPessoa(payload, controller.signal);
-    //   setPessoaId(pessoaId);
-    //   // navigate("/login");
-    //   setStep("confirmarSenha");
-    // } catch (err) {
-    //   const message = handleAxiosError(err);
-    //   alerts.error({ text: message });
-    // } finally {
-    //   setIsSubmitting(false);
-    // }
+    try {
+      const pessoaId = await salvarPessoa(payload, controller.signal);
+      // setPessoaId(pessoaId);
+      // navigate("/login");
+      setStep("confirmarSenha");
+    } catch (err) {
+      const message = handleAxiosError(err);
+      alerts.error({ text: message });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   const canSubmit = useMemo(() => {
