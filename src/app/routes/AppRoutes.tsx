@@ -15,7 +15,7 @@ export function AppRoutes() {
       <Route path="/valid" element={<ValidPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/home" element={<HomePage />} />
-      <Route path="/confirmacao-email/:uuid" element={<ConfirmacaoUuidPage />} />
+      <Route path="/confirmar-email/:uuid" element={<ConfirmacaoUuidPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
