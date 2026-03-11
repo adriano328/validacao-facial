@@ -19,6 +19,7 @@ import { usePessoa } from "../../context/PessoaContext";
 import { stripDataUrl } from "../../utils/formataBase64";
 
 type TouchedState = Partial<Record<keyof CadastroForm, boolean>>;
+type CadastroStep = "cadastro" | "confirmarSenha";
 
 export function useCadastroForm() {
   const [formCadastro, setForm] = useState<CadastroForm>(initialCadastroForm);
@@ -26,11 +27,10 @@ export function useCadastroForm() {
   const [touched, setTouched] = useState<TouchedState>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const navigate = useNavigate();
   const { setPessoaId } = usePessoa();
   const abortRef = useRef<AbortController | null>(null);
-
+  const [step, setStep] = useState<"cadastro" | "confirmarSenha">("cadastro");
   useEffect(() => {
     return () => {
       abortRef.current?.abort();
@@ -82,6 +82,17 @@ export function useCadastroForm() {
     });
   };
 
+  function handleConfirmarSenha() {
+    const senhaError = validateField(formCadastro, "senhaConfirmacao");
+
+    if (senhaError) {
+      alerts.warn({ text: senhaError });
+      return;
+    }
+
+    navigate("/login");
+  }
+
   const validate = () => {
     const nextErrors = validateCadastro(formCadastro);
     setErrors(nextErrors);
@@ -103,49 +114,48 @@ export function useCadastroForm() {
   };
 
   async function handleCadastrar() {
-    setSubmitAttempted(true);
-    markAllTouched();
+    setStep("confirmarSenha");
 
-    const result = validate();
+    // setSubmitAttempted(true);
+    // markAllTouched();
+    // const result = validate();
 
-    console.log("formCadastro", formCadastro);
-    console.log("errors", result.errors);
+    // if (!result.ok) {
+    //   alerts.warn({ text: "Ops! Revise os campos obrigatórios." });
+    //   return;
+    // }
 
-    if (!result.ok) {
-      alerts.warn({ text: "Ops! Revise os campos obrigatórios." });
-      return;
-    }
+    // abortRef.current?.abort();
+    // const controller = new AbortController();
+    // abortRef.current = controller;
 
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
+    // const payload: PessoaPayload = {
+    //   nome: formCadastro.nome,
+    //   cargo: formCadastro.cargo!,
+    //   telefone: formCadastro.telefone,
+    //   dataNascimento: brDateToISO(formCadastro.dataNascimento) ?? "",
+    //   email: formCadastro.email,
+    //   senha: formCadastro.senha,
+    //   cpf: formCadastro.cpf.replace(/\D/g, ""),
+    //   campoEclesiastico: {
+    //     id: 1,
+    //   },
+    //   documento: stripDataUrl(formCadastro.documento),
+    // };
 
-    const payload: PessoaPayload = {
-      nome: formCadastro.nome,
-      cargo: formCadastro.cargo!,
-      telefone: formCadastro.telefone,
-      dataNascimento: brDateToISO(formCadastro.dataNascimento) ?? "",
-      email: formCadastro.email,
-      senha: formCadastro.senha,
-      cpf: formCadastro.cpf.replace(/\D/g, ""),
-      campoEclesiastico: {
-        id: 1,
-      },
-      documento: stripDataUrl(formCadastro.documento),
-    };
+    // setIsSubmitting(true);
 
-    setIsSubmitting(true);
-
-    try {
-      const pessoaId = await salvarPessoa(payload, controller.signal);
-      setPessoaId(pessoaId);
-      navigate("/login");
-    } catch (err) {
-      const message = handleAxiosError(err);
-      alerts.error({ text: message });
-    } finally {
-      setIsSubmitting(false);
-    }
+    // try {
+    //   const pessoaId = await salvarPessoa(payload, controller.signal);
+    //   setPessoaId(pessoaId);
+    //   // navigate("/login");
+    //   setStep("confirmarSenha");
+    // } catch (err) {
+    //   const message = handleAxiosError(err);
+    //   alerts.error({ text: message });
+    // } finally {
+    //   setIsSubmitting(false);
+    // }
   }
 
   const canSubmit = useMemo(() => {
@@ -200,5 +210,8 @@ export function useCadastroForm() {
     canSubmit,
     reset,
     handleCadastrar,
+    handleConfirmarSenha,
+    step,
+    setStep,
   };
 }

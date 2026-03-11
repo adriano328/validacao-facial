@@ -7,6 +7,7 @@ import { maskCPF, maskDateBR, maskPhoneBR } from "../../../utils/masks";
 import "./styles.css";
 import { DocumentPhotoField } from "../documentVerify/DocumentPhotoField";
 import { CARGOS_ECLESIASTICOS } from "../../../data/cargos";
+import { ConfirmPasswordStep } from "../../../components/ConfirmPasswordStep/ConfirmPasswordStep";
 
 export function CadastroPage() {
   const {
@@ -15,14 +16,29 @@ export function CadastroPage() {
     touchField,
     showError,
     handleCadastrar,
+    handleConfirmarSenha,
     isSubmitting,
+    step,
   } = useCadastroForm();
 
   const cargoError = showError("cargo");
   const cargoInvalid = !!cargoError;
 
-  const campoError = showError("campoEclesiasticoId");
-  const campoInvalid = !!campoError;
+  if (step === "confirmarSenha") {
+    return (
+      <ConfirmPasswordStep
+        senha={formCadastro.senha}
+        senhaConfirmacao={formCadastro.senhaConfirmacao}
+        setSenhaConfirmacao={(value) =>
+          setFormCadastro("senhaConfirmacao", value)
+        }
+        touchField={() => touchField("senhaConfirmacao")}
+        error={showError("senhaConfirmacao")}
+        isSubmitting={isSubmitting}
+        onSubmit={handleConfirmarSenha}
+      />
+    );
+  }
 
   return (
     <div className="safe">
