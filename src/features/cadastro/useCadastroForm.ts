@@ -12,11 +12,11 @@ import {
 } from "./validator";
 import { useNavigate } from "react-router-dom";
 import { alerts } from "../../lib/swal";
-import { usePessoa } from "../../context/PessoaContext";
 import { brDateToISO } from "../../utils/formataData";
 import { stripDataUrl } from "../../utils/formataBase64";
 import { salvarPessoa } from "../../services/pessoa";
 import { handleAxiosError } from "../../utils/messageErro";
+import axios from "axios";
 
 type TouchedState = Partial<Record<keyof CadastroForm, boolean>>;
 
@@ -26,12 +26,18 @@ export function useCadastroForm() {
   const [touched, setTouched] = useState<TouchedState>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
-  const abortRef = useRef<AbortController | null>(null);
   const [step, setStep] = useState<"cadastro" | "confirmarSenha">("cadastro");
+
+  const navigate = useNavigate();
+
+  const abortRef = useRef<AbortController | null>(null);
+  const submittingRef = useRef(false);
+
   useEffect(() => {
     return () => {
       abortRef.current?.abort();
+      abortRef.current = null;
+      submittingRef.current = false;
     };
   }, []);
 
@@ -112,18 +118,22 @@ export function useCadastroForm() {
   };
 
   async function handleCadastrar() {
-    navigate('/confirmacao')
+    if (submittingRef.current) return;
+    submittingRef.current = true;
 
     setSubmitAttempted(true);
     markAllTouched();
+
     const result = validate();
 
     if (!result.ok) {
       alerts.warn({ text: "Ops! Revise os campos obrigatórios." });
+      submittingRef.current = false;
       return;
     }
 
     abortRef.current?.abort();
+
     const controller = new AbortController();
     abortRef.current = controller;
 
@@ -145,14 +155,21 @@ export function useCadastroForm() {
 
     try {
       const pessoaId = await salvarPessoa(payload, controller.signal);
-      // setPessoaId(pessoaId);
-      // navigate("/login");
-      setStep("confirmarSenha");
+      navigate("/confirmacao");
     } catch (err) {
+      if (controller.signal.aborted || axios.isCancel(err)) {
+        return;
+      }
+
       const message = handleAxiosError(err);
       alerts.error({ text: message });
     } finally {
+      if (abortRef.current === controller) {
+        abortRef.current = null;
+      }
+
       setIsSubmitting(false);
+      submittingRef.current = false;
     }
   }
 
@@ -185,11 +202,13 @@ export function useCadastroForm() {
   const reset = () => {
     abortRef.current?.abort();
     abortRef.current = null;
+    submittingRef.current = false;
     setForm(initialCadastroForm);
     setErrors({});
     setTouched({});
     setSubmitAttempted(false);
     setIsSubmitting(false);
+    setStep("cadastro");
   };
 
   const showError = <K extends keyof CadastroForm>(key: K) =>
