@@ -1,64 +1,92 @@
-import { FormField } from "../form/FormField";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import "./styles.css";
 
-type ConfirmPasswordStepProps = {
-  senha: string;
-  senhaConfirmacao: string;
-  setSenhaConfirmacao: (value: string) => void;
-  touchField: () => void;
-  error?: string;
-  isSubmitting?: boolean;
-  onSubmit: () => void;
-};
+type Status = "loading" | "success" | "error";
 
-export function ConfirmPasswordStep({
-  senha,
-  senhaConfirmacao,
-  setSenhaConfirmacao,
-  touchField,
-  error,
-  isSubmitting = false,
-  onSubmit,
-}: ConfirmPasswordStepProps) {
-  const senhasDiferentes =
-    senhaConfirmacao.length > 0 && senha !== senhaConfirmacao;
+export function ConfirmacaoUuidPage() {
+  const { uuid } = useParams<{ uuid: string }>();
+  const [status, setStatus] = useState<Status>("loading");
+  const [mensagem, setMensagem] = useState("Confirmando solicitação...");
 
-  const mensagemErro =
-    error ||
-    (senhasDiferentes ? "As senhas não coincidem." : undefined);
+  useEffect(() => {
+    async function confirmar() {
+      if (!uuid) {
+        setStatus("error");
+        setMensagem("UUID não informado na URL.");
+        return;
+      }
+
+      try {
+        setStatus("loading");
+        setMensagem("Confirmando solicitação...");
+
+        const response = await fetch(
+          `http://localhost:8080/confirmacao/${uuid}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const data = await response.text();
+
+        if (!response.ok || data.trim().toLowerCase() !== "ok") {
+          throw new Error("Resposta inválida do servidor.");
+        }
+
+        setStatus("success");
+        setMensagem("Confirmação realizada com sucesso.");
+      } catch (error) {
+        setStatus("error");
+        setMensagem("Não foi possível confirmar sua solicitação.");
+      }
+    }
+
+    confirmar();
+  }, [uuid]);
 
   return (
     <div className="safe">
       <div className="container">
-        <h1 className="titulo">Confirmar senha</h1>
+        {status === "loading" && (
+          <div className="statusBox">
+            <div className="spinner" />
+            <h1 className="titulo">Confirmando</h1>
+            <p className="mensagem">{mensagem}</p>
+          </div>
+        )}
 
-        <FormField  
-          label="Confirmar senha"
-          required
-          error={mensagemErro}
-        >
-          <input
-            className="campo"
-            type="password"
-            value={senhaConfirmacao}
-            onChange={(e) => setSenhaConfirmacao(e.target.value)}
-            onBlur={touchField}
-            placeholder="••••••••"
-          />
-        </FormField>
+        {status === "success" && (
+          <div className="statusBox">
+            <div className="checkCircle">
+              <svg
+                className="checkIcon"
+                viewBox="0 0 52 52"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  className="checkPath"
+                  fill="none"
+                  d="M14 27l7 7 17-17"
+                />
+              </svg>
+            </div>
 
-        <div className="containerBotao">
-          <button
-            className="botao"
-            type="button"
-            onClick={onSubmit}
-            disabled={isSubmitting || senhasDiferentes || !senhaConfirmacao}
-          >
-            <span className="textoBotao">
-              {isSubmitting ? "Confirmando..." : "Confirmar"}
-            </span>
-          </button>
-        </div>
+            <h1 className="titulo success">Confirmado</h1>
+            <p className="mensagem">{mensagem}</p>
+          </div>
+        )}
+
+        {status === "error" && (
+          <div className="statusBox">
+            <div className="errorCircle">!</div>
+            <h1 className="titulo error">Erro</h1>
+            <p className="mensagem">{mensagem}</p>
+          </div>
+        )}
       </div>
     </div>
   );

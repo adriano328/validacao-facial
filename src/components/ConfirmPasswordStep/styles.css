@@ -12,63 +12,118 @@
   width: 100%;
   max-width: 500px;
   background: #ffffff;
-  padding: 32px;
-  border-radius: 12px;
+  padding: 40px 32px;
+  border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.statusBox {
+  width: 100%;
+  display: flex;
   flex-direction: column;
-  gap: 20px;
+  align-items: center;
+  text-align: center;
 }
 
 .titulo {
-  font-size: 22px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 700;
   color: #111827;
-  margin-bottom: 10px;
+  margin-top: 20px;
+  margin-bottom: 8px;
 }
 
-.campo {
-  width: 100%;
-  height: 44px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  padding: 0 12px;
+.titulo.success {
+  color: #16a34a;
+}
+
+.titulo.error {
+  color: #dc2626;
+}
+
+.mensagem {
   font-size: 15px;
-  transition: border 0.2s, box-shadow 0.2s;
-  background: #ffffff;
+  color: #6b7280;
+  line-height: 1.5;
 }
 
-.campo:focus {
-  outline: none;
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+.spinner {
+  width: 52px;
+  height: 52px;
+  border: 4px solid #e5e7eb;
+  border-top: 4px solid #4f46e5;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
 }
 
-.containerBotao {
-  margin-top: 10px;
+.checkWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.botao {
-  width: 100%;
-  height: 44px;
-  background: #4f46e5;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s ease;
+.checkCircle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #dcfce7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: popIn 0.35s ease;
 }
 
-.botao:hover {
-  background: #4338ca;
+.checkIcon {
+  width: 40px;
+  height: 40px;
 }
 
-.botao:disabled {
-  background: #c7c7c7;
-  cursor: not-allowed;
+.checkPath {
+  stroke: #16a34a;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: drawCheck 0.5s ease forwards 0.2s;
 }
 
-.textoBotao {
-  color: #ffffff;
-  font-size: 15px;
-  font-weight: 500;
+.errorCircle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #dc2626;
+  font-size: 36px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: popIn 0.35s ease;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes drawCheck {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }

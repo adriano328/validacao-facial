@@ -4,6 +4,7 @@ import LivenessPage from "../pages/Liveness/LivenessPage";
 import { LoginPage } from "../pages/login/LoginPage";
 import { HomePage } from "../pages/home/HomePage";
 import ValidPage from "../pages/Valid/ValidPage";
+import { ConfirmacaoUuidPage } from "../../components/ConfirmPasswordStep/ConfirmPasswordStep";
 
 export function AppRoutes() {
   return (
@@ -14,6 +15,7 @@ export function AppRoutes() {
       <Route path="/valid" element={<ValidPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/home" element={<HomePage />} />
+      <Route path="/confirmacao/:uuid" element={<ConfirmacaoUuidPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

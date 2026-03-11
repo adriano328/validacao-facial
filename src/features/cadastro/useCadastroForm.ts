@@ -2,7 +2,6 @@ import { useMemo, useRef, useState, useEffect } from "react";
 import {
   initialCadastroForm,
   type CadastroForm,
-  type PessoaPayload,
 } from "./types";
 import {
   validateCadastro,
@@ -10,16 +9,11 @@ import {
   hasErrors,
   type CadastroErrors,
 } from "./validator";
-import { salvarPessoa } from "../../services/pessoa";
-import { brDateToISO } from "../../utils/formataData";
 import { useNavigate } from "react-router-dom";
-import { handleAxiosError } from "../../utils/messageErro";
 import { alerts } from "../../lib/swal";
 import { usePessoa } from "../../context/PessoaContext";
-import { stripDataUrl } from "../../utils/formataBase64";
 
 type TouchedState = Partial<Record<keyof CadastroForm, boolean>>;
-type CadastroStep = "cadastro" | "confirmarSenha";
 
 export function useCadastroForm() {
   const [formCadastro, setForm] = useState<CadastroForm>(initialCadastroForm);
@@ -28,7 +22,6 @@ export function useCadastroForm() {
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const { setPessoaId } = usePessoa();
   const abortRef = useRef<AbortController | null>(null);
   const [step, setStep] = useState<"cadastro" | "confirmarSenha">("cadastro");
   useEffect(() => {
@@ -114,7 +107,8 @@ export function useCadastroForm() {
   };
 
   async function handleCadastrar() {
-    setStep("confirmarSenha");
+    // setStep("confirmarSenha");
+    navigate('/confirmacao/3f7c2c9e-9a5a-4f6a-9b3f-8c5c0c1e7d42')
 
     // setSubmitAttempted(true);
     // markAllTouched();
