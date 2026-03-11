@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "./styles.css";
+import { confirmarEmail } from "../../services/pessoa";
 
 type Status = "loading" | "success" | "error";
 
@@ -9,46 +10,32 @@ export function ConfirmacaoUuidPage() {
   const [status, setStatus] = useState<Status>("loading");
   const [mensagem, setMensagem] = useState("Confirmando solicitação...");
 
-  useEffect(() => {
-    async function confirmar() {
-      console.log(uuid);
-      
-      if (!uuid) {
-        setStatus("error");
-        setMensagem("UUID não informado na URL.");
-        return;
-      }
+useEffect(() => {
+  async function confirmar() {
+    console.log(uuid);
 
-      try {
-        setStatus("loading");
-        setMensagem("Confirmando solicitação...");
-
-        const response = await fetch(
-          `http://localhost:8080/confirmacao/${uuid}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        const data = await response.text();
-
-        if (!response.ok || data.trim().toLowerCase() !== "ok") {
-          throw new Error("Resposta inválida do servidor.");
-        }
-
-        setStatus("success");
-        setMensagem("Confirmação realizada com sucesso.");
-      } catch (error) {
-        setStatus("error");
-        setMensagem("Não foi possível confirmar sua solicitação.");
-      }
+    if (!uuid) {
+      setStatus("error");
+      setMensagem("Código não informado na URL.");
+      return;
     }
 
-    confirmar();
-  }, [uuid]);
+    try {
+      setStatus("loading");
+      setMensagem("Confirmando solicitação...");
+
+      await confirmarEmail(uuid);
+
+      setStatus("success");
+      setMensagem("Confirmação realizada com sucesso.");
+    } catch (error) {
+      setStatus("error");
+      setMensagem("Não foi possível confirmar sua solicitação.");
+    }
+  }
+
+  confirmar();
+}, [uuid]);
 
   return (
     <div className="safe">
