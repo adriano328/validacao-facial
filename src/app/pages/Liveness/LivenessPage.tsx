@@ -1,59 +1,68 @@
 import { useEffect, useRef, useState } from "react";
 import { FaceLivenessDetector } from "@aws-amplify/ui-react-liveness";
-import { obterResultadoSessaoLiveness } from "../../../services/liveness";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { alerts } from "../../../lib/swal";
 import { usePessoa } from "../../../context/PessoaContext";
 import { livenessDisplayTextPtBR } from "../../../i18n/livenessPtBR";
+import { handleAxiosError } from "../../../utils/messageErro";
+import { login } from "../../../services/usuario";
 
 type CreateSessionResponse = { sessionId: string };
 type Phase = "idle" | "running" | "success";
 
 export default function LivenessPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { pessoaId } = usePessoa();
+
+  const state = location.state as {
+    email?: string;
+    senha?: string;
+    twoFactorCode?: number;
+  } | null;
+
+  const email = state?.email ?? "";
+  const senha = state?.senha ?? "";
+  const twoFactorCode = state?.twoFactorCode ?? 0;
+
   const [phase, setPhase] = useState<Phase>("idle");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const navigate = useNavigate();
   const [detectorKey, setDetectorKey] = useState(0);
-  const { pessoaId } = usePessoa();
-
-  const MAX_TENTATIVAS = 1;
-  const INTERVALO_MS = 1000;
-  const CONFIDENCE_MIN = 90;
 
   const sessionRequestedRef = useRef(false);
-  const pollingCancelRef = useRef({ cancelled: false });
   const handlingErrorRef = useRef(false);
   const handlingAnalysisRef = useRef(false);
-
   const mountedRef = useRef(true);
-
-  function delay(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  function cancelPolling() {
-    pollingCancelRef.current.cancelled = true;
-  }
 
   function resetDetectorOnly() {
     setDetectorKey((k) => k + 1);
   }
 
-  function handleSuccess() {
-    cancelPolling();
+  async function handleSuccess(validSessionId: string) {
     setError(null);
-    alerts.success({ text: "Cadastro validado com sucesso!" });
-    setPhase("success");
-    navigate("/login");
+
+    try {
+      await login({
+        email,
+        senha,
+        idSessaoLiveness: validSessionId,
+        twoFactorCode,
+      });
+
+      alerts.success({ text: "Login realizado com sucesso!" });
+      setPhase("success");
+      navigate("/home");
+    } catch (err) {
+      const message = handleAxiosError(err);
+      alerts.error({ text: message });
+      navigate("/login");
+    }
   }
 
   function stopWithError(message: string) {
-    cancelPolling();
     sessionRequestedRef.current = false;
-
     setLoading(false);
     setSessionId(null);
     setPhase("idle");
@@ -68,15 +77,23 @@ export default function LivenessPage() {
     setError(null);
 
     try {
-      const res = await fetch("https://ihvjqtwvo5.execute-api.us-east-1.amazonaws.com/test/liveness/criar-sessao", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
+      const res = await fetch(
+        "https://ihvjqtwvo5.execute-api.us-east-1.amazonaws.com/test/liveness/criar-sessao",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
-      if (!res.ok) throw new Error("Falha ao criar sessão de liveness");
+      if (!res.ok) {
+        throw new Error("Falha ao criar sessão de liveness");
+      }
 
       const data = (await res.json()) as CreateSessionResponse;
-      if (!data.sessionId) throw new Error("sessionId não retornado pela API");
+
+      if (!data.sessionId) {
+        throw new Error("sessionId não retornado pela API");
+      }
 
       setSessionId(data.sessionId);
       setPhase("running");
@@ -93,12 +110,19 @@ export default function LivenessPage() {
   }
 
   useEffect(() => {
+    if (!email || !senha) {
+      alerts.warn({ text: "Sessão inválida. Faça login novamente." });
+      navigate("/login");
+      return;
+    }
+  }, [email, senha, navigate]);
+
+  useEffect(() => {
     mountedRef.current = true;
     createLivenessSession();
 
     return () => {
       mountedRef.current = false;
-      cancelPolling();
     };
   }, []);
 
@@ -113,7 +137,6 @@ export default function LivenessPage() {
           onClick={() => {
             handlingErrorRef.current = false;
             handlingAnalysisRef.current = false;
-
             setError(null);
             createLivenessSession();
           }}
@@ -147,65 +170,23 @@ export default function LivenessPage() {
           onAnalysisComplete={async () => {
             if (handlingAnalysisRef.current) return;
             handlingAnalysisRef.current = true;
-            pollingCancelRef.current = { cancelled: false };
 
             try {
-              let tentativas = 0;
-
-              while (tentativas < MAX_TENTATIVAS) {
-                if (pollingCancelRef.current.cancelled) return;
-
-                const resultado = await obterResultadoSessaoLiveness(
-                  sessionId,
-                  String(pessoaId),
-                );
-
-                if (pollingCancelRef.current.cancelled) return;
-
-                if (
-                  resultado.status === "SUCCEEDED" &&
-                  resultado.confidence >= CONFIDENCE_MIN
-                ) {
-                  handleSuccess();
-                  return;
-                }
-
-                if (
-                  resultado.status === "FAILED" ||
-                  resultado.status === "EXPIRED"
-                ) {
-                  if (!mountedRef.current) return;
-
-                  alerts.warn({
-                    text: "Não foi possível validar. Tente novamente.",
-                  });
-                  stopWithError("Não foi possível validar. Tente novamente.");
-                  return;
-                }
-
-                tentativas++;
-                await delay(INTERVALO_MS);
-              }
-
-              if (!mountedRef.current) return;
-
-              alerts.warn({
-                text: "Não foi possível validar na primeira tentativa. Tente novamente.",
-              });
-              stopWithError(
-                "Não foi possível validar na primeira tentativa. Tente novamente.",
-              );
+              await handleSuccess(sessionId);
             } catch (err) {
-              console.error("Erro no polling do liveness:", err);
+              console.error("Erro ao concluir análise do liveness:", err);
+
+              const message =
+                err instanceof Error
+                  ? err.message
+                  : "Falha ao concluir a validação facial.";
+
               if (!mountedRef.current) return;
 
-              alerts.warn({
-                text: "Falha ao validar. Tente novamente.",
-              });
-              stopWithError("Falha ao validar. Tente novamente.");
+              alerts.warn({ text: message });
+              stopWithError(message);
             } finally {
-              // ✅ permite nova tentativa depois (apertando o botão)
-              // (não libera automaticamente aqui para não reiniciar sozinho)
+              handlingAnalysisRef.current = false;
             }
           }}
           onError={async (err: any) => {
@@ -225,6 +206,7 @@ export default function LivenessPage() {
 
             alerts.warn({ text: msg });
             stopWithError(msg);
+            handlingErrorRef.current = false;
           }}
         />
       ) : null}

@@ -61,7 +61,7 @@ export function LoginPage() {
             >
               <span className="textoBotao">{isSubmitting ? "Entrando..." : "Entrar"}</span>
             </button>
-
+{/* 
             <button
               className="botao doc"
               type="button"
@@ -69,7 +69,7 @@ export function LoginPage() {
               disabled={isSubmitting}
             >
               <span className="textoBotao">Docs</span>
-            </button>
+            </button> */}
 
             <button
               className="botao cadastrar"

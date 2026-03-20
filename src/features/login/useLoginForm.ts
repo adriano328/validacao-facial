@@ -2,10 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { alerts } from "../../lib/swal";
-import { handleAxiosError } from "../../utils/messageErro";
-
 import { hasErrors, validateField, validateLogin, type LoginErrors } from "./validator";
-import { ativarTwoFactor, twoFactorAtivado } from "../../services/usuario";
 import { initialLoginForm, type LoginForm } from "./type";
 import { usePessoa } from "../../context/PessoaContext";
 import { useTwoFactor } from "../../context/TwoFactorContext";
@@ -100,6 +97,51 @@ export function useLoginForm() {
     clearSecret();
   }
 
+  // async function handleLogin() {
+  //   setSubmitAttempted(true);
+  //   markAllTouched();
+
+  //   const result = validate();
+  //   if (!result.ok) {
+  //     alerts.warn({ text: "Ops! Revise e-mail e senha." });
+  //     return;
+  //   }
+
+  //   abortRef.current?.abort();
+  //   const controller = new AbortController();
+  //   abortRef.current = controller;
+  //   const email = form.email.trim();
+  //   const senha = form.password.trim();
+
+  //   setSenha(senha)
+  //   setEmail(email);
+
+  //   // setIsSubmitting(true);
+  //   // try {
+  //   //   const ativado = await twoFactorAtivado(
+  //   //     { email, password: form.password },
+  //   //     controller.signal
+  //   //   );
+
+  //   //   if (!ativado) {
+  //   //     const twoFactor = await ativarTwoFactor(controller.signal);
+  //   //     setSecret(twoFactor.secret);
+  //   //     setQrCodeData(twoFactor);
+  //   //     setTwoFactorStep("qr");
+
+  //   //     return;
+  //   //   }
+
+  //   //   setActive();
+  //   //   setTwoFactorStep("confirm");
+  //   // } catch (err) {
+  //   //   const message = handleAxiosError(err);
+  //   //   alerts.error({ text: message });
+  //   //   clearSecret();
+  //   // } finally {
+  //   //   setIsSubmitting(false);
+  //   // }
+  // }
   async function handleLogin() {
     setSubmitAttempted(true);
     markAllTouched();
@@ -110,41 +152,15 @@ export function useLoginForm() {
       return;
     }
 
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
-
     const email = form.email.trim();
     const senha = form.password.trim();
 
-    setSenha(senha)
     setEmail(email);
+    setSenha(senha);
 
-    setIsSubmitting(true);
-    try {
-      const ativado = await twoFactorAtivado(
-        { email, password: form.password },
-        controller.signal
-      );
-
-      if (!ativado) {
-        const twoFactor = await ativarTwoFactor(controller.signal);
-        setSecret(twoFactor.secret);
-        setQrCodeData(twoFactor);
-        setTwoFactorStep("qr");
-
-        return;
-      }
-
-      setActive();
-      setTwoFactorStep("confirm");
-    } catch (err) {
-      const message = handleAxiosError(err);
-      alerts.error({ text: message });
-      clearSecret();
-    } finally {
-      setIsSubmitting(false);
-    }
+    navigate("/liveness", {
+      state: { email, senha}
+    });
   }
 
   function goTwoFactorConfirm() {

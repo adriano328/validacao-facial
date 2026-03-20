@@ -30,14 +30,14 @@ export type CadastroForm = {
 };
 
 export const initialCadastroForm: CadastroForm = {
-  nome: "",
+  nome: "Lucas Adriano Dias Ramos",
   cargo: undefined,
-  telefone: "",
-  dataNascimento: "",
-  email: "",
-  senha: "",
-  senhaConfirmacao: "",
-  cpf: "",
+  telefone: "65999011697",
+  dataNascimento: "26/04/1995",
+  email: "lucasadrianodias@gmail.com",
+  senha: "130665",
+  senhaConfirmacao: "130665",
+  cpf: "04814617100",
   campoEclesiasticoId: undefined,
   documento: "",
 };

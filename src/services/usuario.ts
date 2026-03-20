@@ -51,3 +51,15 @@ export async function verificarTwoFactor(
 
   return res.status >= 200 && res.status < 300;
 }
+
+type LoginPayload = {
+  email: string;
+  senha: string;
+  idSessaoLiveness: string;
+  twoFactorCode?: number;
+};
+
+export async function login(payload: LoginPayload, signal?: AbortSignal) {
+  const response = await api.post("/login", payload, { signal });
+  return response.data;
+}
