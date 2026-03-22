@@ -1,4 +1,3 @@
-// src/lib/alerts.ts
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
@@ -11,7 +10,6 @@ type AlertOptions = {
 };
 
 export const alerts = {
-  // ⏳ Processando
   loading: (opts?: { title?: string; text?: string }) => {
     MySwal.fire({
       title: opts?.title ?? "Processando...",
@@ -30,12 +28,10 @@ export const alerts = {
     });
   },
 
-  // fechar qualquer alert (inclusive loading)
   close: () => {
     MySwal.close();
   },
 
-  // ✅ Sucesso
   success: (opts?: AlertOptions) => {
     return MySwal.fire({
       icon: "success",
@@ -53,7 +49,6 @@ export const alerts = {
     });
   },
 
-  // ⚠️ Warning
   warn: (opts?: AlertOptions) => {
     return MySwal.fire({
       icon: "warning",
@@ -69,7 +64,6 @@ export const alerts = {
     });
   },
 
-  // ❌ Erro
   error: (opts?: AlertOptions) => {
     return MySwal.fire({
       icon: "error",
