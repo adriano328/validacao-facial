@@ -16,5 +16,6 @@ export type AtivarTwoFactorResponse = {
 export type TwoFactorPayload = {
   email: string;
   secret?: string;
-  code: string; // 6 dígitos
+  code: string;
+  senha: string;
 };
