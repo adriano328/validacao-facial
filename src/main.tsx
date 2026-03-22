@@ -1,20 +1,33 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import "./styles/globalStyles.css";
+
+// ✅ CSS GLOBAL (AGORA DENTRO DE app/styles)
+import "./app/styles/globalStyles.css";
+import "./app/styles/swal.css";
+
+// ✅ AWS
 import "@aws-amplify/ui-react/styles.css";
 import "@aws-amplify/ui-react-liveness/styles.css";
 import { Amplify } from "aws-amplify";
-import "./styles/swal.css";
-import { PessoaProvider } from "./context/PessoaContext";
-
 import { I18n } from "aws-amplify/utils";
-import "./i18n/livenessPtBR"; 
-import { TwoFactorProvider } from "./context/TwoFactorContext";
+
+// ✅ CONTEXTOS
 import { AuthTokenProvider } from "./context/AuthTokenContext";
+import { PessoaProvider } from "./context/PessoaContext";
+import { TwoFactorProvider } from "./context/TwoFactorContext";
+
+// ✅ I18N
+import "./i18n/livenessPtBR";
+
+// ✅ APP
 import App from "./App";
 
-I18n.setLanguage("pt"); 
+// ==========================
+// CONFIGURAÇÕES
+// ==========================
+
+I18n.setLanguage("pt");
 
 Amplify.configure({
   Auth: {
@@ -24,6 +37,10 @@ Amplify.configure({
     },
   },
 });
+
+// ==========================
+// RENDER
+// ==========================
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

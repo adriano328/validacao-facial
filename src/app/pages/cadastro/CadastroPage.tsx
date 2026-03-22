@@ -1,12 +1,11 @@
-import "../../../styles/globalStyles.css";
 import { useCadastroForm } from "../../../features/cadastro/useCadastroForm";
 import type { CargoUsuario } from "../../../features/cadastro/types";
 import { FormField } from "../../../components/form/FormField";
 import { DropdownField } from "../../../components/dropdown/DropdownField";
 import { maskCPF, maskDateBR, maskPhoneBR } from "../../../utils/masks";
-import "./styles.css";
 import { DocumentPhotoField } from "../documentVerify/DocumentPhotoField";
 import { CARGOS_ECLESIASTICOS } from "../../../data/cargos";
+import "./styles.css";
 
 export function CadastroPage() {
   const {
@@ -19,7 +18,7 @@ export function CadastroPage() {
   } = useCadastroForm();
 
   const cargoError = showError("cargo");
-  const cargoInvalid = !!cargoError;
+  const cargoInvalid = Boolean(cargoError);
 
   return (
     <div className="safe">
@@ -77,7 +76,7 @@ export function CadastroPage() {
           />
         </FormField>
 
-        <FormField required label="Cargo" error={cargoError}>
+        <FormField label="Cargo" required error={cargoError}>
           <DropdownField
             value={formCadastro.cargo}
             placeholder="Selecione o cargo"
