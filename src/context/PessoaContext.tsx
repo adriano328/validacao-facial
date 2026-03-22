@@ -24,8 +24,7 @@ export function PessoaProvider({ children }: PessoaProviderProps) {
 
   function clearPessoa() {
     setPessoaId(null);
-    setEmail(null),
-      setEmail(null);
+    setEmail(null);
   }
 
   return (
