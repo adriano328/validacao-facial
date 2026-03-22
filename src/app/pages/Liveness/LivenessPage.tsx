@@ -23,7 +23,7 @@ export default function LivenessPage() {
 
   const email = state?.email ?? "";
   const senha = state?.senha ?? "";
-  const twoFactorCode = state?.twoFactorCode ?? 0;
+  const twoFactorCode = state?.twoFactorCode ?? null;
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -44,12 +44,25 @@ export default function LivenessPage() {
     setError(null);
 
     try {
-      await login({
+      const response = await login({
         email,
         senha,
         idSessaoLiveness: validSessionId,
         twoFactorCode,
       });
+
+      if (response?.qrCodeUrl) {
+        navigate("/2fa-setup", {
+          state: {
+            qrCodeUrl: response.qrCodeUrl,
+            secret: response.secret,
+            email,
+            senha,
+            idSessaoLiveness: validSessionId,
+          },
+        });
+        return;
+      }
 
       alerts.success({ text: "Login realizado com sucesso!" });
       setPhase("success");

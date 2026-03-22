@@ -1,0 +1,141 @@
+.twofactor-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #f5f7fb;
+}
+
+.twofactor-card {
+  width: 100%;
+  max-width: 430px;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 28px 24px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.twofactor-title {
+  margin: 0 0 12px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.twofactor-message {
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #4b5563;
+}
+
+.twofactor-qr-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.twofactor-qr-image {
+  width: 220px;
+  height: 220px;
+  object-fit: contain;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 10px;
+  background: #fff;
+}
+
+.twofactor-secret-box {
+  margin-bottom: 20px;
+  padding: 14px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.twofactor-secret-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.twofactor-secret-value {
+  font-size: 14px;
+  color: #111827;
+  word-break: break-all;
+}
+
+.twofactor-input-group {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  margin-bottom: 16px;
+}
+
+.twofactor-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.twofactor-input {
+  width: 100%;
+  height: 46px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 20px;
+  letter-spacing: 4px;
+  text-align: center;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.twofactor-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.twofactor-btn-primary {
+  width: 100%;
+  height: 46px;
+  border: none;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.twofactor-btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.twofactor-btn-secondary {
+  align-self: center;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  background: #e5e7eb;
+  color: #111827;
+  cursor: pointer;
+}
+
+.twofactor-btn-link {
+  background: transparent;
+  border: none;
+  color: #2563eb;
+  font-size: 14px;
+  cursor: pointer;
+}
