@@ -1,4 +1,4 @@
-import { FormField } from '../../../../components/form/FormField';
+import { FormField } from '../../../../shared/components/form/form-field/FormField';
 import { useLoginForm } from '../../hooks/use-login-form';
 import styles from './login-form.module.css';
 

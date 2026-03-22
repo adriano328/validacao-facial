@@ -1,5 +1,5 @@
 import React from "react";
-import "./formField.css";
+import "./form-field.module.css";
 
 type FormFieldProps = {
   label: string;
