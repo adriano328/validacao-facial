@@ -5,6 +5,7 @@ import { LoginPage } from "../pages/login/LoginPage";
 import { HomePage } from "../pages/home/HomePage";
 import ValidPage from "../pages/Valid/ValidPage";
 import { ConfirmacaoUuidPage } from "../../components/ConfirmPasswordStep/ConfirmPasswordStep";
+import TwoFactorSetupPage from "../pages/TwoFactorSetupPage/TwoFactorSetupPage";
 
 export function AppRoutes() {
   return (
@@ -16,6 +17,7 @@ export function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/home" element={<HomePage />} />
       <Route path="/confirmacao-email/:uuid" element={<ConfirmacaoUuidPage />} />
+      <Route path="/2fa-setup" element={<TwoFactorSetupPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
