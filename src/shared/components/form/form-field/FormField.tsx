@@ -1,5 +1,5 @@
 import React from "react";
-import "./form-field.module.css";
+import styles from "./form-field.module.css";
 
 type FormFieldProps = {
   label: string;
@@ -10,14 +10,14 @@ type FormFieldProps = {
 
 export function FormField({ label, required, error, children }: FormFieldProps) {
   return (
-    <div className="ff-container">
-      <label className="ff-label">
-        {label} {required && <span className="ff-star">*</span>}
+    <div className={styles["ff-container"]}>
+      <label className={styles["ff-label"]}>
+        {label} {required && <span className={styles["ff-star"]}>*</span>}
       </label>
 
       {children}
 
-      {error ? <span className="ff-errorText">{error}</span> : null}
+      {error ? <span className={styles["ff-errorText"]}>{error}</span> : null}
     </div>
   );
 }
