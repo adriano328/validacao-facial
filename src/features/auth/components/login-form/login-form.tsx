@@ -14,8 +14,13 @@ export function LoginForm() {
   } = useLoginForm();
 
   return (
-    <form className={styles.form} onSubmit={(e) => e.preventDefault()}>
-      <FormField label="E-mail" required error={showError('email')}>
+    <form
+      className={styles.form}
+      onSubmit={(e) => {
+        e.preventDefault();
+        submit();
+      }}
+    >      <FormField label="E-mail" required error={showError('email')}>
         <input
           className={styles.input}
           value={form.email}
@@ -43,8 +48,7 @@ export function LoginForm() {
       <div className={styles.actions}>
         <button
           className={`${styles.button} ${styles.primary}`}
-          type="button"
-          onClick={submit}
+          type="submit"
           disabled={isSubmitting}
         >
           {isSubmitting ? 'Entrando...' : 'Entrar'}
