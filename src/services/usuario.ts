@@ -56,10 +56,10 @@ type LoginPayload = {
   email: string;
   senha: string;
   idSessaoLiveness: string;
-  twoFactorCode?: number;
+  twoFactorCode?: number | null;
 };
 
 export async function login(payload: LoginPayload, signal?: AbortSignal) {
-  const response = await api.post("/login", payload, { signal });
+  const response = await api.post("/usuario/login", payload, { signal });
   return response.data;
 }
