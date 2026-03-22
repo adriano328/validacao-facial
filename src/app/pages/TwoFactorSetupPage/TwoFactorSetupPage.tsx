@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { alerts } from "../../../lib/swal";
 import { handleAxiosError } from "../../../utils/messageErro";
 import "./TwoFactorSetupPage.css";
+import { validarTwoFactor } from "../../../services/usuario";
 
 type TwoFactorSetupState = {
   qrCodeUrl?: string;
@@ -30,37 +30,43 @@ export default function TwoFactorSetupPage() {
     return codigo.replace(/\D/g, "").slice(0, 6);
   }, [codigo]);
 
-  async function confirmarCodigo() {
-    if (!secret || !email || !senha) {
-      alerts.error({ text: "Dados inválidos para confirmar o 2FA. Faça login novamente." });
-      navigate("/login");
-      return;
-    }
-
-    if (codigoFormatado.length !== 6) {
-      alerts.warn({ text: "Digite o código de 6 dígitos do autenticador." });
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      await axios.post("/usuario/confirmar-two-factor", {
-        secret,
-        code: Number(codigoFormatado),
-        email,
-        senha,
-      });
-
-      alerts.success({ text: "Autenticação em 2 fatores confirmada com sucesso!" });
-      navigate("/home");
-    } catch (err) {
-      const message = handleAxiosError(err);
-      alerts.error({ text: message });
-    } finally {
-      setLoading(false);
-    }
+ async function confirmarCodigo() {
+  if (!secret || !email || !senha) {
+    alerts.error({ text: "Dados inválidos para confirmar o 2FA. Faça login novamente." });
+    navigate("/login");
+    return;
   }
+
+  if (codigoFormatado.length !== 6) {
+    alerts.warn({ text: "Digite o código de 6 dígitos do autenticador." });
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const sucesso = await validarTwoFactor({
+      secret,
+      code: codigoFormatado,
+      email,
+      senha,
+    });
+
+    if (!sucesso) {
+      alerts.error({ text: "Código inválido ou expirado." });
+      return;
+    }
+
+    alerts.success({ text: "Autenticação em 2 fatores confirmada com sucesso!" });
+    navigate("/home");
+
+  } catch (err) {
+    const message = handleAxiosError(err);
+    alerts.error({ text: message });
+  } finally {
+    setLoading(false);
+  }
+}
 
   async function copiarSecret() {
     try {

@@ -3,7 +3,6 @@ import "./styles.css";
 import { FormField } from "../../../components/form/FormField";
 import { useLoginForm } from "../../../features/login/useLoginForm";
 import { useTwoFactor } from "../../../context/TwoFactorContext";
-import { TwoFactorConfirm } from "../../../components/twoFactorConfirm/TwoFactorConfirm";
 import { QrCodeModal } from "../../../components/qrCode/QrCodeModal";
 
 export function LoginPage() {
@@ -94,21 +93,6 @@ export function LoginPage() {
           }}
         />
       )}
-
-      <TwoFactorConfirm
-        open={twoFactorStep === "confirm"}
-        onBack={() => {
-          // volta pro QR se ainda tiver dados, senão fecha tudo
-          if (qrCodeData) setTwoFactorStep("qr");
-          else setTwoFactorStep("none");
-        }}
-        onDone={() => {
-          // quando confirmar com sucesso, você pediu limpar tudo
-          setQrCodeData(null);
-          setTwoFactorStep("none");
-          resetTwoFactor();
-        }}
-      />
     </div>
   );
 }
