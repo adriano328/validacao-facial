@@ -13,6 +13,7 @@ import { I18n } from "aws-amplify/utils";
 import { AuthTokenProvider } from "./context/AuthTokenContext";
 import { PessoaProvider } from "./context/PessoaContext";
 import { TwoFactorProvider } from "./context/TwoFactorContext";
+import App from "./app/router/App";
 
 
 
