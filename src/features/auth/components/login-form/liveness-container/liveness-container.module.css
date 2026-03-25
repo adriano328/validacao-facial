@@ -1,0 +1,54 @@
+.livenessPage {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0f172a;
+}
+
+.livenessCard {
+  width: 100%;
+  max-width: 420px;
+  background: #111827;
+  border-radius: 12px;
+  padding: 24px;
+  color: white;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.livenessHeader {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.livenessTitle {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.livenessSubtitle {
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.livenessBody {
+  margin-top: 16px;
+}
+
+.livenessError {
+  background: #7f1d1d;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.livenessButton {
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #7c3aed;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}

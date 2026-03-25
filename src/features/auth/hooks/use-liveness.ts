@@ -13,7 +13,7 @@ import type {
   UseLivenessParams,
   UseLivenessReturn,
 } from "../model/liveness.types";
-import { useAuthToken } from "../../../context/AuthTokenContext";
+import { useAuthToken } from "../../../app/providers/auth-token-provider";
 import { getLivenessErrorMessage } from "../model/liveness.errors";
 
 export function useLiveness({

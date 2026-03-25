@@ -1,7 +1,7 @@
-// features/auth/components/liveness-container/liveness-container.tsx
 import { FaceLivenessDetector } from "@aws-amplify/ui-react-liveness";
 import styles from "./liveness-container.module.css";
 import type { LivenessPhase } from "../../../model/liveness.types";
+import { livenessDisplayTextPtBR } from "../../../../../shared/lib/liveness-display-text-ptbr";
 
 type LivenessContainerProps = {
   phase: LivenessPhase;
