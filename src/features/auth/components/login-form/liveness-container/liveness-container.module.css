@@ -29,7 +29,7 @@
 }
 
 .logo {
-  width: 180px;
+  width: 120px;
   height: auto;
   object-fit: contain;
 }
@@ -113,11 +113,144 @@
   text-align: center;
 }
 
-.livenessDetectorWrap {
+.detectorSection {
   margin-top: 16px;
-  border-radius: 12px;
+}
+
+.customGuide {
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #eef6ff;
+  border: 1px solid #cfe0f5;
+  color: #184b73;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+  font-weight: 600;
+}
+
+.livenessDetectorWrap {
+  position: relative;
+  width: 100%;
+  min-height: 420px;
+  border-radius: 14px;
   overflow: hidden;
-  background: #f8fafc;
+  background: #f3f6f9;
+  border: 1px solid #dbe5ee;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+/* Garante que o componente da AWS ocupe corretamente a largura */
+.livenessDetectorWrap > * {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Reseta larguras internas que costumam quebrar layout */
+.livenessDetectorWrap :global(div),
+.livenessDetectorWrap :global(section),
+.livenessDetectorWrap :global(video),
+.livenessDetectorWrap :global(canvas) {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Força a estrutura interna da AWS a preencher o container */
+.livenessDetectorWrap :global([data-amplify-authenticator]),
+.livenessDetectorWrap :global([data-amplify-container]),
+.livenessDetectorWrap :global([data-amplify-flex]),
+.livenessDetectorWrap :global(.amplify-flex),
+.livenessDetectorWrap :global(.amplify-view) {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+/* Remove sobras de padding/margem que deformam o card */
+.livenessDetectorWrap :global(.amplify-view),
+.livenessDetectorWrap :global(.amplify-flex) {
+  margin: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Esconde textos auxiliares e mensagens internas que ficam sobre o rosto */
+.livenessDetectorWrap :global([class*="instruction"]),
+.livenessDetectorWrap :global([class*="hint"]),
+.livenessDetectorWrap :global([class*="guide"]),
+.livenessDetectorWrap :global([class*="prompt"]),
+.livenessDetectorWrap :global([class*="Instruction"]),
+.livenessDetectorWrap :global([class*="Hint"]),
+.livenessDetectorWrap :global([class*="Guide"]),
+.livenessDetectorWrap :global([class*="Prompt"]) {
+  display: none !important;
+}
+
+/* Tenta reduzir badges/overlays internos que aparecem em cima da câmera */
+.livenessDetectorWrap :global([class*="camera"]),
+.livenessDetectorWrap :global([class*="overlay"]),
+.livenessDetectorWrap :global([class*="status"]) {
+  max-width: 100%;
+}
+
+/* Ajuste do vídeo */
+.livenessDetectorWrap :global(video) {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block;
+}
+
+/* Botões internos da AWS */
+.livenessDetectorWrap :global(button) {
+  font-family: var(--font-family-base);
+  border-radius: 10px !important;
+}
+
+/* Região inferior, onde normalmente fica botão/start */
+.livenessDetectorWrap :global([class*="footer"]),
+.livenessDetectorWrap :global([class*="actions"]),
+.livenessDetectorWrap :global([class*="control"]) {
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+/* Melhora comportamento em telas menores */
+@media (max-width: 480px) {
+  .livenessPage {
+    padding: 16px;
+  }
+
+  .livenessCard {
+    padding: 22px 16px 18px;
+    border-radius: 14px;
+  }
+
+  .logo {
+    width: 100px;
+  }
+
+  .livenessTitle {
+    font-size: 20px;
+  }
+
+  .livenessSubtitle {
+    font-size: 13px;
+  }
+
+  .livenessHint,
+  .livenessError,
+  .customGuide {
+    font-size: 13px;
+  }
+
+  .livenessDetectorWrap {
+    min-height: 380px;
+  }
 }
 
 .livenessActions {
