@@ -6,7 +6,6 @@ import {
   compararFaces,
 } from "../api/liveness";
 import {
-  getLivenessErrorMessage,
   mapCriarSessaoToSessionId,
 } from "../model/liveness.mapper";
 import type {
@@ -15,6 +14,7 @@ import type {
   UseLivenessReturn,
 } from "../model/liveness.types";
 import { useAuthToken } from "../../../context/AuthTokenContext";
+import { getLivenessErrorMessage } from "../model/liveness.errors";
 
 export function useLiveness({
   email,
