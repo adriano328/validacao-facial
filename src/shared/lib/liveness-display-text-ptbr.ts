@@ -1,7 +1,7 @@
 // src/i18n/livenessDisplayTextPtBR.ts
 export const livenessDisplayTextPtBR = {
   // --- Start / tela inicial ---
-  startScreenBeginCheckText: "Iniciar verificação de vídeo",
+  startScreenBeginCheckText: "Iniciar Verificação",
 
   // --- Hints (overlay do oval) ---
   hintCenterFaceText: "Centralize o rosto",
