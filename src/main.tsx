@@ -12,6 +12,7 @@ import { AuthTokenProvider } from "./app/providers/auth-token-provider";
 import { PessoaProvider } from "./app/providers/pessoa-provider";
 import { TwoFactorProvider } from "./app/providers/two-factor-provider";
 import App from "./App";
+import './app/styles/theme.css';
 
 I18n.setLanguage("pt");
 
