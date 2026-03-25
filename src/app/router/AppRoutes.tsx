@@ -6,6 +6,7 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<LoginPage />} />
+      
     </Routes>
   );
 }
