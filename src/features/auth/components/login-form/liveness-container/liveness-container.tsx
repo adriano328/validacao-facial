@@ -2,6 +2,8 @@ import { FaceLivenessDetector } from "@aws-amplify/ui-react-liveness";
 import styles from "./liveness-container.module.css";
 import type { LivenessPhase } from "../../../model/liveness.types";
 import { livenessDisplayTextPtBR } from "../../../../../shared/lib/liveness-display-text-ptbr";
+import logoComademat from "../../../../../shared/assets/comademat-icone.png";
+
 
 type LivenessContainerProps = {
   phase: LivenessPhase;
@@ -28,10 +30,10 @@ export function LivenessContainer({
         <header className={styles.livenessHeader}>
           <div className={styles.logoWrap}>
             <img
-              src="/logo-comademat.png"
-              alt="COMADEMAT"
-              className={styles.logo}
-            />
+            src={logoComademat}
+            alt="Logo COMADEMAT"
+            className={styles.logo}
+          />
           </div>
 
           <h1 className={styles.livenessTitle}>Validação facial</h1>
