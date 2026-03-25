@@ -1,0 +1,20 @@
+:root {
+  --color-primary: #00677e;
+  --color-primary-dark: #005766;
+  --color-white: #ffffff;
+  --bg-gradient: linear-gradient(135deg, #00677e 0%, #008da6 50%, #004d5c 100%);
+    /* Textos */
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  
+    /* Inputs */
+  --input-border: #d1d5db;
+  --input-placeholder: #9ca3af;
+
+   /* Botões */
+  --color-success: #3fa66b;
+  --color-success-dark: #2f855a;
+  --color-info: #4f7ea8;
+  --color-info-dark: #3b6a8f;
+
+}
