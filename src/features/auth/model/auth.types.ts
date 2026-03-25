@@ -1,30 +1,17 @@
-export type LoginFormValues = {
-  email: string;
-  password: string;
-};
-
-export const initialLoginFormValues: LoginFormValues = {
-  email: '',
-  password: '',
-};
-
-export type LoginPayload = {
+export type LoginRequest = {
   email: string;
   senha: string;
-  idSessaoLiveness: string;
-  twoFactorCode?: number | null;
+  idSessaoLiveness?: string;
+  twoFactorCode?: number;
 };
 
-export type ActivateTwoFactorResponse = {
-  secret: string;
-  qrCodeUrl: string;
-};
-
-export type TwoFactorPayload = {
-  email: string;
+export type LoginResponse = {
+  token?: string;
+  qrCode?: string;
   secret?: string;
-  code: string;
-  senha: string;
+  twoFactorEnabled?: boolean;
+  nomeCompleto?: string;
+  funcao?: string;
+  locaisSetores?: string[];
+  raw?: unknown;
 };
-
-export type LoginErrors = Partial<Record<keyof LoginFormValues, string>>;

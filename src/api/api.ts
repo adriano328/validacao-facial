@@ -1,4 +1,3 @@
-// src/api/api.ts
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 
 let authToken: string | null = localStorage.getItem("token-valid-person");

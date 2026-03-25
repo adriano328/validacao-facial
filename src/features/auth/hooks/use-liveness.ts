@@ -9,7 +9,6 @@ import type {
 } from "../model/liveness.types";
 import { useAuthToken } from "../../../app/providers/auth-token-provider";
 import { getLivenessErrorMessage } from "../model/liveness.errors";
-import { login } from "../api/login";
 
 type UseLivenessWithDetectorKey = UseLivenessReturn & {
   detectorKey: number;
@@ -19,7 +18,9 @@ export function useLiveness({
   email,
   senha,
   twoFactorCode,
-}: UseLivenessParams & { twoFactorCode?: number | null }): UseLivenessWithDetectorKey {
+}: UseLivenessParams & {
+  twoFactorCode?: number | null;
+}): UseLivenessWithDetectorKey {
   const navigate = useNavigate();
   const { setToken } = useAuthToken();
 
@@ -52,7 +53,7 @@ export function useLiveness({
       setPhase("error");
       resetDetector();
     },
-    [resetDetector, resetInternalFlags]
+    [resetDetector, resetInternalFlags],
   );
 
   const start = useCallback(async () => {
@@ -99,7 +100,14 @@ export function useLiveness({
         sessionRequestedRef.current = false;
       }
     }
-  }, [email, senha, navigate, resetDetector, resetInternalFlags, stopWithError]);
+  }, [
+    email,
+    senha,
+    navigate,
+    resetDetector,
+    resetInternalFlags,
+    stopWithError,
+  ]);
 
   const retry = useCallback(async () => {
     abortControllerRef.current?.abort();
@@ -113,61 +121,7 @@ export function useLiveness({
     await start();
   }, [resetDetector, resetInternalFlags, start]);
 
-  const handleAnalysisComplete = useCallback(async () => {
-    if (!sessionId || handlingAnalysisRef.current) return;
-    handlingAnalysisRef.current = true;
-
-    try {
-      setPhase("processing");
-      setErrorMessage(null);
-
-      const response = await login({
-        email,
-        senha,
-        idSessaoLiveness: sessionId,
-        twoFactorCode: twoFactorCode ?? null,
-      });
-
-      if (!mountedRef.current) return;
-
-      if (response?.qrCodeUrl) {
-        setPhase("success");
-
-        navigate("/2fa-setup", {
-          state: {
-            qrCodeUrl: response.qrCodeUrl,
-            secret: response.secret,
-            email,
-            senha,
-            idSessaoLiveness: sessionId,
-          },
-        });
-
-        return;
-      }
-
-      if (response?.token) {
-        setToken(response.token);
-      }
-
-      setPhase("success");
-      navigate("/home");
-    } catch (error) {
-      if (!mountedRef.current) return;
-
-      stopWithError(getLivenessErrorMessage(error));
-    } finally {
-      handlingAnalysisRef.current = false;
-    }
-  }, [
-    email,
-    senha,
-    sessionId,
-    twoFactorCode,
-    navigate,
-    setToken,
-    stopWithError,
-  ]);
+  
 
   const handleError = useCallback(
     (error: unknown) => {
@@ -182,7 +136,7 @@ export function useLiveness({
       stopWithError(getLivenessErrorMessage(error));
       handlingErrorRef.current = false;
     },
-    [stopWithError]
+    [stopWithError],
   );
 
   useEffect(() => {
