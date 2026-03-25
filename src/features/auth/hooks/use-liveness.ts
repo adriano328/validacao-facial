@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { criarSessaoLiveness, compararFaces } from "../api/liveness";
+import { criarSessaoLiveness } from "../api/liveness";
 import { mapCriarSessaoToSessionId } from "../model/liveness.mapper";
 import type {
   LivenessPhase,
@@ -9,6 +9,7 @@ import type {
 } from "../model/liveness.types";
 import { useAuthToken } from "../../../app/providers/auth-token-provider";
 import { getLivenessErrorMessage } from "../model/liveness.errors";
+import { login } from "../api/login";
 
 type UseLivenessWithDetectorKey = UseLivenessReturn & {
   detectorKey: number;
@@ -17,7 +18,8 @@ type UseLivenessWithDetectorKey = UseLivenessReturn & {
 export function useLiveness({
   email,
   senha,
-}: UseLivenessParams): UseLivenessWithDetectorKey {
+  twoFactorCode,
+}: UseLivenessParams & { twoFactorCode?: number | null }): UseLivenessWithDetectorKey {
   const navigate = useNavigate();
   const { setToken } = useAuthToken();
 
@@ -119,15 +121,35 @@ export function useLiveness({
       setPhase("processing");
       setErrorMessage(null);
 
-      const response = await compararFaces({
-        source: sessionId,
+      const response = await login({
         email,
         senha,
+        idSessaoLiveness: sessionId,
+        twoFactorCode: twoFactorCode ?? null,
       });
 
       if (!mountedRef.current) return;
 
-      setToken(response.token);
+      if (response?.qrCodeUrl) {
+        setPhase("success");
+
+        navigate("/2fa-setup", {
+          state: {
+            qrCodeUrl: response.qrCodeUrl,
+            secret: response.secret,
+            email,
+            senha,
+            idSessaoLiveness: sessionId,
+          },
+        });
+
+        return;
+      }
+
+      if (response?.token) {
+        setToken(response.token);
+      }
+
       setPhase("success");
       navigate("/home");
     } catch (error) {
@@ -137,7 +159,15 @@ export function useLiveness({
     } finally {
       handlingAnalysisRef.current = false;
     }
-  }, [email, senha, sessionId, setToken, navigate, stopWithError]);
+  }, [
+    email,
+    senha,
+    sessionId,
+    twoFactorCode,
+    navigate,
+    setToken,
+    stopWithError,
+  ]);
 
   const handleError = useCallback(
     (error: unknown) => {
