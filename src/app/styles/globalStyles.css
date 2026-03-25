@@ -1,146 +1,108 @@
 * {
   padding: 0;
   margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
+  font-family: var(--font-family-base);
+}
+
+body {
+  background: var(--bg-page);
+  color: var(--text-primary);
 }
 
 .safe {
   min-height: 100vh;
-  background-color: #fff;
+  background-color: var(--bg-page);
 }
 
 .container {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  padding: 20px;
-  gap: 10px;
-  padding-bottom: 48px;
+  padding: var(--spacing-xl);
+  gap: var(--spacing-md);
+  padding-bottom: var(--spacing-xxl);
 }
 
 .containerCampo {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-}
-
-.campo {
-  height: 45px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 0 14px;
-  font-size: 14px;
-  outline: none;
-}
-
-.campo:focus {
-  border-color: #4F6F8A;
-}
-
-.nomeCampo {
-  font-size: 14px;
-  opacity: 0.7;
+  gap: var(--spacing-sm);
 }
 
 .titulo {
-  font-size: 22px;
-  font-weight: 700;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
   margin-bottom: 8px;
+  color: var(--text-primary);
 }
 
-.obrigatorio {
-  color: #d32f2f;
-  font-weight: 700;
-}
-
-.erro {
-  color: #d32f2f;
-  font-size: 12px;
-  margin-top: -6px;
-}
-
-.containerBotao {
-  margin-top: 20px;
-}
-
-.botao {
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #4F6F8A;
-  margin-top: 8px;
-  border: none;
-  cursor: pointer;
-}
-
-.botao:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.textoBotao {
-  color: #ffffff;
-  font-weight: 700;
-}
-
-
-/* INPUT */
-.inputPadrao {
-  width: 100%;
-  height: 42px;
-  padding: 0 14px;
-  border: 1px solid #c7cfdb;
-  border-radius: 10px;
-  background: #ffffff;
-  color: #2f3a4a;
-  font-size: 14px;
-  font-weight: 400;
-  outline: none;
-  transition: 0.2s;
-  box-sizing: border-box;
-}
-
-.inputPadrao::placeholder {
-  color: #7b8194;
-}
-
-.inputPadrao:focus {
-  border-color: #8aa4c7;
-  box-shadow: 0 0 0 3px rgba(138, 164, 199, 0.15);
-}
-
-
-/* LABEL */
-.labelPadrao {
-  font-size: 14px;
-  font-weight: 500;
-  color: #3b3f55;
-}
-
-.labelObrigatorio {
-  color: #ef4444;
-}
-
-
-/* ERRO */
+.obrigatorio,
+.labelObrigatorio,
+.erro,
 .erroPadrao {
-  font-size: 12px;
-  color: #ef4444;
+  color: var(--text-error);
+}
+
+.nomeCampo,
+.labelPadrao {
+  font-size: var(--font-size-md);
+  color: var(--text-label);
+}
+
+.labelPadrao {
+  font-weight: var(--font-weight-medium);
+}
+
+.erro,
+.erroPadrao {
+  font-size: var(--font-size-sm);
   margin-top: 4px;
 }
 
+/* INPUT PADRÃO */
+.inputPadrao {
+  width: 100%;
+  height: var(--input-height);
+  padding: 0 14px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--input-bg);
+  color: var(--input-text);
+  font-size: var(--font-size-md);
+  font-weight: 400;
+  outline: none;
+  transition: 0.2s;
+}
 
-/* BOTÃO BASE */
+.inputPadrao::placeholder {
+  color: var(--text-placeholder);
+}
+
+.inputPadrao:focus {
+  border-color: var(--border-focus);
+  box-shadow: var(--focus-shadow);
+}
+
+/* BOTÕES */
+.containerBotao {
+  margin-top: var(--spacing-xl);
+}
+
+.containerBotoes {
+  display: flex;
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-md);
+}
+
 .botaoPadrao {
   flex: 1;
-  height: 40px;
+  height: var(--button-height);
   border: none;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #ffffff;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-white);
   cursor: pointer;
   transition: 0.2s;
 }
@@ -153,27 +115,46 @@
   transform: translateY(1px);
 }
 
+.botaoPadrao:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
-/* VARIAÇÕES */
 .botaoPrimario {
-  background: #46b96c;
+  background: var(--color-success);
 }
 
 .botaoPrimario:hover {
-  background: #38a85d;
+  background: var(--color-success-dark);
 }
 
 .botaoSecundario {
-  background: #4f87bd;
+  background: var(--color-info);
 }
 
 .botaoSecundario:hover {
-  background: #3f78b0;
+  background: var(--color-info-dark);
 }
 
-
-.containerBotoes {
+/* BOTÃO GRANDE */
+.botao {
+  height: var(--button-height-lg);
+  border-radius: var(--radius-lg);
   display: flex;
-  gap: 16px;
-  margin-top: 10px;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-primary);
+  margin-top: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.botao:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.textoBotao {
+  color: var(--color-white);
+  font-weight: var(--font-weight-bold);
 }

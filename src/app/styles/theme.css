@@ -1,20 +1,59 @@
 :root {
+  /* Cores principais */
   --color-primary: #00677e;
   --color-primary-dark: #005766;
   --color-white: #ffffff;
+
+  /* Backgrounds */
+  --bg-page: #ffffff;
   --bg-gradient: linear-gradient(135deg, #00677e 0%, #008da6 50%, #004d5c 100%);
-    /* Textos */
+
+  /* Textos */
   --text-primary: #111827;
   --text-secondary: #6b7280;
-  
-    /* Inputs */
-  --input-border: #d1d5db;
+  --text-label: #3b3f55;
+  --text-placeholder: #7b8194;
+  --text-error: #ef4444;
+
+  /* Bordas e inputs */
+  --border-default: #c7cfdb;
+  --border-focus: #8aa4c7;
+  --input-bg: #ffffff;
+  --input-text: #2f3a4a;
   --input-placeholder: #9ca3af;
+  --focus-shadow: 0 0 0 3px rgba(138, 164, 199, 0.15);
 
-   /* Botões */
-  --color-success: #3fa66b;
-  --color-success-dark: #2f855a;
-  --color-info: #4f7ea8;
-  --color-info-dark: #3b6a8f;
+  /* Botões */
+  --color-success: #46b96c;
+  --color-success-dark: #38a85d;
+  --color-info: #4f87bd;
+  --color-info-dark: #3f78b0;
 
+  /* Espaçamentos */
+  --spacing-xs: 4px;
+  --spacing-sm: 6px;
+  --spacing-md: 10px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+  --spacing-xxl: 48px;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+
+  /* Tamanhos */
+  --input-height: 42px;
+  --button-height: 40px;
+  --button-height-lg: 48px;
+
+  /* Fontes */
+  --font-family-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-size-sm: 12px;
+  --font-size-md: 14px;
+  --font-size-lg: 22px;
+
+  /* Peso */
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
 }

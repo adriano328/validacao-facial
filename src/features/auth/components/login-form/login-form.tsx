@@ -20,9 +20,10 @@ export function LoginForm() {
         e.preventDefault();
         submit();
       }}
-    >      <FormField label="E-mail" required error={showError('email')}>
+    >
+      <FormField label="E-mail" required error={showError('email')}>
         <input
-          className={styles.input}
+          className="inputPadrao"
           value={form.email}
           onChange={(e) => setField('email', e.target.value)}
           onBlur={() => touchField('email')}
@@ -35,7 +36,7 @@ export function LoginForm() {
 
       <FormField label="Senha" required error={showError('password')}>
         <input
-          className={styles.input}
+          className="inputPadrao"
           type="password"
           value={form.password}
           onChange={(e) => setField('password', e.target.value)}
@@ -45,9 +46,9 @@ export function LoginForm() {
         />
       </FormField>
 
-      <div className={styles.actions}>
+      <div className={`${styles.actions} containerBotoes`}>
         <button
-          className={`${styles.button} ${styles.primary}`}
+          className="botaoPadrao botaoPrimario"
           type="submit"
           disabled={isSubmitting}
         >
@@ -55,7 +56,7 @@ export function LoginForm() {
         </button>
 
         <button
-          className={`${styles.button} ${styles.secondary}`}
+          className="botaoPadrao botaoSecundario"
           type="button"
           onClick={goToRegister}
           disabled={isSubmitting}

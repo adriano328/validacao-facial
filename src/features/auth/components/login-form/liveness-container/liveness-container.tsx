@@ -26,6 +26,14 @@ export function LivenessContainer({
     <div className={styles.livenessPage}>
       <div className={styles.livenessCard}>
         <header className={styles.livenessHeader}>
+          <div className={styles.logoWrap}>
+            <img
+              src="/logo-comademat.png"
+              alt="COMADEMAT"
+              className={styles.logo}
+            />
+          </div>
+
           <h1 className={styles.livenessTitle}>Validação facial</h1>
           <p className={styles.livenessSubtitle}>
             Posicione seu rosto corretamente para concluir o acesso.
@@ -72,7 +80,7 @@ export function LivenessContainer({
             <div className={styles.livenessActions}>
               <button
                 type="button"
-                className={styles.livenessButton}
+                className="botaoPadrao botaoPrimario"
                 onClick={onRetry}
                 disabled={isBusy}
               >
