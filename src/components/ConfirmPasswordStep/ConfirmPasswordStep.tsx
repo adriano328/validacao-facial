@@ -10,32 +10,32 @@ export function ConfirmacaoUuidPage() {
   const [status, setStatus] = useState<Status>("loading");
   const [mensagem, setMensagem] = useState("Confirmando solicitação...");
 
-useEffect(() => {
-  async function confirmar() {
-    console.log(uuid);
+  useEffect(() => {
+    async function confirmar() {
+      console.log(uuid);
 
-    if (!uuid) {
-      setStatus("error");
-      setMensagem("Código não informado na URL.");
-      return;
+      if (!uuid) {
+        setStatus("error");
+        setMensagem("Código não informado na URL.");
+        return;
+      }
+
+      try {
+        setStatus("loading");
+        setMensagem("Confirmando solicitação...");
+
+        await confirmarEmail(uuid);
+
+        setStatus("success");
+        setMensagem("Confirmação realizada com sucesso.");
+      } catch {
+        setStatus("error");
+        setMensagem("Não foi possível confirmar sua solicitação.");
+      }
     }
 
-    try {
-      setStatus("loading");
-      setMensagem("Confirmando solicitação...");
-
-      await confirmarEmail(uuid);
-
-      setStatus("success");
-      setMensagem("Confirmação realizada com sucesso.");
-    } catch (error) {
-      setStatus("error");
-      setMensagem("Não foi possível confirmar sua solicitação.");
-    }
-  }
-
-  confirmar();
-}, [uuid]);
+    confirmar();
+  }, [uuid]);
 
   return (
     <div className="safe">

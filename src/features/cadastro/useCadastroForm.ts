@@ -154,7 +154,7 @@ export function useCadastroForm() {
     setIsSubmitting(true);
 
     try {
-      const pessoaId = await salvarPessoa(payload, controller.signal);
+      await salvarPessoa(payload, controller.signal);
       navigate("/confirmacao");
     } catch (err) {
       if (controller.signal.aborted || axios.isCancel(err)) {
