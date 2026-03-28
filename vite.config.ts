@@ -1,15 +1,15 @@
 import { defineConfig } from "vite";
-import fs from "node:fs";
+import basicSsl from "@vitejs/plugin-basic-ssl";
 
 export default defineConfig({
+  plugins: [basicSsl()],
   server: {
-    host: true,
+    host: "0.0.0.0",
     port: 5173,
     strictPort: true,
-    https: {
-      key: fs.readFileSync("./192.168.18.6+2-key.pem"),
-      cert: fs.readFileSync("./192.168.18.6+2.pem"),
+    https: {},
+    hmr: {
+      host: "192.168.18.6",
     },
   },
 });
-
