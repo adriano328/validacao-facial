@@ -1,11 +1,8 @@
 import axios from "axios";
-import {
-  AxiosError,
-  type InternalAxiosRequestConfig,
-} from "axios";
+import type { AxiosError, InternalAxiosRequestConfig } from "axios";
 
 let authToken: string | null = null;
-let onUnauthorized: (() => void) | null = null;
+let unauthorizedHandler: (() => void) | null = null;
 
 const baseURL = "https://ihvjqtwvo5.execute-api.us-east-1.amazonaws.com/test";
 
@@ -16,17 +13,12 @@ export const api = axios.create({
 
 type JwtPayload = {
   exp?: number;
-  sub?: string;
-  username?: string;
-  authorities?: string[];
 };
 
 function decodeBase64Url(value: string): string {
   const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
-  const padded = normalized.padEnd(
-    normalized.length + ((4 - (normalized.length % 4)) % 4),
-    "=",
-  );
+  const padLength = (4 - (normalized.length % 4)) % 4;
+  const padded = normalized.padEnd(normalized.length + padLength, "=");
 
   return atob(padded);
 }
@@ -46,7 +38,7 @@ function parseJwtPayload(token: string): JwtPayload | null {
   }
 }
 
-export function isTokenExpired(token: string): boolean {
+function isTokenExpired(token: string): boolean {
   const payload = parseJwtPayload(token);
 
   if (!payload?.exp) {
@@ -60,16 +52,12 @@ export function setAuthToken(token: string | null) {
   authToken = token;
 }
 
-export function getAuthToken() {
-  return authToken;
-}
-
 export function clearAuthToken() {
   authToken = null;
 }
 
 export function setUnauthorizedHandler(handler: (() => void) | null) {
-  onUnauthorized = handler;
+  unauthorizedHandler = handler;
 }
 
 api.interceptors.request.use(
@@ -80,11 +68,8 @@ api.interceptors.request.use(
 
     if (isTokenExpired(authToken)) {
       authToken = null;
-      onUnauthorized?.();
-
-      return Promise.reject(
-        new AxiosError("Token expirado", "ERR_TOKEN_EXPIRED", config),
-      );
+      unauthorizedHandler?.();
+      return Promise.reject(new Error("Token expirado"));
     }
 
     config.headers.Authorization = `Bearer ${authToken}`;
@@ -97,7 +82,7 @@ api.interceptors.response.use(
   (error: AxiosError) => {
     if (error.response?.status === 401) {
       authToken = null;
-      onUnauthorized?.();
+      unauthorizedHandler?.();
     }
 
     return Promise.reject(error);

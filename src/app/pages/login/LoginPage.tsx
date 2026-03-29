@@ -63,15 +63,6 @@ export function LoginPage() {
             </button>
 
             <button
-              className="botao doc"
-              type="button"
-              onClick={validaDocs}
-              disabled={isSubmitting}
-            >
-              <span className="textoBotao">Docs</span>
-            </button>
-
-            <button
               className="botao cadastrar"
               type="button"
               onClick={irCadastrar}
@@ -98,12 +89,10 @@ export function LoginPage() {
       <TwoFactorConfirm
         open={twoFactorStep === "confirm"}
         onBack={() => {
-          // volta pro QR se ainda tiver dados, senão fecha tudo
           if (qrCodeData) setTwoFactorStep("qr");
           else setTwoFactorStep("none");
         }}
         onDone={() => {
-          // quando confirmar com sucesso, você pediu limpar tudo
           setQrCodeData(null);
           setTwoFactorStep("none");
           resetTwoFactor();

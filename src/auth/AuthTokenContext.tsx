@@ -38,7 +38,7 @@ export function AuthTokenProvider({ children }: AuthTokenProviderProps) {
   }, [token]);
 
   useEffect(() => {
-    setUnauthorizedHandler(() => clearToken());
+    setUnauthorizedHandler(clearToken);
 
     return () => {
       setUnauthorizedHandler(null);

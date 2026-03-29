@@ -1,15 +1,16 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
+import { Amplify } from "aws-amplify";
+import { I18n } from "aws-amplify/utils";
+
 import "./styles/globalStyles.css";
 import "@aws-amplify/ui-react/styles.css";
 import "@aws-amplify/ui-react-liveness/styles.css";
-import { Amplify } from "aws-amplify";
 import "./styles/swal.css";
-import { PessoaProvider } from "./context/PessoaContext";
-
-import { I18n } from "aws-amplify/utils";
 import "./i18n/livenessPtBR";
+
+import { PessoaProvider } from "./context/PessoaContext";
 import { TwoFactorProvider } from "./context/TwoFactorContext";
 import { AuthTokenProvider } from "./auth/AuthTokenContext";
 import App from "./App";
@@ -36,5 +37,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         </TwoFactorProvider>
       </PessoaProvider>
     </AuthTokenProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
