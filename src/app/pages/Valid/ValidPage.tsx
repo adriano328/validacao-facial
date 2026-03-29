@@ -8,7 +8,7 @@ import {
 import { alerts } from "../../../lib/swal";
 import { usePessoa } from "../../../context/PessoaContext";
 import { livenessDisplayTextPtBR } from "../../../i18n/livenessPtBR";
-import { useAuthToken } from "../../../context/AuthTokenContext";
+import { useAuthToken } from "../../../auth/AuthTokenContext";
 import { useNavigate } from "react-router-dom";
 
 
