@@ -13,6 +13,7 @@ import "./i18n/livenessPtBR";
 import { PessoaProvider } from "./context/PessoaContext";
 import { TwoFactorProvider } from "./context/TwoFactorContext";
 import { AuthTokenProvider } from "./auth/AuthTokenContext";
+import { UserInfoProvider } from "./context/UserInfoContext";
 import App from "./App";
 
 I18n.setLanguage("pt");
@@ -32,10 +33,12 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <PessoaProvider>
         <TwoFactorProvider>
           <BrowserRouter>
-            <App />
+            <UserInfoProvider>
+              <App />
+            </UserInfoProvider>
           </BrowserRouter>
         </TwoFactorProvider>
       </PessoaProvider>
     </AuthTokenProvider>
-  </React.StrictMode>,
+  </React.StrictMode>
 );

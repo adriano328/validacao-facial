@@ -60,22 +60,20 @@ export function setUnauthorizedHandler(handler: (() => void) | null) {
   unauthorizedHandler = handler;
 }
 
-api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    if (!authToken) {
-      return config;
-    }
-
-    if (isTokenExpired(authToken)) {
-      authToken = null;
-      unauthorizedHandler?.();
-      return Promise.reject(new Error("Token expirado"));
-    }
-
-    config.headers.Authorization = `Bearer ${authToken}`;
+api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  if (!authToken) {
     return config;
-  },
-);
+  }
+
+  if (isTokenExpired(authToken)) {
+    authToken = null;
+    unauthorizedHandler?.();
+    return Promise.reject(new Error("Token expirado"));
+  }
+
+  config.headers.Authorization = `Bearer ${authToken}`;
+  return config;
+});
 
 api.interceptors.response.use(
   (response) => response,
@@ -86,5 +84,5 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  },
+  }
 );
