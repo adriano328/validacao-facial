@@ -1,6 +1,33 @@
 import { api } from "../api/api";
 import type { AtivarTwoFactorResponse, TwoFactorPayload } from "../features/login/type";
 
+export type CampoEclesiastico = {
+  id: number;
+  nomeCampo: string;
+};
+
+export type ObterInformacaoUsuarioResponse = {
+  id: number;
+  nome: string;
+  cargo: string;
+  telefone: string;
+  dataNascimento: string;
+  campoEclesiastico: CampoEclesiastico;
+  ultimoLogin: string;
+  cpf: string;
+};
+
+export async function obterInformacaoUsuario(
+  signal?: AbortSignal
+): Promise<ObterInformacaoUsuarioResponse> {
+  const response = await api.get<ObterInformacaoUsuarioResponse>(
+    "/usuario/obter-informacao-usuario",
+    { signal }
+  );
+
+  return response.data;
+}
+
 export async function twoFactorAtivado(
   payload: { email: string; password: string },
   signal?: AbortSignal
@@ -51,3 +78,4 @@ export async function verificarTwoFactor(
 
   return res.status >= 200 && res.status < 300;
 }
+
