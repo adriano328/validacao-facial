@@ -7,6 +7,7 @@ import { maskCPF, maskDateBR, maskPhoneBR } from "../../../utils/masks";
 import "./styles.css";
 import { DocumentPhotoField } from "../documentVerify/DocumentPhotoField";
 import { CARGOS_ECLESIASTICOS } from "../../../data/cargos";
+import { formatarDataToBr } from "../../../utils/formataData";
 
 export function CadastroPage() {
   const {
@@ -14,6 +15,7 @@ export function CadastroPage() {
     setFormCadastro,
     touchField,
     showError,
+    handleConsultaCpf,
     handleCadastrar,
     isSubmitting,
   } = useCadastroForm();
@@ -31,7 +33,10 @@ export function CadastroPage() {
             className="campo"
             value={formCadastro.cpf}
             onChange={(e) => setFormCadastro("cpf", maskCPF(e.target.value))}
-            onBlur={() => touchField("cpf")}
+            onBlur={() => {
+              touchField("cpf");
+              handleConsultaCpf(formCadastro.cpf);
+            }}
             placeholder="000.000.000-00"
             inputMode="numeric"
           />
@@ -54,7 +59,7 @@ export function CadastroPage() {
         >
           <input
             className="campo"
-            value={formCadastro.dataNascimento}
+            value={formCadastro.dataNascimento ? formatarDataToBr(formCadastro.dataNascimento): ''}
             onChange={(e) =>
               setFormCadastro("dataNascimento", maskDateBR(e.target.value))
             }

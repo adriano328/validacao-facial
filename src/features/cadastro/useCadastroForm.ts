@@ -2,6 +2,7 @@ import { useMemo, useRef, useState, useEffect } from "react";
 import {
   initialCadastroForm,
   type CadastroForm,
+  type CargoUsuario,
   type PessoaPayload,
 } from "./types";
 import {
@@ -12,10 +13,11 @@ import {
 } from "./validator";
 import { useNavigate } from "react-router-dom";
 import { alerts } from "../../lib/swal";
-import { brDateToISO } from "../../utils/formataData";
+import { brDateToISO, formatarDataToBr } from "../../utils/formataData";
 import { stripDataUrl } from "../../utils/formataBase64";
 import { salvarPessoa } from "../../services/pessoa";
 import { handleAxiosError } from "../../utils/messageErro";
+import { consultaMembro } from "../../services/consulta-membro";
 import axios from "axios";
 
 type TouchedState = Partial<Record<keyof CadastroForm, boolean>>;
@@ -27,6 +29,7 @@ export function useCadastroForm() {
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState<"cadastro" | "confirmarSenha">("cadastro");
+  const [loadingCpf, setLoadingCpf] = useState(false);
 
   const navigate = useNavigate();
 
@@ -43,7 +46,7 @@ export function useCadastroForm() {
 
   const setFormCadastro = <K extends keyof CadastroForm>(
     key: K,
-    value: CadastroForm[K]
+    value: CadastroForm[K],
   ) => {
     setForm((prev) => {
       const next = { ...prev, [key]: value };
@@ -66,7 +69,7 @@ export function useCadastroForm() {
 
   const touchField = <K extends keyof CadastroForm>(
     key: K,
-    nextValue?: CadastroForm[K]
+    nextValue?: CadastroForm[K],
   ) => {
     setTouched((prev) => ({ ...prev, [key]: true }));
 
@@ -95,6 +98,40 @@ export function useCadastroForm() {
     }
 
     navigate("/login");
+  }
+
+  async function handleConsultaCpf(cpf: string) {
+    try {
+      const cpfLimpo = cpf.replace(/\D/g, "");
+      if (cpfLimpo.length !== 11) {
+        return;
+      }
+
+      setLoadingCpf(true);
+
+      const response = await consultaMembro({ documento: cpfLimpo });
+      if (response) {
+          setFormCadastro("nome", response.NOME);
+          setFormCadastro("dataNascimento", response.NASCIMENTO);
+          setFormCadastro("email", response.EMAIL);
+          setFormCadastro("cargo", mapearCargo(response.MINISTERIO));
+      }
+    } catch (error: any) {
+      console.error(error);
+      // opcional: mostrar erro
+      // messageAlert.error(error.message)
+    } finally {
+      setLoadingCpf(false);
+    }
+  }
+
+  function mapearCargo(ministerio: string): CargoUsuario | undefined {
+    const valor = ministerio?.toUpperCase();
+
+    if (valor === "PASTOR") return "PASTOR";
+    if (valor === "EVANGELISTA") return "EVANGELISTA";
+
+    return undefined;
   }
 
   const validate = () => {
@@ -216,6 +253,8 @@ export function useCadastroForm() {
 
   return {
     formCadastro,
+    handleConsultaCpf,
+    loadingCpf,
     setFormCadastro,
     errors,
     touched,

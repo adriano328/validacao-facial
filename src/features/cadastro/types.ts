@@ -16,18 +16,18 @@ export type PessoaPayload = {
   documento: string;
 };
 
-export type CadastroForm = {
-  nome: string;
-  cargo: CargoUsuario | undefined;
-  telefone: string;
-  dataNascimento: string;
-  email: string;
-  senha: string;
-  senhaConfirmacao: string;
-  cpf: string;
-  campoEclesiasticoId: number | undefined;
-  documento: string;
-};
+  export type CadastroForm = {
+    nome: string;
+    cargo: CargoUsuario | undefined;
+    telefone: string;
+    dataNascimento: string;
+    email: string;
+    senha: string;
+    senhaConfirmacao: string;
+    cpf: string;
+    campoEclesiasticoId: number | undefined;
+    documento: string;
+  };
 
 export const initialCadastroForm: CadastroForm = {
   nome: "",
