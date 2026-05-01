@@ -6,7 +6,7 @@ type Props = {
   label?: string;
   required?: boolean;
   documentType: DocumentType;
-  value: string;                 // base64
+  value: string;                 
   onChange: (base64: string) => void;
   disabled?: boolean;
   error?: string | null;
@@ -51,7 +51,7 @@ export function DocumentPhotoField({
         {!hasValue ? (
           <div style={styles.empty}>
             <p style={{ fontSize: 13, opacity: 0.8 }}>
-              Tire uma foto nítida da frente do {documentType}. Evite reflexos.
+              Tire uma foto nítida da frente do seu documento. Evite reflexos.
             </p>
             <button
               type="button"
@@ -126,7 +126,7 @@ export function DocumentPhotoField({
 }
 
 const styles: Record<string, any> = {
-  wrap: { border: "1px solid #ddd", borderRadius: 10, background: "#fff" },
+  wrap: { border: "1px solid #ddd", borderRadius: 10, background: "#fff", marginTop: 18 },
   header: { padding: 12, display: "flex", justifyContent: "space-between", background: "#f6f6f6" },
   badge: (kind: "ok" | "warn") => ({
     fontSize: 12,

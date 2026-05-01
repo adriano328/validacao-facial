@@ -1,11 +1,52 @@
-import { FormField } from "@shared/ui/form/FormField";
-import { DropdownField } from "@shared/ui/dropdown/DropdownField";
-import { maskCPF, maskDateBR, maskPhoneBR } from "@shared/utils/masks";
-import { CARGOS_ECLESIASTICOS } from "@shared/data/cargos";
 import { DocumentPhotoField } from "@features/registration/ui/DocumentPhotoField";
 import { useCadastroForm } from "@features/registration/model/useCadastroForm";
 import type { CargoUsuario } from "@features/registration/model/types";
+import { CARGOS_ECLESIASTICOS } from "@shared/data/cargos";
+import { DropdownField } from "@shared/ui/dropdown/DropdownField";
+import { FormField } from "@shared/ui/form/FormField";
+import { maskCPF, maskDateBR, maskPhoneBR } from "@shared/utils/masks";
 import "./CadastroPage.css";
+
+function BallotIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="34"
+      height="34"
+      viewBox="0 0 34 34"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        d="M9 21.5V25C9 26.1 9.9 27 11 27H25C26.1 27 27 26.1 27 25V21.5"
+        stroke="currentColor"
+        strokeWidth="2.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M8 20.5H15.8"
+        stroke="currentColor"
+        strokeWidth="2.7"
+        strokeLinecap="round"
+      />
+      <path
+        d="M17.6 8.6L24.4 15.4L15 24.8H8.2V18L17.6 8.6Z"
+        stroke="currentColor"
+        strokeWidth="2.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M15.4 10.8L22.2 17.6"
+        stroke="currentColor"
+        strokeWidth="2.7"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
 
 export function CadastroPage() {
   const {
@@ -22,136 +63,185 @@ export function CadastroPage() {
   const cargoInvalid = !!cargoError;
 
   return (
-    <div className="safe">
-      <div className="container">
-        <h1 className="titulo">Criar Cadastro</h1>
+    <div className="cadastro-page">
+      <main className="cadastro-main" aria-labelledby="cadastro-title">
+        <header className="cadastro-brand">
+          <div className="cadastro-brandIcon">
+            <BallotIcon />
+          </div>
+          <h1>E-Voto</h1>
+        </header>
 
-        <FormField label="CPF" required error={showError("cpf")}>
-          <input
-            className="campo"
-            value={formCadastro.cpf}
-            onChange={(e) => setFormCadastro("cpf", maskCPF(e.target.value))}
-            onBlur={() => {
-              touchField("cpf");
-              handleConsultaCpf(formCadastro.cpf);
-            }}
-            placeholder="000.000.000-00"
-            inputMode="numeric"
-          />
-        </FormField>
+        <section className="vf-card cadastro-card">
+          <div className="vf-sectionHeader cadastro-cardHeader">
+            <h4 className="vf-title" id="cadastro-title">
+              Criar Cadastro
+            </h4>
+            <p className="vf-text">
+              Preencha os campos abaixo para iniciar seu acesso seguro &agrave;
+              plataforma.
+            </p>
+          </div>
 
-        <FormField label="Nome" required error={showError("nome")}>
-          <input
-            className="campo"
-            value={formCadastro.nome}
-            onChange={(e) => setFormCadastro("nome", e.target.value)}
-            onBlur={() => touchField("nome")}
-            placeholder="Seu nome completo"
-          />
-        </FormField>
+          <div className="cadastro-form">
+            <div className="cadastro-grid">
+              <FormField label="CPF" required error={showError("cpf")}>
+                <input
+                  className="vf-input"
+                  value={formCadastro.cpf}
+                  onChange={(event) =>
+                    setFormCadastro("cpf", maskCPF(event.target.value))
+                  }
+                  onBlur={() => {
+                    touchField("cpf");
+                    handleConsultaCpf(formCadastro.cpf);
+                  }}
+                  placeholder="000.000.000-00"
+                  inputMode="numeric"
+                />
+              </FormField>
 
-        <FormField
-          label="Data de nascimento"
-          required
-          error={showError("dataNascimento")}
-        >
-          <input
-            className="campo"
-            value={formCadastro.dataNascimento}
-            onChange={(e) =>
-              setFormCadastro("dataNascimento", maskDateBR(e.target.value))
-            }
-            onBlur={() => touchField("dataNascimento")}
-            placeholder="DD/MM/AAAA"
-            inputMode="numeric"
-          />
-        </FormField>
+              <FormField label="Nome" required error={showError("nome")}>
+                <input
+                  className="vf-input"
+                  value={formCadastro.nome}
+                  onChange={(event) =>
+                    setFormCadastro("nome", event.target.value)
+                  }
+                  onBlur={() => touchField("nome")}
+                  placeholder="Nome completo"
+                />
+              </FormField>
 
-        <FormField label="Telefone" required error={showError("telefone")}>
-          <input
-            className="campo"
-            value={formCadastro.telefone}
-            onChange={(e) =>
-              setFormCadastro("telefone", maskPhoneBR(e.target.value))
-            }
-            onBlur={() => touchField("telefone")}
-            placeholder="(00) 00000-0000"
-            inputMode="numeric"
-          />
-        </FormField>
+              <FormField
+                label="Data de nascimento"
+                required
+                error={showError("dataNascimento")}
+              >
+                <input
+                  className="vf-input"
+                  value={formCadastro.dataNascimento}
+                  onChange={(event) =>
+                    setFormCadastro(
+                      "dataNascimento",
+                      maskDateBR(event.target.value)
+                    )
+                  }
+                  onBlur={() => touchField("dataNascimento")}
+                  placeholder="DD/MM/AAAA"
+                  inputMode="numeric"
+                />
+              </FormField>
 
-        <FormField required label="Cargo" error={cargoError}>
-          <DropdownField
-            value={formCadastro.cargo}
-            placeholder="Selecione o cargo"
-            options={CARGOS_ECLESIASTICOS}
-            onChange={(cargo) => setFormCadastro("cargo", cargo as CargoUsuario)}
-            onBlur={() => touchField("cargo")}
-            invalid={cargoInvalid}
-          />
-        </FormField>
+              <FormField label="Telefone" required error={showError("telefone")}>
+                <input
+                  className="vf-input"
+                  value={formCadastro.telefone}
+                  onChange={(event) =>
+                    setFormCadastro("telefone", maskPhoneBR(event.target.value))
+                  }
+                  onBlur={() => touchField("telefone")}
+                  placeholder="(00) 00000-0000"
+                  inputMode="numeric"
+                />
+              </FormField>
 
-        <FormField label="E-mail" required error={showError("email")}>
-          <input
-            className="campo"
-            value={formCadastro.email}
-            onChange={(e) => setFormCadastro("email", e.target.value)}
-            onBlur={() => touchField("email")}
-            placeholder="seuemail@seuemail.com"
-            inputMode="email"
-            autoCapitalize="none"
-          />
-        </FormField>
+              <FormField required label="Cargo" error={cargoError}>
+                <DropdownField
+                  value={formCadastro.cargo}
+                  placeholder="Selecione o cargo"
+                  options={CARGOS_ECLESIASTICOS}
+                  onChange={(cargo) =>
+                    setFormCadastro("cargo", cargo as CargoUsuario)
+                  }
+                  onBlur={() => touchField("cargo")}
+                  invalid={cargoInvalid}
+                />
+              </FormField>
 
-        <FormField label="Senha" required error={showError("senha")}>
-          <input
-            className="campo"
-            type="password"
-            value={formCadastro.senha}
-            onChange={(e) => setFormCadastro("senha", e.target.value)}
-            onBlur={() => touchField("senha")}
-            placeholder="••••••••"
-          />
-        </FormField>
+              <FormField label="E-mail" required error={showError("email")}>
+                <input
+                  className="vf-input"
+                  value={formCadastro.email}
+                  onChange={(event) =>
+                    setFormCadastro("email", event.target.value)
+                  }
+                  onBlur={() => touchField("email")}
+                  placeholder="seuemail@seuemail.com"
+                  inputMode="email"
+                  autoCapitalize="none"
+                />
+              </FormField>
 
-        <FormField
-          label="Confirmar senha"
-          required
-          error={showError("senhaConfirmacao")}
-        >
-          <input
-            className="campo"
-            type="password"
-            value={formCadastro.senhaConfirmacao}
-            onChange={(e) =>
-              setFormCadastro("senhaConfirmacao", e.target.value)
-            }
-            onBlur={() => touchField("senhaConfirmacao")}
-            placeholder="••••••••"
-          />
-        </FormField>
+              <FormField label="Senha" required error={showError("senha")}>
+                <input
+                  className="vf-input"
+                  type="password"
+                  value={formCadastro.senha}
+                  onChange={(event) =>
+                    setFormCadastro("senha", event.target.value)
+                  }
+                  onBlur={() => touchField("senha")}
+                />
+              </FormField>
 
-        <DocumentPhotoField
-          documentType="CNH"
-          value={formCadastro.documento}
-          onChange={(base64) => setFormCadastro("documento", base64)}
-          required
-          error={showError("documento")}
-        />
+              <FormField
+                label="Confirmar senha"
+                required
+                error={showError("senhaConfirmacao")}
+              >
+                <input
+                  className="vf-input"
+                  type="password"
+                  value={formCadastro.senhaConfirmacao}
+                  onChange={(event) =>
+                    setFormCadastro("senhaConfirmacao", event.target.value)
+                  }
+                  onBlur={() => touchField("senhaConfirmacao")}
+                />
+              </FormField>
+            </div>
 
-        <div className="containerBotao">
-          <button
-            className="botao"
-            type="button"
-            onClick={handleCadastrar}
-            disabled={isSubmitting}
-          >
-            <span className="textoBotao">
-              {isSubmitting ? "Salvando..." : "Cadastrar"}
-            </span>
-          </button>
-        </div>
-      </div>
+            <DocumentPhotoField
+              documentType="CNH"
+              value={formCadastro.documento}
+              onChange={(base64) => setFormCadastro("documento", base64)}
+              required
+              error={showError("documento")}
+            />
+
+            <button
+              className="vf-button vf-button--primary cadastro-submit"
+              type="button"
+              onClick={handleCadastrar}
+              disabled={isSubmitting}
+            >
+              <span>{isSubmitting ? "Salvando..." : "Cadastrar"}</span>
+              <BallotIcon className="cadastro-buttonIcon" />
+            </button>
+
+            <p className="cadastro-terms">
+              Ao clicar em Cadastrar, voc&ecirc; concorda com nossos{" "}
+              <a href="/termos" onClick={(event) => event.preventDefault()}>
+                Termos de Uso
+              </a>{" "}
+              e{" "}
+              <a
+                href="/privacidade"
+                onClick={(event) => event.preventDefault()}
+              >
+                Pol&iacute;tica de Privacidade
+              </a>
+              .
+            </p>
+          </div>
+        </section>
+      </main>
+
+      <footer className="cadastro-footer">
+        <p>&copy; 2024 E-Vote. Todos os direitos reservados.</p>
+        <p>Sistema de Auditoria Civil Independente.</p>
+      </footer>
     </div>
   );
 }

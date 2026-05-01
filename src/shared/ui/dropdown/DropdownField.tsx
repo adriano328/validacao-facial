@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { FocusEvent } from "react";
 import "./dropdownField.css";
 
 export type DropdownOption<T extends string | number = string> = {
@@ -13,13 +14,9 @@ type DropdownFieldProps<T extends string | number = string> = {
   placeholder?: string;
   onChange: (value: T) => void;
   disabled?: boolean;
-
-  // marca touched quando fecha sem selecionar
   onBlur?: () => void;
-
   invalid?: boolean;
-
-  searchable?: boolean; // default true
+  searchable?: boolean;
   searchPlaceholder?: string;
   emptyText?: string;
 };
@@ -45,11 +42,10 @@ export function DropdownField<T extends string | number = string>({
 }: DropdownFieldProps<T>) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const sheetRef = useRef<HTMLDivElement | null>(null);
-  const searchRef = useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const selected = useMemo(
-    () => options.find((o) => o.value === value),
+    () => options.find((option) => option.value === value),
     [options, value]
   );
 
@@ -59,146 +55,125 @@ export function DropdownField<T extends string | number = string>({
     const q = normalize(query);
     if (!q) return options;
 
-    return options.filter((opt) => normalize(opt.label).includes(q));
+    return options.filter((option) => normalize(option.label).includes(q));
   }, [options, query, searchable]);
 
-  function openModal() {
+  useEffect(() => {
+    if (!open) {
+      setQuery(selected?.label ?? "");
+    }
+  }, [open, selected?.label]);
+
+  function openSelect() {
     if (disabled) return;
+
     setOpen(true);
+    if (searchable) {
+      setQuery("");
+    }
+
+    requestAnimationFrame(() => inputRef.current?.focus());
   }
 
-  function closeModal() {
+  function closeSelect() {
     setOpen(false);
     onBlur?.();
   }
 
-  function selectValue(v: T) {
-    onChange(v);
-    setOpen(false);
+  function handleWrapperBlur(event: FocusEvent<HTMLDivElement>) {
+    if (event.currentTarget.contains(event.relatedTarget)) {
+      return;
+    }
+
+    closeSelect();
   }
 
-  useEffect(() => {
-    if (open) setQuery("");
-  }, [open]);
+  function selectValue(option: DropdownOption<T>) {
+    if (option.disabled) return;
 
-  useEffect(() => {
-    if (open && searchable) {
-      requestAnimationFrame(() => searchRef.current?.focus());
-    }
-  }, [open, searchable]);
-
-  useEffect(() => {
-    if (!open) return;
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeModal();
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [open]);
+    onChange(option.value);
+    setQuery(option.label);
+    setOpen(false);
+    onBlur?.();
+  }
 
   return (
-    <>
-      <button
-        type="button"
+    <div className="df-field" onBlur={handleWrapperBlur}>
+      <div
         className={[
-          "df-input",
-          disabled ? "df-input--disabled" : "",
-          invalid ? "df-input--invalid" : "",
+          "df-control",
+          disabled ? "df-control--disabled" : "",
+          invalid ? "df-control--invalid" : "",
+          open ? "df-control--open" : "",
         ].join(" ")}
-        onClick={openModal}
-        disabled={disabled}
-        aria-haspopup="dialog"
-        aria-expanded={open}
       >
-        <span className={["df-valueText", !selected ? "df-placeholder" : ""].join(" ")}>
-          {selected?.label ?? placeholder}
-        </span>
-        <span className="df-chevron" aria-hidden>
-          ▾
-        </span>
-      </button>
+        <input
+          ref={inputRef}
+          className="df-search"
+          value={query}
+          disabled={disabled}
+          readOnly={!searchable}
+          placeholder={open && searchable ? searchPlaceholder : placeholder}
+          onFocus={openSelect}
+          onClick={openSelect}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setOpen(true);
+          }}
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="none"
+          role="combobox"
+          aria-expanded={open}
+          aria-autocomplete={searchable ? "list" : "none"}
+        />
+
+        <button
+          className="df-toggle"
+          type="button"
+          disabled={disabled}
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={() => {
+            if (open) closeSelect();
+            else openSelect();
+          }}
+          aria-label={open ? "Fechar opcoes" : "Abrir opcoes"}
+        >
+          <span aria-hidden>▾</span>
+        </button>
+      </div>
 
       {open ? (
-        <div className="df-modal" role="dialog" aria-modal="true">
-          <div className="df-backdrop" onClick={closeModal} />
+        <div className="df-menu" role="listbox">
+          {filteredOptions.length === 0 ? (
+            <div className="df-emptyText">{emptyText}</div>
+          ) : (
+            filteredOptions.map((option) => {
+              const isSelected = option.value === value;
 
-          <div className="df-sheet" ref={sheetRef}>
-            <div className="df-sheetHeader">
-              <div className="df-sheetTitle">{placeholder}</div>
-              <button type="button" className="df-close" onClick={closeModal}>
-                Fechar
-              </button>
-            </div>
-
-            {searchable ? (
-              <div className="df-searchWrap">
-                <input
-                  ref={searchRef}
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder={searchPlaceholder}
-                  className="df-searchInput"
-                  autoCorrect="off"
-                  autoCapitalize="none"
-                />
-              </div>
-            ) : null}
-
-            {filteredOptions.length === 0 ? (
-              <div className="df-emptyWrap">
-                <div className="df-emptyText">{emptyText}</div>
-              </div>
-            ) : (
-              <ul className="df-list" role="listbox">
-                {filteredOptions.map((item) => {
-                  const isSelected = item.value === value;
-                  const isDisabled = !!item.disabled;
-
-                  return (
-                    <li key={String(item.value)} className="df-li">
-                      <button
-                        type="button"
-                        className={[
-                          "df-optionRow",
-                          isSelected ? "df-optionRow--selected" : "",
-                          isDisabled ? "df-optionRow--disabled" : "",
-                        ].join(" ")}
-                        onClick={() => selectValue(item.value)}
-                        disabled={isDisabled}
-                        role="option"
-                        aria-selected={isSelected}
-                      >
-                        <span
-                          className={[
-                            "df-optionText",
-                            isDisabled ? "df-optionText--disabled" : "",
-                          ].join(" ")}
-                        >
-                          {item.label}
-                        </span>
-                        {isSelected ? <span className="df-check">✓</span> : null}
-                      </button>
-
-                      <div className="df-separator" />
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </div>
+              return (
+                <button
+                  key={String(option.value)}
+                  type="button"
+                  className={[
+                    "df-option",
+                    isSelected ? "df-option--selected" : "",
+                    option.disabled ? "df-option--disabled" : "",
+                  ].join(" ")}
+                  disabled={option.disabled}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => selectValue(option)}
+                  role="option"
+                  aria-selected={isSelected}
+                >
+                  <span>{option.label}</span>
+                  {isSelected ? <span className="df-check">✓</span> : null}
+                </button>
+              );
+            })
+          )}
         </div>
       ) : null}
-    </>
+    </div>
   );
 }
