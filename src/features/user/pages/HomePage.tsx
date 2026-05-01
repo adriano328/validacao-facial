@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import "./home.css";
-import { useUserInfo } from "../../../context/UserInfoContext";
+import { useUserInfo } from "@features/user/model/UserInfoContext";
+import "./HomePage.css";
 
 function formatarDataHora(dataIso: string): string {
   const data = new Date(dataIso);

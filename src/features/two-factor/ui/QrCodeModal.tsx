@@ -1,5 +1,5 @@
-import { alerts } from "../../lib/swal";
-import "./qrCodeModal.css";
+import { alerts } from "@shared/lib/swal";
+import "./QrCodeModal.css";
 
 type QrCodeModalProps = {
   open: boolean;

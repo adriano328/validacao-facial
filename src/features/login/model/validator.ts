@@ -1,4 +1,4 @@
-import type { LoginForm } from "./type";
+import type { LoginForm } from "./types";
 
 export type LoginErrors = Partial<Record<keyof LoginForm, string>>;
 

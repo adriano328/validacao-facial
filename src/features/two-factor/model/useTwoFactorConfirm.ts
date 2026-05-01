@@ -1,11 +1,13 @@
-// src/features/twoFactor/useTwoFactorConfirm.ts
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { alerts } from "../../lib/swal";
-import { handleAxiosError } from "../../utils/messageErro";
-import { validarTwoFactor, verificarTwoFactor } from "../../services/usuario";
-import { useTwoFactor } from "../../context/TwoFactorContext";
-import { usePessoa } from "../../context/PessoaContext";
+import { alerts } from "@shared/lib/swal";
+import { handleAxiosError } from "@shared/utils/messageErro";
+import {
+  validarTwoFactor,
+  verificarTwoFactor,
+} from "@features/two-factor/api/twoFactorApi";
+import { useAuthFlow } from "@features/auth/model/AuthFlowContext";
+import { useTwoFactor } from "@features/two-factor/model/TwoFactorContext";
 
 const onlyDigits = (s: string) => s.replace(/\D/g, "").slice(0, 6);
 
@@ -29,7 +31,7 @@ export function useTwoFactorConfirm() {
   const navigate = useNavigate();
 
   const { status, secret, clearSecret, setActive, resetTwoFactor } = useTwoFactor();
-  const { email } = usePessoa();
+  const { email } = useAuthFlow();
 
   useEffect(() => {
     return () => abortRef.current?.abort();

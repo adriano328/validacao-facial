@@ -4,32 +4,32 @@ import type { ReactNode } from "react";
 type PessoaContextType = {
   pessoaId: number | null;
   email: string | null;
-  senha: string | null,
+  senha: string | null;
   setPessoaId: (id: number | null) => void;
   setSenha: (senha: string | null) => void;
   setEmail: (email: string | null) => void;
-  clearPessoa: () => void;
+  clearAuthFlow: () => void;
 };
 
-const PessoaContext = createContext<PessoaContextType | undefined>(undefined);
+const AuthFlowContext = createContext<PessoaContextType | undefined>(undefined);
 
-type PessoaProviderProps = {
+type AuthFlowProviderProps = {
   children: ReactNode;
 };
 
-export function PessoaProvider({ children }: PessoaProviderProps) {
+export function AuthFlowProvider({ children }: AuthFlowProviderProps) {
   const [pessoaId, setPessoaId] = useState<number | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [senha, setSenha] = useState<string | null>(null);
 
-  function clearPessoa() {
+  function clearAuthFlow() {
     setPessoaId(null);
-    setEmail(null),
-      setEmail(null);
+    setEmail(null);
+    setSenha(null);
   }
 
   return (
-    <PessoaContext.Provider
+    <AuthFlowContext.Provider
       value={{
         pessoaId,
         senha,
@@ -37,19 +37,19 @@ export function PessoaProvider({ children }: PessoaProviderProps) {
         setPessoaId,
         setSenha,
         setEmail,
-        clearPessoa,
+        clearAuthFlow,
       }}
     >
       {children}
-    </PessoaContext.Provider>
+    </AuthFlowContext.Provider>
   );
 }
 
-export function usePessoa() {
-  const context = useContext(PessoaContext);
+export function useAuthFlow() {
+  const context = useContext(AuthFlowContext);
 
   if (!context) {
-    throw new Error("usePessoa deve ser usado dentro de PessoaProvider");
+    throw new Error("useAuthFlow deve ser usado dentro de AuthFlowProvider");
   }
 
   return context;

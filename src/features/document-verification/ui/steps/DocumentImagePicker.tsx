@@ -1,5 +1,8 @@
 import React, { useRef, useState } from "react";
-import type { DocumentType, DocumentSide } from "../../../../features/documentoVerification/types";
+import type {
+  DocumentType,
+  DocumentSide,
+} from "@features/document-verification/model/types";
 import { DocumentCameraCapture } from "./DocumentCameraCapture";
 
 type Props = {

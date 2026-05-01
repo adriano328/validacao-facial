@@ -1,4 +1,4 @@
-import type { CargoUsuario } from "../features/cadastro/types";
+import type { CargoUsuario } from "@features/registration/model/types";
 
 export const CARGOS_ECLESIASTICOS: Array<{
   label: string;

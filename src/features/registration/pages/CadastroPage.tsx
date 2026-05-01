@@ -1,13 +1,11 @@
-import "../../../styles/globalStyles.css";
-import { useCadastroForm } from "../../../features/cadastro/useCadastroForm";
-import type { CargoUsuario } from "../../../features/cadastro/types";
-import { FormField } from "../../../components/form/FormField";
-import { DropdownField } from "../../../components/dropdown/DropdownField";
-import { maskCPF, maskDateBR, maskPhoneBR } from "../../../utils/masks";
-import "./styles.css";
-import { DocumentPhotoField } from "../documentVerify/DocumentPhotoField";
-import { CARGOS_ECLESIASTICOS } from "../../../data/cargos";
-import { formatarDataToBr } from "../../../utils/formataData";
+import { FormField } from "@shared/ui/form/FormField";
+import { DropdownField } from "@shared/ui/dropdown/DropdownField";
+import { maskCPF, maskDateBR, maskPhoneBR } from "@shared/utils/masks";
+import { CARGOS_ECLESIASTICOS } from "@shared/data/cargos";
+import { DocumentPhotoField } from "@features/registration/ui/DocumentPhotoField";
+import { useCadastroForm } from "@features/registration/model/useCadastroForm";
+import type { CargoUsuario } from "@features/registration/model/types";
+import "./CadastroPage.css";
 
 export function CadastroPage() {
   const {
@@ -59,7 +57,7 @@ export function CadastroPage() {
         >
           <input
             className="campo"
-            value={formCadastro.dataNascimento ? formatarDataToBr(formCadastro.dataNascimento): ''}
+            value={formCadastro.dataNascimento}
             onChange={(e) =>
               setFormCadastro("dataNascimento", maskDateBR(e.target.value))
             }

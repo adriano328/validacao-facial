@@ -4,7 +4,7 @@ import {
   criarPresignedUpload,
   uploadDocumentoS3,
   verificarDocumento,
-} from "../../services/docverification";
+} from "@features/document-verification/api/documentVerificationApi";
 
 type Step = "TYPE" | "CAPTURE" | "REVIEW" | "RESULT";
 

@@ -1,73 +1,88 @@
-# React + TypeScript + Vite
+# Validacao Facial
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicacao React para cadastro, autenticacao com 2FA, validacao facial com AWS
+Amplify Liveness e exibicao de informacoes do usuario autenticado.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React 19
+- TypeScript
+- Vite
+- React Router
+- Axios
+- AWS Amplify UI Liveness
+- SweetAlert2
 
-## React Compiler
+## Scripts
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
+npm run build
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Variaveis de ambiente
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Crie um arquivo `.env.local` quando precisar sobrescrever os valores padrao:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+VITE_API_BASE_URL=https://sua-api.execute-api.us-east-1.amazonaws.com/test
+VITE_COGNITO_IDENTITY_POOL_ID=us-east-1:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
+
+## Arquitetura
+
+O projeto segue uma organizacao por camadas e features:
+
+```text
+src/
+  app/
+    config/       # configuracoes globais da aplicacao
+    providers/    # composicao de providers React
+    routes/       # definicao das rotas
+    App.tsx
+
+  features/
+    auth/         # token, fluxo de autenticacao e rotas protegidas
+    document-verification/
+    liveness/
+    login/
+    registration/
+    two-factor/
+    user/
+
+  shared/
+    api/          # cliente HTTP compartilhado
+    data/         # listas e dados estaticos
+    lib/          # wrappers de bibliotecas
+    styles/       # estilos globais
+    ui/           # componentes reutilizaveis
+    utils/        # helpers puros
+
+  main.tsx
+```
+
+## Convencoes
+
+- `app` deve conter apenas composicao da aplicacao, rotas e configuracoes.
+- `features` deve conter codigo ligado a um fluxo de negocio especifico.
+- `shared` deve conter codigo reutilizavel e sem dependencia de uma feature.
+- Imports entre camadas devem usar aliases:
+  - `@app/*`
+  - `@features/*`
+  - `@shared/*`
+- Evite imports relativos longos como `../../../`.
+- Novos endpoints devem ficar no `api` da propria feature, usando
+  `@shared/api/client`.
+
+## Build
+
+O build de producao executa TypeScript e Vite:
+
+```bash
+npm run build
+```
+
+Observacao: o bundle principal pode gerar aviso de tamanho por causa das
+dependencias de liveness/Amplify. Se isso virar problema real de performance,
+o proximo passo e aplicar code splitting nas rotas de liveness.

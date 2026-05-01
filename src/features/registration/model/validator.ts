@@ -1,4 +1,4 @@
-import { isValidCPF } from "../../utils/cpfValidator";
+import { isValidCPF } from "@shared/utils/cpfValidator";
 import type { CadastroForm } from "./types";
 
 export type CadastroErrors = Partial<Record<keyof CadastroForm, string>>;

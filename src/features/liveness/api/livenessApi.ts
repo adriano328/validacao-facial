@@ -1,23 +1,23 @@
-import { api } from "../api/api";
+import { api } from "@shared/api/client";
 
 export type CriarSessaoLivenessResponse = {
-  idSessao: string;        // ajuste se o backend retornar outro nome
-  sessionId?: string;      // opcional: caso o backend já retorne sessionId direto
+  idSessao?: string;
+  sessionId?: string;
 };
 
 export type ResultadoSessaoLivenessResponse = {
   status: string;
   sessionId: string;
-  confidence: number,
+  confidence: number;
   foto: string;
   score?: number;
   imagemUrl?: string;
   raw?: unknown;
 };
 
-export type token = {
-  token: string
-}
+export type TokenResponse = {
+  token: string;
+};
 
 export type CompararFacesRequest = {
   source: string;
@@ -28,22 +28,27 @@ export type CompararFacesRequest = {
 export async function criarSessaoLiveness(signal?: AbortSignal) {
   const { data } = await api.post<CriarSessaoLivenessResponse>(
     "/liveness/criar-sessao",
-    {}, 
+    {},
     { signal }
   );
-  return data;
+
+  const sessionId = data.sessionId ?? data.idSessao;
+
+  if (!sessionId) {
+    throw new Error("sessionId nao retornado pela API");
+  }
+
+  return { ...data, sessionId };
 }
 
 export async function obterResultadoSessaoLiveness(
   idSessao: string,
   idPessoa?: string,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ) {
   const base = `/liveness/resultado-sessao/${encodeURIComponent(idSessao)}`;
 
-  const url = idPessoa
-    ? `${base}/${encodeURIComponent(idPessoa)}`
-    : base;
+  const url = idPessoa ? `${base}/${encodeURIComponent(idPessoa)}` : base;
 
   const { data } = await api.get<ResultadoSessaoLivenessResponse>(url, {
     signal,
@@ -54,12 +59,12 @@ export async function obterResultadoSessaoLiveness(
 
 export async function compararFaces(
   payload: CompararFacesRequest,
-  signal?: AbortSignal,
-): Promise<token> {
-  const { data } = await api.post<token>(
+  signal?: AbortSignal
+): Promise<TokenResponse> {
+  const { data } = await api.post<TokenResponse>(
     "/liveness/comparar-faces",
     payload,
-    { signal },
+    { signal }
   );
 
   return data;

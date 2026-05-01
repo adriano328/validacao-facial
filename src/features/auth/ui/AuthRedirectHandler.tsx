@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAuthToken } from "./AuthTokenContext";
+import { useAuthToken } from "@features/auth/model/AuthTokenContext";
 
 function isPublicRoute(pathname: string): boolean {
   if (pathname === "/") return true;

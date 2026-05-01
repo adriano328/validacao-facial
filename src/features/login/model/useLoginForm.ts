@@ -1,14 +1,13 @@
-// src/features/login/useLoginForm.ts
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { alerts } from "../../lib/swal";
-import { handleAxiosError } from "../../utils/messageErro";
+import { alerts } from "@shared/lib/swal";
+import { handleAxiosError } from "@shared/utils/messageErro";
 
 import { hasErrors, validateField, validateLogin, type LoginErrors } from "./validator";
-import { ativarTwoFactor, twoFactorAtivado } from "../../services/usuario";
-import { initialLoginForm, type LoginForm } from "./type";
-import { usePessoa } from "../../context/PessoaContext";
-import { useTwoFactor } from "../../context/TwoFactorContext";
+import { ativarTwoFactor, twoFactorAtivado } from "@features/two-factor/api/twoFactorApi";
+import { initialLoginForm, type LoginForm } from "./types";
+import { useAuthFlow } from "@features/auth/model/AuthFlowContext";
+import { useTwoFactor } from "@features/two-factor/model/TwoFactorContext";
 
 type TouchedState = Partial<Record<keyof LoginForm, boolean>>;
 type TwoFactorData = { secret: string; qrCodeUrl: string };
@@ -27,7 +26,7 @@ export function useLoginForm() {
   const navigate = useNavigate();
   const abortRef = useRef<AbortController | null>(null);
 
-  const { setEmail, setSenha } = usePessoa();
+  const { setEmail, setSenha } = useAuthFlow();
   const { setSecret, clearSecret, setActive, resetTwoFactor } = useTwoFactor();
 
   useEffect(() => {
@@ -86,10 +85,6 @@ export function useLoginForm() {
     navigate("/cadastro");
   }
 
-  function validaDocs() {
-    navigate("/docs");
-  }
-
   /* ========================
    * 2FA FLOW
    * ======================== */
@@ -117,7 +112,7 @@ export function useLoginForm() {
     const email = form.email.trim();
     const senha = form.password.trim();
 
-    setSenha(senha)
+    setSenha(senha);
     setEmail(email);
 
     setIsSubmitting(true);
@@ -192,7 +187,6 @@ export function useLoginForm() {
     reset,
     handleLogin,
     irCadastrar,
-    validaDocs,
     setTwoFactorStep,
     qrCodeData,
     setQrCodeData,

@@ -10,7 +10,7 @@ import {
   clearAuthToken,
   setAuthToken,
   setUnauthorizedHandler,
-} from "../api/api";
+} from "@shared/api/client";
 
 type AuthTokenContextData = {
   token: string | null;

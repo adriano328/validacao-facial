@@ -1,4 +1,4 @@
-import type { DocumentType } from "../documentoVerification/types";
+import type { DocumentType } from "@features/document-verification/model/types";
 
 export function DocumentTypeStep({ onSelect }: { onSelect: (t: DocumentType) => void }) {
   return (

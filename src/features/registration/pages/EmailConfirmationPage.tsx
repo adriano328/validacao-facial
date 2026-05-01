@@ -1,19 +1,17 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import "./styles.css";
-import { confirmarEmail } from "../../services/pessoa";
+import { confirmarEmail } from "@features/registration/api/pessoaApi";
+import "./EmailConfirmationPage.css";
 
 type Status = "loading" | "success" | "error";
 
-export function ConfirmacaoUuidPage() {
+export function EmailConfirmationPage() {
   const { uuid } = useParams<{ uuid: string }>();
   const [status, setStatus] = useState<Status>("loading");
   const [mensagem, setMensagem] = useState("Confirmando solicitação...");
 
   useEffect(() => {
     async function confirmar() {
-      console.log(uuid);
-
       if (!uuid) {
         setStatus("error");
         setMensagem("Código não informado na URL.");

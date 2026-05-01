@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { DocumentTypeStep } from "../../../features/documentoVerification/DocumentTypeStep";
-import { useDocumentVerification } from "../../../features/documentoVerification/useDocumentVerification";
-import { DocumentCaptureStep } from "./steps/DocumentCaptureStep";
-import { ReviewSubmitStep } from "./steps/ReviewSubmitStep";
+import { DocumentTypeStep } from "@features/document-verification/ui/DocumentTypeStep";
+import { useDocumentVerification } from "@features/document-verification/model/useDocumentVerification";
+import { DocumentCaptureStep } from "@features/document-verification/ui/steps/DocumentCaptureStep";
+import { ReviewSubmitStep } from "@features/document-verification/ui/steps/ReviewSubmitStep";
 
-import { alerts } from "../../../lib/swal";
-import type { DocumentSide } from "../../../features/documentoVerification/types";
+import { alerts } from "@shared/lib/swal";
+import type { DocumentSide } from "@features/document-verification/model/types";
 
 type Props = {
   livenessSessionId: string;

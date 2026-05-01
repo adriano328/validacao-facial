@@ -1,5 +1,8 @@
 import { useEffect, useMemo } from "react";
-import type { DocumentType, DocumentSide } from "../../../../features/documentoVerification/types";
+import type {
+  DocumentType,
+  DocumentSide,
+} from "@features/document-verification/model/types";
 
 function sideTitle(side: DocumentSide) {
   return side === "front" ? "Frente" : "Verso";

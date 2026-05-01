@@ -1,5 +1,10 @@
-import { api } from "../api/api";
-import type { PresignRequest, PresignResponse, VerifyRequest, VerifyResponse } from "../features/documentoVerification/types";
+import { api } from "@shared/api/client";
+import type {
+  PresignRequest,
+  PresignResponse,
+  VerifyRequest,
+  VerifyResponse,
+} from "@features/document-verification/model/types";
 
 export async function criarPresignedUpload(
   payload: PresignRequest,

@@ -1,6 +1,6 @@
-import { useTwoFactorConfirm } from "../../features/twoFactor/useTwoConfirm";
-import { FormField } from "../form/FormField";
-import "./styles.css";
+import { useTwoFactorConfirm } from "@features/two-factor/model/useTwoFactorConfirm";
+import { FormField } from "@shared/ui/form/FormField";
+import "./TwoFactorConfirm.css";
 
 type TwoFactorConfirmProps = {
   open: boolean;

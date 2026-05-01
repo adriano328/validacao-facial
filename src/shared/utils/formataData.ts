@@ -8,6 +8,16 @@ export function brDateToISO(date: string) {
 
 /// formata data 1995-04-26 para 26-04-1995 
 export function formatarDataToBr(data: string): string {
-  const [ano, mes, dia] = data.split('-');
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(data)) {
+    return data;
+  }
+
+  const [datePart] = data.split("T");
+  const [ano, mes, dia] = datePart.split("-");
+
+  if (!ano || !mes || !dia) {
+    return data;
+  }
+
   return `${dia}/${mes}/${ano}`;
 }

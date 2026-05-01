@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import type { DocumentType } from "../../../features/documentoVerification/types";
-import { DocumentCameraCapture } from "./steps/DocumentCameraCapture";
+import type { DocumentType } from "@features/document-verification/model/types";
+import { DocumentCameraCapture } from "@features/document-verification/ui/steps/DocumentCameraCapture";
 
 type Props = {
   label?: string;

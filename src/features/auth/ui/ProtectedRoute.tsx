@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuthToken } from "./AuthTokenContext";
+import { useAuthToken } from "@features/auth/model/AuthTokenContext";
 
 export function ProtectedRoute() {
   const { isAuthenticated } = useAuthToken();

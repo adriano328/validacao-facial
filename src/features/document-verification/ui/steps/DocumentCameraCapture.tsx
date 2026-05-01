@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import type { DocumentType } from "../../../../features/documentoVerification/types";
+import type { DocumentType } from "@features/document-verification/model/types";
 
 type Props = {
   open: boolean;

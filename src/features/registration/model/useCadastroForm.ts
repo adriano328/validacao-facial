@@ -12,12 +12,12 @@ import {
   type CadastroErrors,
 } from "./validator";
 import { useNavigate } from "react-router-dom";
-import { alerts } from "../../lib/swal";
-import { brDateToISO, formatarDataToBr } from "../../utils/formataData";
-import { stripDataUrl } from "../../utils/formataBase64";
-import { salvarPessoa } from "../../services/pessoa";
-import { handleAxiosError } from "../../utils/messageErro";
-import { consultaMembro } from "../../services/consulta-membro";
+import { alerts } from "@shared/lib/swal";
+import { brDateToISO, formatarDataToBr } from "@shared/utils/formataData";
+import { stripDataUrl } from "@shared/utils/formataBase64";
+import { salvarPessoa } from "@features/registration/api/pessoaApi";
+import { handleAxiosError } from "@shared/utils/messageErro";
+import { consultaMembro } from "@features/registration/api/consultaMembroApi";
 import axios from "axios";
 
 type TouchedState = Partial<Record<keyof CadastroForm, boolean>>;
@@ -111,10 +111,10 @@ export function useCadastroForm() {
 
       const response = await consultaMembro({ documento: cpfLimpo });
       if (response) {
-          setFormCadastro("nome", response.NOME);
-          setFormCadastro("dataNascimento", response.NASCIMENTO);
-          setFormCadastro("email", response.EMAIL);
-          setFormCadastro("cargo", mapearCargo(response.MINISTERIO));
+        setFormCadastro("nome", response.NOME);
+        setFormCadastro("dataNascimento", formatarDataToBr(response.NASCIMENTO));
+        setFormCadastro("email", response.EMAIL);
+        setFormCadastro("cargo", mapearCargo(response.MINISTERIO));
       }
     } catch (error: any) {
       console.error(error);

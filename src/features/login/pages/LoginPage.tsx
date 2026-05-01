@@ -1,10 +1,10 @@
-import "./styles.css";
+import "./LoginPage.css";
 
-import { FormField } from "../../../components/form/FormField";
-import { useLoginForm } from "../../../features/login/useLoginForm";
-import { useTwoFactor } from "../../../context/TwoFactorContext";
-import { TwoFactorConfirm } from "../../../components/twoFactorConfirm/TwoFactorConfirm";
-import { QrCodeModal } from "../../../components/qrCode/QrCodeModal";
+import { FormField } from "@shared/ui/form/FormField";
+import { useLoginForm } from "@features/login/model/useLoginForm";
+import { useTwoFactor } from "@features/two-factor/model/TwoFactorContext";
+import { TwoFactorConfirm } from "@features/two-factor/ui/TwoFactorConfirm";
+import { QrCodeModal } from "@features/two-factor/ui/QrCodeModal";
 
 export function LoginPage() {
   const {
@@ -15,7 +15,6 @@ export function LoginPage() {
     handleLogin,
     isSubmitting,
     irCadastrar,
-    validaDocs,
     qrCodeData,
     setQrCodeData,
     twoFactorStep,

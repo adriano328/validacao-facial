@@ -7,11 +7,11 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useAuthToken } from "../auth/AuthTokenContext";
+import { useAuthToken } from "@features/auth/model/AuthTokenContext";
 import {
   obterInformacaoUsuario,
   type ObterInformacaoUsuarioResponse,
-} from "../services/usuario";
+} from "@features/user/api/userApi";
 
 type UserInfoContextData = {
   usuario: ObterInformacaoUsuarioResponse | null;

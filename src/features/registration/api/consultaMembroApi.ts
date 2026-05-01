@@ -1,5 +1,5 @@
 import type { AxiosResponse } from "axios";
-import { api } from "../api/api";
+import { api } from "@shared/api/client";
 
 export interface ConsultaEleitorRequest {
   documento: string;

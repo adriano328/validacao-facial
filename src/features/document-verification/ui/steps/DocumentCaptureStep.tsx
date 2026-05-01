@@ -1,4 +1,7 @@
-import type { DocumentSide, DocumentType } from "../../../../features/documentoVerification/types";
+import type {
+  DocumentSide,
+  DocumentType,
+} from "@features/document-verification/model/types";
 import { DocumentImagePicker } from "./DocumentImagePicker";
 
 function title(side: DocumentSide) {
