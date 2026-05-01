@@ -51,8 +51,8 @@
 }
 
 .cadastro-card {
-  --vf-card-width: 680px;
-  padding: 42px 50px 44px;
+  --vf-card-width: 630px;
+  padding: 25px 30px 28px;
 }
 
 .cadastro-cardHeader {
