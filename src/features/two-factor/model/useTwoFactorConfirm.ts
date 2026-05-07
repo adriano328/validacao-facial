@@ -31,7 +31,7 @@ export function useTwoFactorConfirm() {
   const navigate = useNavigate();
 
   const { status, secret, clearSecret, setActive, resetTwoFactor } = useTwoFactor();
-  const { email } = useAuthFlow();
+  const { email, clearAuthFlow } = useAuthFlow();
 
   useEffect(() => {
     return () => abortRef.current?.abort();
@@ -128,6 +128,7 @@ export function useTwoFactorConfirm() {
       resetLocalInput();
 
       alerts.success({ text: "Two-factor ativado com sucesso! Faça login novamente." });
+      clearAuthFlow();
       navigate("/login");
       return true;
     } catch (err) {

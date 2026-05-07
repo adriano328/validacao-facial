@@ -26,7 +26,7 @@ export function useLoginForm() {
   const navigate = useNavigate();
   const abortRef = useRef<AbortController | null>(null);
 
-  const { setEmail, setSenha } = useAuthFlow();
+  const { setEmail, setSenha, clearAuthFlow } = useAuthFlow();
   const { setSecret, clearSecret, setActive, resetTwoFactor } = useTwoFactor();
 
   useEffect(() => {
@@ -136,6 +136,7 @@ export function useLoginForm() {
     } catch (err) {
       const message = handleAxiosError(err);
       alerts.error({ text: message });
+      clearAuthFlow();
       clearSecret();
     } finally {
       setIsSubmitting(false);

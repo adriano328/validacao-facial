@@ -1,6 +1,14 @@
 import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 
+const AUTH_FLOW_STORAGE_KEY = "vf:auth-flow";
+
+type StoredAuthFlow = {
+  pessoaId: number | null;
+  email: string | null;
+  senha: string | null;
+};
+
 type PessoaContextType = {
   pessoaId: number | null;
   email: string | null;
@@ -17,23 +25,74 @@ type AuthFlowProviderProps = {
   children: ReactNode;
 };
 
+const emptyAuthFlow: StoredAuthFlow = {
+  pessoaId: null,
+  email: null,
+  senha: null,
+};
+
+function readStoredAuthFlow(): StoredAuthFlow {
+  try {
+    const stored = window.sessionStorage.getItem(AUTH_FLOW_STORAGE_KEY);
+
+    if (!stored) return emptyAuthFlow;
+
+    return { ...emptyAuthFlow, ...JSON.parse(stored) };
+  } catch {
+    return emptyAuthFlow;
+  }
+}
+
+function writeStoredAuthFlow(next: StoredAuthFlow) {
+  try {
+    window.sessionStorage.setItem(AUTH_FLOW_STORAGE_KEY, JSON.stringify(next));
+  } catch {
+    // Se o navegador bloquear storage, o contexto em memoria ainda funciona.
+  }
+}
+
+function clearStoredAuthFlow() {
+  try {
+    window.sessionStorage.removeItem(AUTH_FLOW_STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+}
+
 export function AuthFlowProvider({ children }: AuthFlowProviderProps) {
-  const [pessoaId, setPessoaId] = useState<number | null>(null);
-  const [email, setEmail] = useState<string | null>(null);
-  const [senha, setSenha] = useState<string | null>(null);
+  const [flow, setFlow] = useState<StoredAuthFlow>(() => readStoredAuthFlow());
+
+  function updateAuthFlow(next: Partial<StoredAuthFlow>) {
+    setFlow((current) => {
+      const updated = { ...current, ...next };
+      writeStoredAuthFlow(updated);
+      return updated;
+    });
+  }
+
+  function setPessoaId(id: number | null) {
+    updateAuthFlow({ pessoaId: id });
+  }
+
+  function setEmail(email: string | null) {
+    updateAuthFlow({ email });
+  }
+
+  function setSenha(senha: string | null) {
+    updateAuthFlow({ senha });
+  }
 
   function clearAuthFlow() {
-    setPessoaId(null);
-    setEmail(null);
-    setSenha(null);
+    clearStoredAuthFlow();
+    setFlow(emptyAuthFlow);
   }
 
   return (
     <AuthFlowContext.Provider
       value={{
-        pessoaId,
-        senha,
-        email,
+        pessoaId: flow.pessoaId,
+        senha: flow.senha,
+        email: flow.email,
         setPessoaId,
         setSenha,
         setEmail,
