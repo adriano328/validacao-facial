@@ -5,10 +5,80 @@ import "./EmailConfirmationPage.css";
 
 type Status = "loading" | "success" | "error";
 
+function BallotIcon() {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 34 34"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        d="M9 21.5V25C9 26.1 9.9 27 11 27H25C26.1 27 27 26.1 27 25V21.5"
+        stroke="currentColor"
+        strokeWidth="2.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M8 20.5H15.8"
+        stroke="currentColor"
+        strokeWidth="2.7"
+        strokeLinecap="round"
+      />
+      <path
+        d="M17.6 8.6L24.4 15.4L15 24.8H8.2V18L17.6 8.6Z"
+        stroke="currentColor"
+        strokeWidth="2.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M15.4 10.8L22.2 17.6"
+        stroke="currentColor"
+        strokeWidth="2.7"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function StatusIcon({ status }: { status: Status }) {
+  if (status === "loading") {
+    return <div className="confirmation-spinner" aria-hidden="true" />;
+  }
+
+  if (status === "success") {
+    return (
+      <div className="confirmation-stateIcon confirmation-stateIcon--success" aria-hidden="true">
+        <svg viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+          <path fill="none" d="M14 27l7 7 17-17" />
+        </svg>
+      </div>
+    );
+  }
+
+  return (
+    <div className="confirmation-stateIcon confirmation-stateIcon--error" aria-hidden="true">
+      !
+    </div>
+  );
+}
+
+function getStatusTitle(status: Status) {
+  if (status === "loading") return "Confirmando";
+  if (status === "success") return "Confirmado";
+  return "Não foi possível confirmar";
+}
+
 export function EmailConfirmationPage() {
   const { uuid } = useParams<{ uuid: string }>();
   const [status, setStatus] = useState<Status>("loading");
-  const [mensagem, setMensagem] = useState("Confirmando solicitação...");
+  const [mensagem, setMensagem] = useState(
+    "Estamos processando sua identificação nos registros seguros. Por favor, aguarde."
+  );
 
   useEffect(() => {
     async function confirmar() {
@@ -20,7 +90,9 @@ export function EmailConfirmationPage() {
 
       try {
         setStatus("loading");
-        setMensagem("Confirmando solicitação...");
+        setMensagem(
+          "Estamos processando sua identificação nos registros seguros. Por favor, aguarde."
+        );
 
         await confirmarEmail(uuid);
 
@@ -36,45 +108,28 @@ export function EmailConfirmationPage() {
   }, [uuid]);
 
   return (
-    <div className="safe">
-      <div className="container">
-        {status === "loading" && (
-          <div className="statusBox">
-            <div className="spinner" />
-            <h1 className="titulo">Confirmando</h1>
-            <p className="mensagem">{mensagem}</p>
-          </div>
-        )}
+    <main className="confirmation-page">
+      <header className="confirmation-brand">
+        <div className="confirmation-brandIcon">
+          <BallotIcon />
+        </div>
+        <h1>E-Voto</h1>
+        <p>Plataforma segura de identificação cívica</p>
+      </header>
 
-        {status === "success" && (
-          <div className="statusBox">
-            <div className="checkCircle">
-              <svg
-                className="checkIcon"
-                viewBox="0 0 52 52"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  className="checkPath"
-                  fill="none"
-                  d="M14 27l7 7 17-17"
-                />
-              </svg>
-            </div>
+      <section className="confirmation-card" aria-live="polite">
+        <StatusIcon status={status} />
 
-            <h1 className="titulo success">Confirmado</h1>
-            <p className="mensagem">{mensagem}</p>
-          </div>
-        )}
+        <h2 className={`confirmation-title confirmation-title--${status}`}>
+          {getStatusTitle(status)}
+        </h2>
+        <p className="confirmation-message">{mensagem}</p>
+      </section>
 
-        {status === "error" && (
-          <div className="statusBox">
-            <div className="errorCircle">!</div>
-            <h1 className="titulo error">Erro</h1>
-            <p className="mensagem">{mensagem}</p>
-          </div>
-        )}
-      </div>
-    </div>
+      <footer className="confirmation-footer">
+        <span>© 2024 E-Voto. Todos os direitos reservados.</span>
+        <strong>Sistema de auditoria civil independente.</strong>
+      </footer>
+    </main>
   );
 }
