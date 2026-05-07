@@ -7,6 +7,7 @@ import {
 } from "@features/liveness/api/livenessApi";
 import { livenessDisplayTextPtBR } from "@features/liveness/config/livenessPtBR";
 import { alerts } from "@shared/lib/swal";
+import "./LivenessCheckPage.css";
 
 type Phase = "idle" | "running" | "success";
 
@@ -23,6 +24,14 @@ type ApprovalResult =
 
 type LivenessCheckPageProps = {
   title?: string;
+  subtitle?: string;
+  tipText?: string;
+  loadingText?: string;
+  loadingTipText?: string;
+  securityText?: string;
+  brandSubtitle?: string;
+  footerTitle?: string;
+  footerText?: string;
   detectorHeight?: number;
   maxAttempts?: number;
   intervalMs?: number;
@@ -36,7 +45,15 @@ type LivenessCheckPageProps = {
   formatDetectorError?: (error: LivenessUiError) => string;
 };
 
-const DEFAULT_TITLE = "Validacao Facial (Liveness)";
+const DEFAULT_TITLE = "Validação Facial";
+const DEFAULT_SUBTITLE = "Confirme sua identidade seguindo as instruções abaixo.";
+const DEFAULT_TIP = "Dica: mantenha o rosto centralizado, em ambiente bem iluminado.";
+const DEFAULT_LOADING = "Preparando câmera e sessão de validação facial...";
+const DEFAULT_LOADING_TIP = "Aguarde alguns instantes. Vamos abrir a câmera com segurança.";
+const DEFAULT_SECURITY = "Seus dados serão criptografados em trânsito";
+const DEFAULT_BRAND_SUBTITLE = "Plataforma segura de identificação cívica";
+const DEFAULT_FOOTER_TITLE = "Sistema seguro e auditável";
+const DEFAULT_FOOTER_TEXT = "Privacidade, tecnologia e confiança.";
 const DEFAULT_MAX_ATTEMPTS = 1;
 const DEFAULT_INTERVAL_MS = 1000;
 
@@ -49,11 +66,128 @@ function isRejected(result: ResultadoSessaoLivenessResponse) {
 }
 
 function defaultDetectorErrorMessage() {
-  return "Falha durante a validacao facial. Verifique a camera e tente novamente.";
+  return "Falha durante a validação facial. Verifique a câmera e tente novamente.";
+}
+
+function BrandIcon() {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 34 34"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        d="M9 21.5V25C9 26.1 9.9 27 11 27H25C26.1 27 27 26.1 27 25V21.5"
+        stroke="currentColor"
+        strokeWidth="2.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M8 20.5H15.8"
+        stroke="currentColor"
+        strokeWidth="2.7"
+        strokeLinecap="round"
+      />
+      <path
+        d="M17.6 8.6L24.4 15.4L15 24.8H8.2V18L17.6 8.6Z"
+        stroke="currentColor"
+        strokeWidth="2.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M15.4 10.8L22.2 17.6"
+        stroke="currentColor"
+        strokeWidth="2.7"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function FacePlaceholder() {
+  return (
+    <div className="liveness-facePlaceholder" aria-hidden="true">
+      <svg width="70" height="98" viewBox="0 0 70 98" fill="none">
+        <rect
+          x="7"
+          y="8"
+          width="56"
+          height="82"
+          rx="28"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeDasharray="4 4"
+        />
+        <circle cx="35" cy="49" r="12" stroke="currentColor" strokeWidth="2" />
+        <path
+          d="M29 47C30.2 45.9 31.7 45.3 33.3 45.3C36.2 45.3 38.8 47.1 40 49.8"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <circle cx="31" cy="47" r="1.6" fill="currentColor" />
+        <circle cx="39" cy="47" r="1.6" fill="currentColor" />
+        <path
+          d="M30.5 54.5C33.2 57 36.8 57 39.5 54.5"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      </svg>
+    </div>
+  );
+}
+
+type LivenessShellProps = {
+  children: React.ReactNode;
+  brandSubtitle: string;
+  footerTitle?: string;
+  footerText?: string;
+};
+
+function LivenessShell({
+  children,
+  brandSubtitle,
+  footerTitle,
+  footerText,
+}: LivenessShellProps) {
+  return (
+    <div className="livenessPage">
+      <header className="livenessBrand">
+        <div className="livenessBrandIcon">
+          <BrandIcon />
+        </div>
+        <h1>E-Voto</h1>
+        <p>{brandSubtitle}</p>
+      </header>
+
+      {children}
+
+      {footerTitle || footerText ? (
+        <footer className="livenessFooter">
+          {footerTitle ? <strong>{footerTitle}</strong> : null}
+          {footerText ? <span>{footerText}</span> : null}
+        </footer>
+      ) : null}
+    </div>
+  );
 }
 
 export function LivenessCheckPage({
   title = DEFAULT_TITLE,
+  subtitle = DEFAULT_SUBTITLE,
+  tipText = DEFAULT_TIP,
+  loadingText = DEFAULT_LOADING,
+  loadingTipText = DEFAULT_LOADING_TIP,
+  securityText = DEFAULT_SECURITY,
+  brandSubtitle = DEFAULT_BRAND_SUBTITLE,
+  footerTitle = DEFAULT_FOOTER_TITLE,
+  footerText = DEFAULT_FOOTER_TEXT,
   detectorHeight,
   maxAttempts = DEFAULT_MAX_ATTEMPTS,
   intervalMs = DEFAULT_INTERVAL_MS,
@@ -169,7 +303,7 @@ export function LivenessCheckPage({
         }
 
         if (isRejected(result)) {
-          await resetAfterFailure("Nao foi possivel validar. Tente novamente.");
+          await resetAfterFailure("Não foi possível validar. Tente novamente.");
           return;
         }
 
@@ -178,7 +312,7 @@ export function LivenessCheckPage({
       }
 
       await resetAfterFailure(
-        "Nao foi possivel validar na primeira tentativa. Tente novamente."
+        "Não foi possível validar na primeira tentativa. Tente novamente."
       );
     } catch (err) {
       console.error("Erro no polling do liveness:", err);
@@ -188,60 +322,116 @@ export function LivenessCheckPage({
     }
   }
 
+  function retrySession() {
+    handlingErrorRef.current = false;
+    handlingAnalysisRef.current = false;
+    pollingCancelRef.current = { cancelled: false };
+    sessionRequestedRef.current = false;
+    setError(null);
+    void startSession();
+  }
+
   if (phase === "idle") {
     return (
-      <div style={{ maxWidth: 520, margin: "40px auto", textAlign: "center" }}>
-        <h2>{title}</h2>
+      <LivenessShell
+        brandSubtitle={brandSubtitle}
+        footerTitle={footerTitle}
+        footerText={footerText}
+      >
+        <main className="livenessCard" aria-labelledby="liveness-title">
+          <div className="livenessHeader">
+            <h2 id="liveness-title">{title}</h2>
+            <p>{subtitle}</p>
+          </div>
 
-        {error ? <p style={{ marginTop: 12 }}>{error}</p> : null}
+          <div className="livenessTip">
+            <span className="livenessTipIcon" aria-hidden="true">i</span>
+            <span>{tipText}</span>
+          </div>
 
-        <button
-          onClick={() => {
-            handlingErrorRef.current = false;
-            handlingAnalysisRef.current = false;
-            pollingCancelRef.current = { cancelled: false };
-            sessionRequestedRef.current = false;
-            setError(null);
-            void startSession();
-          }}
-          disabled={loading}
-          style={{ marginTop: 12 }}
-        >
-          {loading ? "Iniciando..." : "Iniciar validacao facial"}
-        </button>
-      </div>
+          <div className="livenessDetectorBox livenessDetectorBox--idle">
+            <span className="livenessDetectorLabel">Aguardando reinício</span>
+            <FacePlaceholder />
+          </div>
+
+          {error ? <p className="livenessError">{error}</p> : null}
+
+          <button className="livenessButton" onClick={retrySession} disabled={loading}>
+            {loading ? "Iniciando..." : "Iniciar validação facial"}
+            <span aria-hidden="true">→</span>
+          </button>
+
+          <p className="livenessSecurity">{securityText}</p>
+        </main>
+      </LivenessShell>
     );
   }
 
   if (loading && !sessionId) {
     return (
-      <p style={{ textAlign: "center", marginTop: 40 }}>
-        Preparando camera e sessao de validacao facial...
-      </p>
+      <LivenessShell brandSubtitle={brandSubtitle}>
+        <main className="livenessCard">
+          <div className="livenessHeader">
+            <h2>{title}</h2>
+            <p>{loadingText}</p>
+          </div>
+
+          <div className="livenessTip">
+            <span className="livenessTipIcon" aria-hidden="true">i</span>
+            <span>{loadingTipText}</span>
+          </div>
+
+          <div className="livenessDetectorBox livenessDetectorBox--loading">
+            <span className="livenessLoader" aria-hidden="true" />
+            <FacePlaceholder />
+          </div>
+        </main>
+      </LivenessShell>
     );
   }
 
   return (
-    <div style={{ maxWidth: 520, height: detectorHeight, margin: "40px auto" }}>
-      <h2>{title}</h2>
+    <LivenessShell
+      brandSubtitle={brandSubtitle}
+      footerTitle={footerTitle}
+      footerText={footerText}
+    >
+      <main className="livenessCard livenessCard--running" aria-labelledby="liveness-title">
+        <div className="livenessHeader">
+          <h2 id="liveness-title">{title}</h2>
+          <p>{subtitle}</p>
+        </div>
 
-      {phase === "running" && sessionId ? (
-        <FaceLivenessDetector
-          key={`${detectorKey}-${sessionId}`}
-          sessionId={sessionId}
-          region="us-east-1"
-          displayText={livenessDisplayTextPtBR}
-          onAnalysisComplete={() => handleAnalysisComplete(sessionId)}
-          onError={async (err: LivenessUiError) => {
-            if (handlingErrorRef.current) return;
+        <div className="livenessTip">
+          <span className="livenessTipIcon" aria-hidden="true">i</span>
+          <span>{tipText}</span>
+        </div>
 
-            handlingErrorRef.current = true;
-            console.error("Erro no FaceLivenessDetector:", err);
+        <div
+          className="livenessDetectorBox livenessDetectorBox--running"
+          style={detectorHeight ? { height: detectorHeight } : undefined}
+        >
+          {phase === "running" && sessionId ? (
+            <FaceLivenessDetector
+              key={`${detectorKey}-${sessionId}`}
+              sessionId={sessionId}
+              region="us-east-1"
+              displayText={livenessDisplayTextPtBR}
+              onAnalysisComplete={() => handleAnalysisComplete(sessionId)}
+              onError={async (err: LivenessUiError) => {
+                if (handlingErrorRef.current) return;
 
-            await resetAfterFailure(formatDetectorError(err));
-          }}
-        />
-      ) : null}
-    </div>
+                handlingErrorRef.current = true;
+                console.error("Erro no FaceLivenessDetector:", err);
+
+                await resetAfterFailure(formatDetectorError(err));
+              }}
+            />
+          ) : null}
+        </div>
+
+        <p className="livenessSecurity">{securityText}</p>
+      </main>
+    </LivenessShell>
   );
 }
