@@ -1,0 +1,175 @@
+.externalCpf-page {
+  min-height: 100vh;
+  width: 100%;
+  background: var(--vf-color-page);
+  color: var(--vf-color-text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 34px 20px 28px;
+}
+
+.externalCpf-main {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.externalCpf-card {
+  --vf-card-width: 760px;
+}
+
+.externalCpf-search {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 154px;
+  gap: 14px;
+  align-items: end;
+}
+
+.externalCpf-search .ff-container {
+  margin-bottom: 0;
+}
+
+.externalCpf-search .vf-button {
+  min-height: var(--vf-input-height);
+}
+
+.externalCpf-result {
+  margin-top: 24px;
+  display: grid;
+  gap: 22px;
+}
+
+.externalCpf-photoPanel {
+  background: #f4f5f7;
+  border: 1px solid #eceef2;
+  border-radius: var(--vf-radius-card);
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 136px 1fr;
+  gap: 20px;
+  align-items: center;
+}
+
+.externalCpf-photo {
+  width: 136px;
+  height: 136px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #e5e6e8;
+  border: 1px solid #d8dce6;
+}
+
+.externalCpf-nameRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.externalCpf-nameRow h2 {
+  margin: 0;
+  font-size: var(--vf-font-title);
+  line-height: 1.2;
+  font-weight: var(--vf-font-bold);
+}
+
+.externalCpf-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  border-radius: 999px;
+  padding: 0 11px;
+  font-size: 10px;
+  font-weight: var(--vf-font-extrabold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.externalCpf-status--pendente {
+  background: #d64545;
+  color: #ffffff;
+}
+
+.externalCpf-status--confirmado {
+  background: #1f8f52;
+  color: #ffffff;
+}
+
+.externalCpf-photoPanel p {
+  margin: 0;
+  color: var(--vf-color-text-muted);
+  font-size: var(--vf-font-body);
+  line-height: 1.55;
+}
+
+.externalCpf-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.externalCpf-field {
+  min-height: 68px;
+  border-radius: var(--vf-radius-control);
+  background: var(--vf-color-input);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+
+.externalCpf-field span {
+  color: var(--vf-color-text-muted);
+  font-size: 12px;
+  font-weight: var(--vf-font-semibold);
+}
+
+.externalCpf-field strong {
+  color: #1f2530;
+  font-size: var(--vf-font-body);
+  font-weight: var(--vf-font-bold);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.externalCpf-empty {
+  margin-top: 24px;
+  border: 1px dashed #c9cfe1;
+  border-radius: var(--vf-radius-card);
+  background: #f4f5f7;
+  color: var(--vf-color-text-muted);
+  font-size: var(--vf-font-body);
+  line-height: 1.5;
+  text-align: center;
+  padding: 24px;
+}
+
+.externalCpf-actions {
+  display: grid;
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .externalCpf-page {
+    padding: 22px 14px 24px;
+  }
+
+  .externalCpf-search,
+  .externalCpf-photoPanel,
+  .externalCpf-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .externalCpf-search .vf-button {
+    width: 100%;
+  }
+
+  .externalCpf-photo {
+    width: 128px;
+    height: 128px;
+  }
+}
