@@ -1,6 +1,7 @@
 import { api } from "@shared/api/client";
 
 export type ConsultaCpfResponse = {
+  foto: string;
   cpf: string;
   nome: string;
   dataNascimento: string;

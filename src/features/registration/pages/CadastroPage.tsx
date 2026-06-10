@@ -240,7 +240,6 @@ export function CadastroPage() {
 
       <footer className="cadastro-footer">
         <p>&copy; 2024 E-Vote. Todos os direitos reservados.</p>
-        <p>Sistema de Auditoria Civil Independente.</p>
       </footer>
     </div>
   );

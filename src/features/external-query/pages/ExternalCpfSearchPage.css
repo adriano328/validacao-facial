@@ -51,10 +51,11 @@
   border: 1px solid #eceef2;
   border-radius: var(--vf-radius-card);
   padding: 20px;
-  display: grid;
-  grid-template-columns: 136px 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 20px;
   align-items: center;
+  text-align: center;
 }
 
 .externalCpf-avatar {
@@ -72,9 +73,19 @@
   letter-spacing: 0.02em;
 }
 
+.externalCpf-photo {
+  width: 136px;
+  height: 136px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #e8f0ff;
+  border: 1px solid #d8dce6;
+}
+
 .externalCpf-nameRow {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
   flex-wrap: wrap;
   margin-bottom: 8px;
@@ -185,7 +196,6 @@
   }
 
   .externalCpf-search,
-  .externalCpf-photoPanel,
   .externalCpf-grid {
     grid-template-columns: 1fr;
   }
@@ -194,9 +204,13 @@
     width: 100%;
   }
 
-  .externalCpf-avatar {
+  .externalCpf-avatar,
+  .externalCpf-photo {
     width: 128px;
     height: 128px;
+  }
+
+  .externalCpf-avatar {
     font-size: 32px;
   }
 }

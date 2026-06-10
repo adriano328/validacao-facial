@@ -119,6 +119,26 @@ function getInitials(name: string): string {
   return `${first}${last}`.toUpperCase();
 }
 
+function getPhotoSrc(photo: string): string | null {
+  const trimmedPhoto = photo.trim();
+
+  if (!trimmedPhoto) {
+    return null;
+  }
+
+  if (trimmedPhoto.startsWith("data:image/")) {
+    return trimmedPhoto;
+  }
+
+  const mimeType = trimmedPhoto.startsWith("iVBOR")
+    ? "image/png"
+    : trimmedPhoto.startsWith("R0lGOD")
+      ? "image/gif"
+      : "image/jpeg";
+
+  return `data:${mimeType};base64,${trimmedPhoto}`;
+}
+
 function getStatusClass(status: string): string {
   const normalized = status
     .toLowerCase()
@@ -154,6 +174,7 @@ export function ExternalCpfSearchPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const normalizedCpf = useMemo(() => cpf.replace(/\D/g, ""), [cpf]);
+  const photoSrc = result ? getPhotoSrc(result.foto) : null;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -187,7 +208,6 @@ export function ExternalCpfSearchPage() {
         { label: "Telefone", value: result.telefone || "-" },
         { label: "Cargo", value: formatEnumLabel(result.cargo) },
         { label: "E-mail", value: result.email || "-" },
-        { label: "Mensagem", value: result.mensagem || "-" },
       ]
     : [];
 
@@ -235,9 +255,17 @@ export function ExternalCpfSearchPage() {
           {result ? (
             <section className="externalCpf-result" aria-live="polite">
               <div className="externalCpf-photoPanel">
-                <div className="externalCpf-avatar" aria-hidden="true">
-                  {getInitials(result.nome)}
-                </div>
+                {photoSrc ? (
+                  <img
+                    className="externalCpf-photo"
+                    src={photoSrc}
+                    alt={`Foto de ${result.nome}`}
+                  />
+                ) : (
+                  <div className="externalCpf-avatar" aria-hidden="true">
+                    {getInitials(result.nome)}
+                  </div>
+                )}
                 <div>
                   <div className="externalCpf-nameRow">
                     <h2>{result.nome}</h2>
@@ -247,7 +275,6 @@ export function ExternalCpfSearchPage() {
                       {formatEnumLabel(result.status)}
                     </span>
                   </div>
-                  <p>{result.mensagem || "Dados retornados pela consulta de CPF."}</p>
                 </div>
               </div>
 
@@ -291,7 +318,6 @@ export function ExternalCpfSearchPage() {
 
       <footer className="cadastro-footer">
         <p>&copy; 2024 E-Vote. Todos os direitos reservados.</p>
-        <p>Sistema de Auditoria Civil Independente.</p>
       </footer>
     </div>
   );
