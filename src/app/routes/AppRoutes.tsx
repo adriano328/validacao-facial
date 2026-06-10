@@ -17,7 +17,6 @@ export function AppRoutes() {
       <Route path="/" element={<LoginPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/cadastro" element={<CadastroPage />} />
-      <Route path="/consulta-cpf" element={<ExternalCpfSearchPage />} />
       <Route path="/confirmacao" element={<RegistrationSubmittedPage />} />
       <Route path="/liveness" element={<RegistrationLivenessPage />} />
       <Route path="/valid" element={<AuthLivenessPage />} />
@@ -29,6 +28,7 @@ export function AppRoutes() {
       {/* rotas privadas */}
       <Route element={<ProtectedRoute />}>
         <Route path="/home" element={<HomePage />} />
+        <Route path="/consulta-cpf" element={<ExternalCpfSearchPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

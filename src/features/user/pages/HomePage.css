@@ -262,10 +262,85 @@
   fill: #b6c0cd;
 }
 
+.home-function-button {
+  width: 100%;
+  min-height: 58px;
+  margin-top: 18px;
+  border: 1px solid #dbe6f5;
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) 18px;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 13px;
+  background: #ffffff;
+  color: #1f2937;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.home-function-button:hover {
+  border-color: #9db8df;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
+  transform: translateY(-1px);
+}
+
+.home-function-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef4ff;
+  color: #073c98;
+}
+
+.home-function-icon {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.home-function-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.home-function-copy strong {
+  color: #243044;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.25;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.home-function-copy span {
+  color: #7b8494;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.home-function-arrow {
+  color: #073c98;
+  font-size: 17px;
+  font-weight: 900;
+  line-height: 1;
+  text-align: right;
+}
+
 .home-access-button {
   width: 100%;
   min-height: 48px;
-  margin-top: 24px;
+  margin-top: 12px;
   border: 0;
   border-radius: 8px;
   display: inline-flex;

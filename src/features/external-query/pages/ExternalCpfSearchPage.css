@@ -35,6 +35,11 @@
   min-height: var(--vf-input-height);
 }
 
+.externalCpf-search .vf-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
 .externalCpf-result {
   margin-top: 24px;
   display: grid;
@@ -52,13 +57,19 @@
   align-items: center;
 }
 
-.externalCpf-photo {
+.externalCpf-avatar {
   width: 136px;
   height: 136px;
   border-radius: 8px;
-  object-fit: cover;
-  background: #e5e6e8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8f0ff;
   border: 1px solid #d8dce6;
+  color: #073c98;
+  font-size: 34px;
+  font-weight: var(--vf-font-extrabold);
+  letter-spacing: 0.02em;
 }
 
 .externalCpf-nameRow {
@@ -93,8 +104,23 @@
   color: #ffffff;
 }
 
+.externalCpf-status--inativo {
+  background: #d64545;
+  color: #ffffff;
+}
+
+.externalCpf-status--ativo {
+  background: #1f8f52;
+  color: #ffffff;
+}
+
 .externalCpf-status--confirmado {
   background: #1f8f52;
+  color: #ffffff;
+}
+
+.externalCpf-status--indefinido {
+  background: #6b7280;
   color: #ffffff;
 }
 
@@ -168,8 +194,9 @@
     width: 100%;
   }
 
-  .externalCpf-photo {
+  .externalCpf-avatar {
     width: 128px;
     height: 128px;
+    font-size: 32px;
   }
 }

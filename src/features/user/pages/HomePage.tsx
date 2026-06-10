@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { useUserInfo } from "@features/user/model/UserInfoContext";
 import "./HomePage.css";
 
@@ -25,6 +26,14 @@ function HistoryIcon() {
   return (
     <svg className="home-info-icon" viewBox="0 0 24 24" aria-hidden="true">
       <path d="M12 4a8 8 0 1 1-7.2 4.5H2.6A10 10 0 1 0 12 2v2Zm-1 3v6l5 3 .9-1.5-4.1-2.4V7H11ZM3 3v6h6V7H6.4A8 8 0 0 1 12 4V2a10 10 0 0 0-7.4 3.3V3H3Z" />
+    </svg>
+  );
+}
+
+function IdentityIcon() {
+  return (
+    <svg className="home-function-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 5.8C4 4.8 4.8 4 5.8 4h12.4c1 0 1.8.8 1.8 1.8v12.4c0 1-.8 1.8-1.8 1.8H5.8c-1 0-1.8-.8-1.8-1.8V5.8Zm2 .2v12h12V6H6Zm3 3.7A3 3 0 1 1 12 12.8a3 3 0 0 1-3-3.1Zm3-1.2a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4Zm-4.2 7.2c.7-1.5 2.2-2.4 4.2-2.4s3.5.9 4.2 2.4l-1.6.8c-.4-.9-1.3-1.4-2.6-1.4s-2.2.5-2.6 1.4l-1.6-.8Z" />
     </svg>
   );
 }
@@ -72,6 +81,7 @@ function obterIniciais(nomeCompleto: string): string {
 }
 
 export function HomePage() {
+  const navigate = useNavigate();
   const { usuario, loading, error } = useUserInfo();
 
   const iniciais = useMemo(() => {
@@ -170,6 +180,23 @@ export function HomePage() {
                 <HistoryIcon />
               </div>
             </div>
+
+            <button
+              className="home-function-button"
+              type="button"
+              onClick={() => navigate("/consulta-cpf")}
+            >
+              <span className="home-function-mark">
+                <IdentityIcon />
+              </span>
+              <span className="home-function-copy">
+                <strong>Confirmação de identidade</strong>
+                <span>Validar membro</span>
+              </span>
+              <span className="home-function-arrow" aria-hidden="true">
+                →
+              </span>
+            </button>
 
             <button className="home-access-button" type="button">
               Acessar cabine de votação

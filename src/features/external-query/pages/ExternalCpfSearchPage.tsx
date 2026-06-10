@@ -1,7 +1,10 @@
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
+import { isAxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 
+import { consultarCpf } from "@features/external-query/api/externalCpfApi";
+import type { ConsultaCpfResponse } from "@features/external-query/api/externalCpfApi";
 import { FormField } from "@shared/ui/form/FormField";
 import { maskCPF } from "@shared/utils/masks";
 import "./ExternalCpfSearchPage.css";
@@ -74,49 +77,85 @@ function BallotIcon({ className }: { className?: string }) {
   );
 }
 
-type ExternalCadastroResult = {
-  cpf: string;
-  nome: string;
-  dataNascimento: string;
-  telefone: string;
-  cargo: string;
-  email: string;
-  statusConfirmacao: "PENDENTE" | "CONFIRMADO";
-  foto: string;
+type ApiErrorResponse = {
+  mensagem?: string;
+  message?: string;
 };
 
-const MOCK_PHOTO =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280' viewBox='0 0 280 280'%3E%3Crect width='280' height='280' rx='18' fill='%23e7e9ee'/%3E%3Ccircle cx='140' cy='104' r='48' fill='%23073c98' opacity='.9'/%3E%3Cpath d='M58 238c11-48 43-75 82-75s71 27 82 75' fill='%23073c98' opacity='.82'/%3E%3Cpath d='M0 0h280v280H0z' fill='none'/%3E%3C/svg%3E";
+function formatDate(value: string): string {
+  const date = new Date(value);
 
-function buildMockResult(cpf: string): ExternalCadastroResult {
-  return {
-    cpf,
-    nome: "Lucas Andrade Batista",
-    dataNascimento: "14/03/1988",
-    telefone: "(65) 99984-2042",
-    cargo: "Pastor",
-    email: "lucas.andrade@email.com",
-    statusConfirmacao: "PENDENTE",
-    foto: MOCK_PHOTO,
-  };
+  if (Number.isNaN(date.getTime())) {
+    return value || "-";
+  }
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    dateStyle: "short",
+  }).format(date);
 }
 
-const statusLabel: Record<ExternalCadastroResult["statusConfirmacao"], string> =
-  {
-    PENDENTE: "Pendente",
-    CONFIRMADO: "Confirmado",
-  };
+function formatEnumLabel(value: string): string {
+  if (!value) {
+    return "-";
+  }
+
+  return value
+    .toLowerCase()
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+
+  if (parts.length === 0) {
+    return "U";
+  }
+
+  const first = parts[0]?.[0] ?? "";
+  const last = parts.length > 1 ? parts[parts.length - 1]?.[0] ?? "" : "";
+
+  return `${first}${last}`.toUpperCase();
+}
+
+function getStatusClass(status: string): string {
+  const normalized = status
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9-]/g, "-");
+
+  return normalized || "indefinido";
+}
+
+function getRequestErrorMessage(error: unknown): string {
+  if (isAxiosError<ApiErrorResponse>(error)) {
+    return (
+      error.response?.data?.mensagem ??
+      error.response?.data?.message ??
+      "Nao foi possivel consultar o CPF informado."
+    );
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return "Nao foi possivel consultar o CPF informado.";
+}
 
 export function ExternalCpfSearchPage() {
   const navigate = useNavigate();
   const [cpf, setCpf] = useState("");
   const [error, setError] = useState("");
-  const [result, setResult] = useState<ExternalCadastroResult | null>(null);
+  const [result, setResult] = useState<ConsultaCpfResponse | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const normalizedCpf = useMemo(() => cpf.replace(/\D/g, ""), [cpf]);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setHasSearched(true);
 
@@ -127,17 +166,28 @@ export function ExternalCpfSearchPage() {
     }
 
     setError("");
-    setResult(buildMockResult(maskCPF(normalizedCpf)));
+    setResult(null);
+    setIsLoading(true);
+
+    try {
+      const data = await consultarCpf(normalizedCpf);
+      setResult(data);
+    } catch (requestError) {
+      setResult(null);
+      setError(getRequestErrorMessage(requestError));
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   const fields = result
     ? [
-        { label: "CPF", value: result.cpf },
-        { label: "Nome", value: result.nome },
-        { label: "Data de nascimento", value: result.dataNascimento },
-        { label: "Telefone", value: result.telefone },
-        { label: "Cargo", value: result.cargo },
-        { label: "E-mail", value: result.email },
+        { label: "CPF", value: maskCPF(result.cpf) },
+        { label: "Data de nascimento", value: formatDate(result.dataNascimento) },
+        { label: "Telefone", value: result.telefone || "-" },
+        { label: "Cargo", value: formatEnumLabel(result.cargo) },
+        { label: "E-mail", value: result.email || "-" },
+        { label: "Mensagem", value: result.mensagem || "-" },
       ]
     : [];
 
@@ -172,8 +222,12 @@ export function ExternalCpfSearchPage() {
               />
             </FormField>
 
-            <button className="vf-button vf-button--primary" type="submit">
-              <span>Pesquisar</span>
+            <button
+              className="vf-button vf-button--primary"
+              type="submit"
+              disabled={isLoading}
+            >
+              <span>{isLoading ? "Pesquisando..." : "Pesquisar"}</span>
               <SearchIcon />
             </button>
           </form>
@@ -181,21 +235,19 @@ export function ExternalCpfSearchPage() {
           {result ? (
             <section className="externalCpf-result" aria-live="polite">
               <div className="externalCpf-photoPanel">
-                <img
-                  className="externalCpf-photo"
-                  src={result.foto}
-                  alt={`Foto de ${result.nome}`}
-                />
+                <div className="externalCpf-avatar" aria-hidden="true">
+                  {getInitials(result.nome)}
+                </div>
                 <div>
                   <div className="externalCpf-nameRow">
                     <h2>{result.nome}</h2>
                     <span
-                      className={`externalCpf-status externalCpf-status--${result.statusConfirmacao.toLowerCase()}`}
+                      className={`externalCpf-status externalCpf-status--${getStatusClass(result.status)}`}
                     >
-                      {statusLabel[result.statusConfirmacao]}
+                      {formatEnumLabel(result.status)}
                     </span>
                   </div>
-                  <p>Dados localizados no mock da consulta externa.</p>
+                  <p>{result.mensagem || "Dados retornados pela consulta de CPF."}</p>
                 </div>
               </div>
 
@@ -227,7 +279,9 @@ export function ExternalCpfSearchPage() {
             </section>
           ) : (
             <div className="externalCpf-empty" aria-live="polite">
-              {hasSearched
+              {isLoading
+                ? "Consultando CPF informado..."
+                : hasSearched
                 ? "Nenhum registro foi exibido. Ajuste o CPF para testar novamente."
                 : "O resultado da consulta aparecera aqui."}
             </div>
