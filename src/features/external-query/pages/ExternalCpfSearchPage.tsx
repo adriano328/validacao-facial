@@ -3,8 +3,12 @@ import type { FormEvent } from "react";
 import { isAxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 
-import { consultarCpf } from "@features/external-query/api/externalCpfApi";
+import {
+  confirmarUsuario,
+  consultarCpf,
+} from "@features/external-query/api/externalCpfApi";
 import type { ConsultaCpfResponse } from "@features/external-query/api/externalCpfApi";
+import { alerts } from "@shared/lib/swal";
 import { FormField } from "@shared/ui/form/FormField";
 import { maskCPF } from "@shared/utils/masks";
 import "./ExternalCpfSearchPage.css";
@@ -130,6 +134,10 @@ function getPhotoSrc(photo: string): string | null {
     return trimmedPhoto;
   }
 
+  if (/^https?:\/\//i.test(trimmedPhoto)) {
+    return trimmedPhoto;
+  }
+
   const mimeType = trimmedPhoto.startsWith("iVBOR")
     ? "image/png"
     : trimmedPhoto.startsWith("R0lGOD")
@@ -149,12 +157,12 @@ function getStatusClass(status: string): string {
   return normalized || "indefinido";
 }
 
-function getRequestErrorMessage(error: unknown): string {
+function getRequestErrorMessage(error: unknown, fallback: string): string {
   if (isAxiosError<ApiErrorResponse>(error)) {
     return (
       error.response?.data?.mensagem ??
       error.response?.data?.message ??
-      "Nao foi possivel consultar o CPF informado."
+      fallback
     );
   }
 
@@ -162,7 +170,7 @@ function getRequestErrorMessage(error: unknown): string {
     return error.message;
   }
 
-  return "Nao foi possivel consultar o CPF informado.";
+  return fallback;
 }
 
 export function ExternalCpfSearchPage() {
@@ -172,6 +180,7 @@ export function ExternalCpfSearchPage() {
   const [result, setResult] = useState<ConsultaCpfResponse | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
 
   const normalizedCpf = useMemo(() => cpf.replace(/\D/g, ""), [cpf]);
   const photoSrc = result ? getPhotoSrc(result.foto) : null;
@@ -195,9 +204,64 @@ export function ExternalCpfSearchPage() {
       setResult(data);
     } catch (requestError) {
       setResult(null);
-      setError(getRequestErrorMessage(requestError));
+      setError(
+        getRequestErrorMessage(
+          requestError,
+          "Nao foi possivel consultar o CPF informado."
+        )
+      );
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function handleConfirmIdentity() {
+    if (!result || isConfirming) {
+      return;
+    }
+
+    const resultCpf = result.cpf.replace(/\D/g, "") || normalizedCpf;
+
+    setIsConfirming(true);
+    alerts.loading({
+      title: "Confirmando identidade...",
+      text: "Aguarde enquanto o usuario e confirmado.",
+    });
+
+    try {
+      const data = await confirmarUsuario({ cpf: resultCpf });
+      const successMessage =
+        data.mensagem ?? data.message ?? "Identidade confirmada com sucesso.";
+
+      setResult((currentResult) => {
+        if (!currentResult) {
+          return currentResult;
+        }
+
+        return {
+          ...currentResult,
+          ...data,
+          status: data.status ?? "ATIVO",
+          mensagem: data.mensagem ?? currentResult.mensagem,
+        };
+      });
+
+      await alerts.success({
+        title: "Identidade confirmada",
+        text: successMessage,
+      });
+    } catch (requestError) {
+      alerts.close();
+      await alerts.error({
+        title: "Nao foi possivel confirmar",
+        text: getRequestErrorMessage(
+          requestError,
+          "Nao foi possivel confirmar a identidade do usuario."
+        ),
+      });
+    } finally {
+      alerts.close();
+      setIsConfirming(false);
     }
   }
 
@@ -291,8 +355,10 @@ export function ExternalCpfSearchPage() {
                 <button
                   className="vf-button vf-button--primary"
                   type="button"
+                  onClick={handleConfirmIdentity}
+                  disabled={isConfirming}
                 >
-                  Confirmar identidade
+                  {isConfirming ? "Confirmando..." : "Confirmar identidade"}
                 </button>
 
                 <button

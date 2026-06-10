@@ -12,6 +12,15 @@ export type ConsultaCpfResponse = {
   mensagem: string;
 };
 
+export type ConfirmarUsuarioRequest = {
+  cpf: string;
+};
+
+export type ConfirmarUsuarioResponse = Partial<ConsultaCpfResponse> & {
+  mensagem?: string;
+  message?: string;
+};
+
 export async function consultarCpf(
   cpf: string,
   signal?: AbortSignal
@@ -22,6 +31,19 @@ export async function consultarCpf(
       params: { cpf },
       signal,
     }
+  );
+
+  return data;
+}
+
+export async function confirmarUsuario(
+  payload: ConfirmarUsuarioRequest,
+  signal?: AbortSignal
+): Promise<ConfirmarUsuarioResponse> {
+  const { data } = await api.put<ConfirmarUsuarioResponse>(
+    "/usuario/confirmar-usuario",
+    payload,
+    { signal }
   );
 
   return data;
