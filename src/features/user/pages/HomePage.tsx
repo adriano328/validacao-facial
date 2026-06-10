@@ -130,23 +130,14 @@ export function HomePage() {
   return (
     <div className="home-page">
       <header className="home-topbar">
-        <div className="home-topbar-brand">
-          <BrandIcon />
-          <span>E-Voto</span>
-        </div>
-
-        <div className="home-topbar-actions" aria-label="Status da sessão">
-          <span className="home-topbar-dot" />
-          <span className="home-topbar-dot" />
-          <button
-            className="home-logout-button"
-            type="button"
-            onClick={handleLogout}
-            aria-label="Sair da conta"
-          >
-            <span>Sair</span>
-          </button>
-        </div>
+        <button
+          className="home-logout-button"
+          type="button"
+          onClick={handleLogout}
+          aria-label="Sair da conta"
+        >
+          <span>Sair</span>
+        </button>
       </header>
 
       <main className="home-shell">

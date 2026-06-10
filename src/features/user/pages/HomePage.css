@@ -13,16 +13,7 @@
   margin: 0 auto;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-}
-
-.home-topbar-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: #073c98;
-  font-size: 13px;
-  font-weight: 800;
+  justify-content: flex-end;
 }
 
 .home-brandIcon {
@@ -40,21 +31,6 @@
   width: 17px;
   height: 17px;
   fill: #ffffff;
-}
-
-.home-topbar-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  color: #8a96a8;
-}
-
-.home-topbar-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: #c9d2df;
-  box-shadow: 0 0 0 4px rgba(201, 210, 223, 0.18);
 }
 
 .home-logout-button {
@@ -424,14 +400,6 @@
 
   .home-topbar {
     min-height: 48px;
-  }
-
-  .home-topbar-actions {
-    gap: 8px;
-  }
-
-  .home-topbar-dot {
-    display: none;
   }
 
   .home-logout-button {

@@ -123,7 +123,9 @@
 }
 
 .livenessDetectorBox--running .amplify-liveness-camera-module {
+  position: relative;
   width: 100%;
+  height: 100%;
   min-height: inherit;
   border-radius: 6px;
   overflow: hidden;
@@ -131,9 +133,33 @@
 
 .livenessDetectorBox--running .amplify-liveness-camera-module--mobile {
   position: relative;
-  inset: auto;
+  top: auto;
+  left: auto;
   width: 100%;
+  height: 100%;
   min-height: inherit;
+  z-index: auto;
+}
+
+.livenessDetectorBox--running .amplify-liveness-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+
+.livenessDetectorBox--running .amplify-liveness-freshness-canvas,
+.livenessDetectorBox--running .amplify-liveness-oval-canvas,
+.livenessDetectorBox--running .amplify-liveness-oval-canvas--mobile {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.livenessDetectorBox--running .amplify-liveness-freshness-canvas:where([hidden]) {
+  display: none;
 }
 
 .livenessDetectorBox--running .amplify-liveness-toast {
@@ -163,6 +189,31 @@
 
 .livenessDetectorBox--running .amplify-liveness-video-anchor {
   min-height: inherit;
+}
+
+.livenessDetectorBox--running:has(
+    .amplify-liveness-camera-module + .amplify-flex .amplify-button
+  )
+  .amplify-liveness-toast__container {
+  top: 20px;
+}
+
+.livenessDetectorBox--running .amplify-liveness-hint__text .amplify-loader {
+  display: none;
+}
+
+.livenessDetectorBox--running .amplify-liveness-hint__text:has(.amplify-loader)::before {
+  content: "";
+  width: 44px;
+  height: 10px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 5px 50%, currentColor 4px, transparent 5px),
+    radial-gradient(circle at 22px 50%, currentColor 4px, transparent 5px),
+    radial-gradient(circle at 39px 50%, currentColor 4px, transparent 5px);
+  color: #0b7285;
+  opacity: 0.9;
+  animation: liveness-pulse-dots 900ms ease-in-out infinite;
 }
 
 .livenessDetectorBox--idle,
@@ -296,6 +347,19 @@
 @keyframes liveness-spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes liveness-pulse-dots {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scaleX(0.82);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
   }
 }
 

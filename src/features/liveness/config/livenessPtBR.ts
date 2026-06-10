@@ -28,7 +28,7 @@ export const livenessDisplayTextPtBR = {
   hintIlluminationNormalText: "Iluminação ok",
 
   // --- Verifying / uploading ---
-  hintVerifyingText: "Verificando…",
+  hintVerifyingText: "Finalizando validação",
   hintCheckCompleteText: "Verificação concluída",
   hintConnectingText: "Conectando…",
 

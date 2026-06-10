@@ -14,33 +14,6 @@ import { SectionHeader } from "@shared/ui/section-header/SectionHeader";
 import { maskCPF } from "@shared/utils/masks";
 import "./ExternalCpfSearchPage.css";
 
-function SearchIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      width="20"
-      height="20"
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <path
-        d="M9.1 15.2C12.4689 15.2 15.2 12.4689 15.2 9.1C15.2 5.73106 12.4689 3 9.1 3C5.73106 3 3 5.73106 3 9.1C3 12.4689 5.73106 15.2 9.1 15.2Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-      <path
-        d="M13.6 13.6L17 17"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
 function BallotIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -325,7 +298,6 @@ export function ExternalCpfSearchPage() {
               disabled={isLoading}
             >
               <span>{isLoading ? "Pesquisando..." : "Pesquisar"}</span>
-              <SearchIcon />
             </button>
           </form>
 
