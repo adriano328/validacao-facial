@@ -79,7 +79,7 @@
 }
 
 .twofaDigit {
-  height: 42px;
+  height: 48px;
   border: 1px solid #eef2f7;
   border-radius: 8px;
   display: grid;
@@ -117,7 +117,7 @@
 .twofaPrimary,
 .twofaSecondary {
   width: 100%;
-  min-height: 42px;
+  min-height: 48px;
   border-radius: 8px;
   border: 0;
   display: inline-flex;
@@ -216,7 +216,7 @@
   }
 
   .twofaDigit {
-    height: 40px;
+    height: 46px;
     font-size: 16px;
   }
 }

@@ -45,7 +45,7 @@
 .home-topbar-actions {
   display: inline-flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   color: #8a96a8;
 }
 
@@ -57,17 +57,31 @@
   box-shadow: 0 0 0 4px rgba(201, 210, 223, 0.18);
 }
 
-.home-topbar-user {
-  width: 26px;
-  height: 26px;
-  border-radius: 8px;
+.home-logout-button {
+  min-height: 44px;
+  border: 0;
+  border-radius: 999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #dce8fb;
+  padding: 0 14px;
+  background: #eef2f7;
   color: #073c98;
-  font-size: 11px;
+  cursor: pointer;
+  font-size: 12px;
   font-weight: 900;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.home-logout-button:hover {
+  background: #dfe8f6;
+  color: #073c98;
+  box-shadow: none;
+  transform: translateY(-1px);
 }
 
 .home-shell {
@@ -264,7 +278,7 @@
 
 .home-function-button {
   width: 100%;
-  min-height: 58px;
+  min-height: 64px;
   margin-top: 18px;
   border: 1px solid #dbe6f5;
   border-radius: 8px;
@@ -290,8 +304,8 @@
 }
 
 .home-function-mark {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 8px;
   display: inline-flex;
   align-items: center;
@@ -339,7 +353,7 @@
 
 .home-access-button {
   width: 100%;
-  min-height: 48px;
+  min-height: 54px;
   margin-top: 12px;
   border: 0;
   border-radius: 8px;
@@ -406,6 +420,24 @@
 @media (max-width: 768px) {
   .home-page {
     padding: 14px 14px 36px;
+  }
+
+  .home-topbar {
+    min-height: 48px;
+  }
+
+  .home-topbar-actions {
+    gap: 8px;
+  }
+
+  .home-topbar-dot {
+    display: none;
+  }
+
+  .home-logout-button {
+    min-width: 54px;
+    min-height: 42px;
+    padding: 0 12px;
   }
 
   .home-shell {

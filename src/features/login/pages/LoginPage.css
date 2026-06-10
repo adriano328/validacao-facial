@@ -57,14 +57,6 @@
   margin-bottom: 22px;
 }
 
-.login-cardHeader .vf-title {
-  margin: 0 0 8px;
-}
-
-.login-cardHeader .vf-text {
-  margin: 0;
-}
-
 .login-form {
   display: flex;
   flex-direction: column;

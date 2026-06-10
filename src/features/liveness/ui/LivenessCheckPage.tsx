@@ -7,6 +7,7 @@ import {
 } from "@features/liveness/api/livenessApi";
 import { livenessDisplayTextPtBR } from "@features/liveness/config/livenessPtBR";
 import { alerts } from "@shared/lib/swal";
+import { SectionHeader } from "@shared/ui/section-header/SectionHeader";
 import "./LivenessCheckPage.css";
 
 type Phase = "idle" | "running" | "success";
@@ -50,8 +51,7 @@ const DEFAULT_SUBTITLE = "Confirme sua identidade seguindo as instruções abaix
 const DEFAULT_TIP = "Dica: mantenha o rosto centralizado, em ambiente bem iluminado.";
 const DEFAULT_LOADING = "Preparando câmera e sessão de validação facial...";
 const DEFAULT_LOADING_TIP = "Aguarde alguns instantes. Vamos abrir a câmera com segurança.";
-const DEFAULT_SECURITY = "Seus dados serão criptografados em trânsito";
-const DEFAULT_BRAND_SUBTITLE = "Plataforma segura de identificação cívica";
+const DEFAULT_BRAND_SUBTITLE = "Plataforma de Voto Eletrônico COMADEMAT";
 const DEFAULT_FOOTER_TITLE = "Sistema seguro e auditável";
 const DEFAULT_FOOTER_TEXT = "Privacidade, tecnologia e confiança.";
 const DEFAULT_MAX_ATTEMPTS = 1;
@@ -184,7 +184,6 @@ export function LivenessCheckPage({
   tipText = DEFAULT_TIP,
   loadingText = DEFAULT_LOADING,
   loadingTipText = DEFAULT_LOADING_TIP,
-  securityText = DEFAULT_SECURITY,
   brandSubtitle = DEFAULT_BRAND_SUBTITLE,
   footerTitle = DEFAULT_FOOTER_TITLE,
   footerText = DEFAULT_FOOTER_TEXT,
@@ -339,10 +338,12 @@ export function LivenessCheckPage({
         footerText={footerText}
       >
         <main className="livenessCard" aria-labelledby="liveness-title">
-          <div className="livenessHeader">
-            <h2 id="liveness-title">{title}</h2>
-            <p>{subtitle}</p>
-          </div>
+          <SectionHeader
+            className="livenessHeader"
+            id="liveness-title"
+            title={title}
+            subtitle={subtitle}
+          />
 
           <div className="livenessTip">
             <span className="livenessTipIcon" aria-hidden="true">i</span>
@@ -360,8 +361,6 @@ export function LivenessCheckPage({
             {loading ? "Iniciando..." : "Iniciar validação facial"}
             <span aria-hidden="true">→</span>
           </button>
-
-          <p className="livenessSecurity">{securityText}</p>
         </main>
       </LivenessShell>
     );
@@ -371,10 +370,11 @@ export function LivenessCheckPage({
     return (
       <LivenessShell brandSubtitle={brandSubtitle}>
         <main className="livenessCard">
-          <div className="livenessHeader">
-            <h2>{title}</h2>
-            <p>{loadingText}</p>
-          </div>
+          <SectionHeader
+            className="livenessHeader"
+            title={title}
+            subtitle={loadingText}
+          />
 
           <div className="livenessTip">
             <span className="livenessTipIcon" aria-hidden="true">i</span>
@@ -397,10 +397,12 @@ export function LivenessCheckPage({
       footerText={footerText}
     >
       <main className="livenessCard livenessCard--running" aria-labelledby="liveness-title">
-        <div className="livenessHeader">
-          <h2 id="liveness-title">{title}</h2>
-          <p>{subtitle}</p>
-        </div>
+        <SectionHeader
+          className="livenessHeader"
+          id="liveness-title"
+          title={title}
+          subtitle={subtitle}
+        />
 
         <div className="livenessTip">
           <span className="livenessTipIcon" aria-hidden="true">i</span>
@@ -430,7 +432,6 @@ export function LivenessCheckPage({
           ) : null}
         </div>
 
-        <p className="livenessSecurity">{securityText}</p>
       </main>
     </LivenessShell>
   );

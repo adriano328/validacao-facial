@@ -10,6 +10,7 @@ import {
 import type { ConsultaCpfResponse } from "@features/external-query/api/externalCpfApi";
 import { alerts } from "@shared/lib/swal";
 import { FormField } from "@shared/ui/form/FormField";
+import { SectionHeader } from "@shared/ui/section-header/SectionHeader";
 import { maskCPF } from "@shared/utils/masks";
 import "./ExternalCpfSearchPage.css";
 
@@ -278,22 +279,34 @@ export function ExternalCpfSearchPage() {
   return (
     <div className="externalCpf-page">
       <main className="externalCpf-main" aria-labelledby="externalCpf-title">
-        <header className="cadastro-brand">
-          <div className="cadastro-brandIcon">
-            <BallotIcon />
+        <header className="externalCpf-header">
+          <button
+            className="externalCpf-backButton"
+            type="button"
+            onClick={() => navigate(-1)}
+          >
+            <span aria-hidden="true">←</span>
+            Voltar
+          </button>
+
+          <div className="cadastro-brand externalCpf-headerBrand">
+            <div className="cadastro-brandIcon">
+              <BallotIcon />
+            </div>
+            <h1>E-Voto</h1>
           </div>
-          <h1>E-Voto</h1>
+
+          <span className="externalCpf-headerSpacer" aria-hidden="true" />
         </header>
 
         <section className="vf-card cadastro-card externalCpf-card">
-          <div className="vf-sectionHeader cadastro-cardHeader">
-            <h4 className="vf-title" id="externalCpf-title">
-              Confirma&ccedil;&atilde;o de Identidade
-            </h4>
-            <p className="vf-text">
-              Consulta e Valida&ccedil;&atilde;o de identidade de membros
-            </p>
-          </div>
+          <SectionHeader
+            className="cadastro-cardHeader"
+            id="externalCpf-title"
+            title="Confirmação de Identidade"
+            titleAs="h4"
+            subtitle="Consulta e Validação de identidade de membros"
+          />
 
           <form className="externalCpf-search" onSubmit={handleSubmit}>
             <FormField label="CPF" required error={error}>
@@ -361,13 +374,6 @@ export function ExternalCpfSearchPage() {
                   {isConfirming ? "Confirmando..." : "Confirmar identidade"}
                 </button>
 
-                <button
-                  className="vf-button vf-button--secondary"
-                  type="button"
-                  onClick={() => navigate(-1)}
-                >
-                  Voltar
-                </button>
               </div>
             </section>
           ) : (

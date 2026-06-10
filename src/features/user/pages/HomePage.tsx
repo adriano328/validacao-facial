@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthToken } from "@features/auth/model/AuthTokenContext";
 import { useUserInfo } from "@features/user/model/UserInfoContext";
 import "./HomePage.css";
 
@@ -82,6 +83,7 @@ function obterIniciais(nomeCompleto: string): string {
 
 export function HomePage() {
   const navigate = useNavigate();
+  const { clearToken } = useAuthToken();
   const { usuario, loading, error } = useUserInfo();
 
   const iniciais = useMemo(() => {
@@ -91,6 +93,11 @@ export function HomePage() {
 
     return obterIniciais(usuario.nome);
   }, [usuario?.nome]);
+
+  function handleLogout() {
+    clearToken();
+    navigate("/login", { replace: true });
+  }
 
   if (loading) {
     return (
@@ -131,7 +138,14 @@ export function HomePage() {
         <div className="home-topbar-actions" aria-label="Status da sessão">
           <span className="home-topbar-dot" />
           <span className="home-topbar-dot" />
-          <span className="home-topbar-user">{iniciais}</span>
+          <button
+            className="home-logout-button"
+            type="button"
+            onClick={handleLogout}
+            aria-label="Sair da conta"
+          >
+            <span>Sair</span>
+          </button>
         </div>
       </header>
 
@@ -139,7 +153,7 @@ export function HomePage() {
         <div className="home-brand">
           <BrandIcon />
           <strong>E-Voto</strong>
-          <span>Plataforma Segura de Identificação Cívica</span>
+          <span>Plataforma de Voto Eletrônico COMADEMAT</span>
         </div>
 
         <section className="home-card">
@@ -155,8 +169,7 @@ export function HomePage() {
             <div className="home-role-badge">{usuario.cargo}</div>
 
             <p className="home-message">
-              Bem-vindo ao portal de governança descentralizada. Sua chave
-              criptográfica está ativa e pronta para validação.
+              Acesse e participe das votações oficiais da COMADEMAT.
             </p>
 
             <div className="home-info-list">

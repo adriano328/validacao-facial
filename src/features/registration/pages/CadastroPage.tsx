@@ -4,6 +4,7 @@ import type { CargoUsuario } from "@features/registration/model/types";
 import { CARGOS_ECLESIASTICOS } from "@shared/data/cargos";
 import { DropdownField } from "@shared/ui/dropdown/DropdownField";
 import { FormField } from "@shared/ui/form/FormField";
+import { SectionHeader } from "@shared/ui/section-header/SectionHeader";
 import { maskCPF, maskDateBR, maskPhoneBR } from "@shared/utils/masks";
 import "./CadastroPage.css";
 
@@ -73,15 +74,13 @@ export function CadastroPage() {
         </header>
 
         <section className="vf-card cadastro-card">
-          <div className="vf-sectionHeader cadastro-cardHeader">
-            <h4 className="vf-title" id="cadastro-title">
-              Criar Cadastro
-            </h4>
-            <p className="vf-text">
-              Preencha os campos abaixo para iniciar seu acesso seguro &agrave;
-              plataforma.
-            </p>
-          </div>
+          <SectionHeader
+            className="cadastro-cardHeader"
+            id="cadastro-title"
+            title="Criar Cadastro"
+            titleAs="h4"
+            subtitle="Preencha os campos abaixo para iniciar seu acesso seguro à plataforma."
+          />
 
           <div className="cadastro-form">
             <div className="cadastro-grid">

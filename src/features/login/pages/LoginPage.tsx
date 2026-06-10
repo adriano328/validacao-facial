@@ -1,6 +1,7 @@
 import "./LoginPage.css";
 
 import { FormField } from "@shared/ui/form/FormField";
+import { SectionHeader } from "@shared/ui/section-header/SectionHeader";
 import { useLoginForm } from "@features/login/model/useLoginForm";
 import { useTwoFactor } from "@features/two-factor/model/TwoFactorContext";
 import { TwoFactorConfirm } from "@features/two-factor/ui/TwoFactorConfirm";
@@ -75,10 +76,12 @@ export function LoginPage() {
         </header>
 
         <section className="vf-card login-card">
-          <div className="vf-sectionHeader login-cardHeader">
-            <h2 className="vf-title" id="login-title">Entrar</h2>
-            <p className="vf-text">Insira suas credenciais para acessar o sistema.</p>
-          </div>
+          <SectionHeader
+            className="login-cardHeader"
+            id="login-title"
+            title="Entrar"
+            subtitle="Insira suas credenciais para acessar o sistema."
+          />
 
           <form
             className="login-form"
@@ -117,7 +120,6 @@ export function LoginPage() {
                 disabled={isSubmitting}
               >
                 <span>{isSubmitting ? "Entrando..." : "Entrar"}</span>
-                <BallotIcon className="login-buttonIcon" />
               </button>
 
               <button

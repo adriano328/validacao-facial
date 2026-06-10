@@ -114,7 +114,7 @@ export function EmailConfirmationPage() {
           <BallotIcon />
         </div>
         <h1>E-Voto</h1>
-        <p>Plataforma segura de identificação cívica</p>
+        <p>Plataforma de Voto Eletrônico COMADEMAT</p>
       </header>
 
       <section className="confirmation-card" aria-live="polite">
