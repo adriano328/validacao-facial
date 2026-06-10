@@ -2,51 +2,11 @@ import "./LoginPage.css";
 
 import { FormField } from "@shared/ui/form/FormField";
 import { SectionHeader } from "@shared/ui/section-header/SectionHeader";
+import { BrandMark } from "@shared/ui/brand/BrandMark";
 import { useLoginForm } from "@features/login/model/useLoginForm";
 import { useTwoFactor } from "@features/two-factor/model/TwoFactorContext";
 import { TwoFactorConfirm } from "@features/two-factor/ui/TwoFactorConfirm";
 import { QrCodeModal } from "@features/two-factor/ui/QrCodeModal";
-
-function BallotIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      width="34"
-      height="34"
-      viewBox="0 0 34 34"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <path
-        d="M9 21.5V25C9 26.1 9.9 27 11 27H25C26.1 27 27 26.1 27 25V21.5"
-        stroke="currentColor"
-        strokeWidth="2.7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M8 20.5H15.8"
-        stroke="currentColor"
-        strokeWidth="2.7"
-        strokeLinecap="round"
-      />
-      <path
-        d="M17.6 8.6L24.4 15.4L15 24.8H8.2V18L17.6 8.6Z"
-        stroke="currentColor"
-        strokeWidth="2.7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M15.4 10.8L22.2 17.6"
-        stroke="currentColor"
-        strokeWidth="2.7"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
 
 export function LoginPage() {
   const {
@@ -68,12 +28,7 @@ export function LoginPage() {
   return (
     <div className="login-page">
       <main className="login-main" aria-labelledby="login-title">
-        <header className="login-brand">
-          <div className="login-brandIcon">
-            <BallotIcon />
-          </div>
-          <h1>E-Voto</h1>
-        </header>
+        <BrandMark className="login-brand" />
 
         <section className="vf-card login-card">
           <SectionHeader

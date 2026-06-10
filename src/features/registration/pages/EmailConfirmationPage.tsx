@@ -1,49 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { confirmarEmail } from "@features/registration/api/pessoaApi";
+import { BrandMark } from "@shared/ui/brand/BrandMark";
 import "./EmailConfirmationPage.css";
 
 type Status = "loading" | "success" | "error";
-
-function BallotIcon() {
-  return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 34 34"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <path
-        d="M9 21.5V25C9 26.1 9.9 27 11 27H25C26.1 27 27 26.1 27 25V21.5"
-        stroke="currentColor"
-        strokeWidth="2.7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M8 20.5H15.8"
-        stroke="currentColor"
-        strokeWidth="2.7"
-        strokeLinecap="round"
-      />
-      <path
-        d="M17.6 8.6L24.4 15.4L15 24.8H8.2V18L17.6 8.6Z"
-        stroke="currentColor"
-        strokeWidth="2.7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M15.4 10.8L22.2 17.6"
-        stroke="currentColor"
-        strokeWidth="2.7"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
 
 function StatusIcon({ status }: { status: Status }) {
   if (status === "loading") {
@@ -109,13 +70,7 @@ export function EmailConfirmationPage() {
 
   return (
     <main className="confirmation-page">
-      <header className="confirmation-brand">
-        <div className="confirmation-brandIcon">
-          <BallotIcon />
-        </div>
-        <h1>E-Voto</h1>
-        <p>Plataforma de Voto Eletrônico COMADEMAT</p>
-      </header>
+      <BrandMark className="confirmation-brand" />
 
       <section className="confirmation-card" aria-live="polite">
         <StatusIcon status={status} />

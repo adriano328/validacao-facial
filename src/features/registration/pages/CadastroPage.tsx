@@ -2,6 +2,7 @@ import { DocumentPhotoField } from "@features/registration/ui/DocumentPhotoField
 import { useCadastroForm } from "@features/registration/model/useCadastroForm";
 import type { CargoUsuario } from "@features/registration/model/types";
 import { CARGOS_ECLESIASTICOS } from "@shared/data/cargos";
+import { BrandMark } from "@shared/ui/brand/BrandMark";
 import { DropdownField } from "@shared/ui/dropdown/DropdownField";
 import { FormField } from "@shared/ui/form/FormField";
 import { SectionHeader } from "@shared/ui/section-header/SectionHeader";
@@ -66,12 +67,7 @@ export function CadastroPage() {
   return (
     <div className="cadastro-page">
       <main className="cadastro-main" aria-labelledby="cadastro-title">
-        <header className="cadastro-brand">
-          <div className="cadastro-brandIcon">
-            <BallotIcon />
-          </div>
-          <h1>E-Voto</h1>
-        </header>
+        <BrandMark className="cadastro-brand" />
 
         <section className="vf-card cadastro-card">
           <SectionHeader
