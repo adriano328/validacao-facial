@@ -20,7 +20,11 @@ type ApiErrorResponse = {
   message?: string;
 };
 
-function formatDate(value: string): string {
+function formatDate(value?: string | null): string {
+  if (!value) {
+    return "-";
+  }
+
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
@@ -32,7 +36,7 @@ function formatDate(value: string): string {
   }).format(date);
 }
 
-function formatEnumLabel(value: string): string {
+function formatEnumLabel(value?: string | null): string {
   if (!value) {
     return "-";
   }
@@ -44,8 +48,8 @@ function formatEnumLabel(value: string): string {
     .join(" ");
 }
 
-function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
+function getInitials(name?: string | null): string {
+  const parts = (name ?? "").trim().split(/\s+/).filter(Boolean);
 
   if (parts.length === 0) {
     return "U";
@@ -57,8 +61,8 @@ function getInitials(name: string): string {
   return `${first}${last}`.toUpperCase();
 }
 
-function getPhotoSrc(photo: string): string | null {
-  const trimmedPhoto = photo.trim();
+function getPhotoSrc(photo?: string | null): string | null {
+  const trimmedPhoto = (photo ?? "").trim();
 
   if (!trimmedPhoto) {
     return null;
@@ -81,8 +85,8 @@ function getPhotoSrc(photo: string): string | null {
   return `data:${mimeType};base64,${trimmedPhoto}`;
 }
 
-function getStatusClass(status: string): string {
-  const normalized = status
+function getStatusClass(status?: string | null): string {
+  const normalized = (status ?? "")
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -154,7 +158,7 @@ export function ExternalCpfSearchPage() {
       return;
     }
 
-    const resultCpf = result.cpf.replace(/\D/g, "") || normalizedCpf;
+    const resultCpf = result.cpf?.replace(/\D/g, "") || normalizedCpf;
 
     setIsConfirming(true);
     alerts.loading({
@@ -201,13 +205,16 @@ export function ExternalCpfSearchPage() {
 
   const fields = result
     ? [
-        { label: "CPF", value: maskCPF(result.cpf) },
+        { label: "CPF", value: result.cpf ? maskCPF(result.cpf) : "-" },
         { label: "Data de nascimento", value: formatDate(result.dataNascimento) },
         { label: "Telefone", value: result.telefone || "-" },
         { label: "Cargo", value: formatEnumLabel(result.cargo) },
         { label: "E-mail", value: result.email || "-" },
       ]
     : [];
+
+  const resultName = result?.nome?.trim() || "Usuario";
+  const resultStatus = result?.status || "INDEFINIDO";
 
   return (
     <div className="externalCpf-page">
@@ -261,7 +268,7 @@ export function ExternalCpfSearchPage() {
                   <img
                     className="externalCpf-photo"
                     src={photoSrc}
-                    alt={`Foto de ${result.nome}`}
+                    alt={`Foto de ${resultName}`}
                   />
                 ) : (
                   <div className="externalCpf-avatar" aria-hidden="true">
@@ -270,11 +277,11 @@ export function ExternalCpfSearchPage() {
                 )}
                 <div>
                   <div className="externalCpf-nameRow">
-                    <h2>{result.nome}</h2>
+                    <h2>{resultName}</h2>
                     <span
-                      className={`externalCpf-status externalCpf-status--${getStatusClass(result.status)}`}
+                      className={`externalCpf-status externalCpf-status--${getStatusClass(resultStatus)}`}
                     >
-                      {formatEnumLabel(result.status)}
+                      {formatEnumLabel(resultStatus)}
                     </span>
                   </div>
                 </div>

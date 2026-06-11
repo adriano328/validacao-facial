@@ -14,6 +14,7 @@ export type PessoaPayload = {
   cpf: string;
   campoEclesiastico: CampoEclesiasticoPayload;
   documento: string;
+  foto: string;
 };
 
   export type CadastroForm = {
@@ -27,6 +28,7 @@ export type PessoaPayload = {
     cpf: string;
     campoEclesiasticoId: number | undefined;
     documento: string;
+    foto: string;
   };
 
 export const initialCadastroForm: CadastroForm = {
@@ -40,4 +42,5 @@ export const initialCadastroForm: CadastroForm = {
   cpf: "",
   campoEclesiasticoId: undefined,
   documento: "",
+  foto: "",
 };

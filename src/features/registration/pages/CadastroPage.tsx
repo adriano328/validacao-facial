@@ -1,4 +1,5 @@
 import { DocumentPhotoField } from "@features/registration/ui/DocumentPhotoField";
+import { FacePhotoField } from "@features/registration/ui/FacePhotoField";
 import { useCadastroForm } from "@features/registration/model/useCadastroForm";
 import type { CargoUsuario } from "@features/registration/model/types";
 import { CARGOS_ECLESIASTICOS } from "@shared/data/cargos";
@@ -196,6 +197,13 @@ export function CadastroPage() {
                 />
               </FormField>
             </div>
+
+            <FacePhotoField
+              value={formCadastro.foto}
+              onChange={(base64) => setFormCadastro("foto", base64)}
+              required
+              error={showError("foto")}
+            />
 
             <DocumentPhotoField
               documentType="CNH"

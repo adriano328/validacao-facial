@@ -97,8 +97,8 @@
 }
 
 .externalCpf-avatar {
-  width: 136px;
-  height: 136px;
+  width: 220px;
+  height: 220px;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -112,8 +112,8 @@
 }
 
 .externalCpf-photo {
-  width: 136px;
-  height: 136px;
+  width: 220px;
+  height: 220px;
   border-radius: 8px;
   object-fit: cover;
   background: #e8f0ff;
@@ -258,8 +258,8 @@
 
   .externalCpf-avatar,
   .externalCpf-photo {
-    width: 128px;
-    height: 128px;
+    width: min(240px, 82vw);
+    height: min(240px, 82vw);
   }
 
   .externalCpf-avatar {

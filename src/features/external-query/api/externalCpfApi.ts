@@ -1,15 +1,15 @@
 import { api } from "@shared/api/client";
 
 export type ConsultaCpfResponse = {
-  foto: string;
-  cpf: string;
-  nome: string;
-  dataNascimento: string;
-  telefone: string;
-  cargo: string;
-  email: string;
-  status: string;
-  mensagem: string;
+  foto?: string | null;
+  cpf?: string | null;
+  nome?: string | null;
+  dataNascimento?: string | null;
+  telefone?: string | null;
+  cargo?: string | null;
+  email?: string | null;
+  status?: string | null;
+  mensagem?: string | null;
 };
 
 export type ConfirmarUsuarioRequest = {

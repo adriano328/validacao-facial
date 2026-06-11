@@ -151,6 +151,7 @@ export function useCadastroForm() {
       senhaConfirmacao: true,
       cpf: true,
       documento: true,
+      foto: true,
     });
   };
 
@@ -186,6 +187,7 @@ export function useCadastroForm() {
         id: 1,
       },
       documento: stripDataUrl(formCadastro.documento),
+      foto: stripDataUrl(formCadastro.foto),
     };
 
     setIsSubmitting(true);
@@ -220,6 +222,7 @@ export function useCadastroForm() {
       !!formCadastro.senha &&
       !!formCadastro.senhaConfirmacao &&
       !!formCadastro.documento &&
+      !!formCadastro.foto &&
       formCadastro.cargo !== undefined &&
       !isSubmitting
     );
@@ -232,6 +235,7 @@ export function useCadastroForm() {
     formCadastro.senha,
     formCadastro.senhaConfirmacao,
     formCadastro.documento,
+    formCadastro.foto,
     formCadastro.cargo,
     isSubmitting,
   ]);
