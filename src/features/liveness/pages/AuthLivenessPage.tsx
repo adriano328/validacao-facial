@@ -59,6 +59,7 @@ export default function AuthLivenessPage() {
 
   return (
     <LivenessCheckPage
+      disableStartScreen
       resolveResult={(sessionId) => obterResultadoSessaoLiveness(sessionId)}
       isApproved={(result) => result.status === "SUCCEEDED"}
       onApproved={handleApproved}

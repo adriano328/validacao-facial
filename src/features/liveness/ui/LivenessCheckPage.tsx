@@ -20,9 +20,9 @@ type LivenessUiError = {
 type ApprovalResult =
   | void
   | {
-      ok: boolean;
-      message?: string;
-    };
+    ok: boolean;
+    message?: string;
+  };
 
 type LivenessCheckPageProps = {
   title?: string;
@@ -37,6 +37,7 @@ type LivenessCheckPageProps = {
   detectorHeight?: number;
   maxAttempts?: number;
   intervalMs?: number;
+  disableStartScreen?: boolean;
   resolveResult: (
     sessionId: string
   ) => Promise<ResultadoSessaoLivenessResponse>;
@@ -145,6 +146,7 @@ export function LivenessCheckPage({
   detectorHeight,
   maxAttempts = DEFAULT_MAX_ATTEMPTS,
   intervalMs = DEFAULT_INTERVAL_MS,
+  disableStartScreen = false,
   resolveResult,
   isApproved,
   onApproved,
@@ -373,6 +375,7 @@ export function LivenessCheckPage({
               key={`${detectorKey}-${sessionId}`}
               sessionId={sessionId}
               region="us-east-1"
+              disableStartScreen={disableStartScreen}
               displayText={livenessDisplayTextPtBR}
               onAnalysisComplete={() => handleAnalysisComplete(sessionId)}
               onError={async (err: LivenessUiError) => {
