@@ -37,6 +37,7 @@ type LivenessCheckPageProps = {
   detectorHeight?: number;
   maxAttempts?: number;
   intervalMs?: number;
+  autoStart?: boolean;
   disableStartScreen?: boolean;
   resolveResult: (
     sessionId: string
@@ -58,6 +59,7 @@ const DEFAULT_FOOTER_TITLE = "Sistema seguro e auditável";
 const DEFAULT_FOOTER_TEXT = "Privacidade, tecnologia e confiança.";
 const DEFAULT_MAX_ATTEMPTS = 1;
 const DEFAULT_INTERVAL_MS = 1000;
+const DEFAULT_AUTO_START = true;
 
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -146,6 +148,7 @@ export function LivenessCheckPage({
   detectorHeight,
   maxAttempts = DEFAULT_MAX_ATTEMPTS,
   intervalMs = DEFAULT_INTERVAL_MS,
+  autoStart = DEFAULT_AUTO_START,
   disableStartScreen = false,
   resolveResult,
   isApproved,
@@ -235,14 +238,16 @@ export function LivenessCheckPage({
 
   useEffect(() => {
     mountedRef.current = true;
-    void startSession();
+    if (autoStart) {
+      void startSession();
+    }
 
     return () => {
       mountedRef.current = false;
       cancelPolling();
       clearDetectorTimeout();
     };
-  }, []);
+  }, [autoStart]);
 
   async function handleAnalysisComplete(currentSessionId: string) {
     if (handlingAnalysisRef.current) return;
@@ -307,6 +312,10 @@ export function LivenessCheckPage({
     void startSession();
   }
 
+  const idleInstruction = autoStart
+    ? "A câmera será iniciada automaticamente. Caso não abra, clique para tentar novamente."
+    : "Clique para iniciar a validação facial.";
+
   if (phase === "idle") {
     return (
       <LivenessShell
@@ -328,7 +337,7 @@ export function LivenessCheckPage({
           </div>
 
           <div className="livenessDetectorBox livenessDetectorBox--idle">
-            <span className="livenessDetectorLabel">Aguardando reinício</span>
+            <span className="livenessDetectorLabel">{idleInstruction}</span>
             <FacePlaceholder />
           </div>
 
