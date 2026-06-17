@@ -154,6 +154,7 @@ export function LivenessCheckPage({
 }: LivenessCheckPageProps) {
   const sessionRequestedRef = useRef(false);
   const pollingCancelRef = useRef({ cancelled: false });
+  const detectorTimeoutRef = useRef<number | null>(null);
   const handlingErrorRef = useRef(false);
   const handlingAnalysisRef = useRef(false);
   const mountedRef = useRef(true);
@@ -168,12 +169,20 @@ export function LivenessCheckPage({
     pollingCancelRef.current.cancelled = true;
   }
 
+  function clearDetectorTimeout() {
+    if (detectorTimeoutRef.current !== null) {
+      window.clearTimeout(detectorTimeoutRef.current);
+      detectorTimeoutRef.current = null;
+    }
+  }
+
   function resetDetectorOnly() {
     setDetectorKey((current) => current + 1);
   }
 
   function stopWithError(message: string) {
     cancelPolling();
+    clearDetectorTimeout();
     sessionRequestedRef.current = false;
     setLoading(false);
     setSessionId(null);
@@ -205,6 +214,14 @@ export function LivenessCheckPage({
       setSessionId(data.sessionId);
       setPhase("running");
       resetDetectorOnly();
+      clearDetectorTimeout();
+      detectorTimeoutRef.current = window.setTimeout(() => {
+        if (!mountedRef.current) return;
+
+        resetAfterFailure(
+          "A câmera não conseguiu iniciar a verificação. Verifique as permissões e tente novamente."
+        );
+      }, 30000);
     } catch (err: unknown) {
       console.error(err);
       setError(err instanceof Error ? err.message : "Erro desconhecido");
@@ -223,6 +240,7 @@ export function LivenessCheckPage({
     return () => {
       mountedRef.current = false;
       cancelPolling();
+      clearDetectorTimeout();
     };
   }, []);
 
@@ -231,6 +249,7 @@ export function LivenessCheckPage({
 
     handlingAnalysisRef.current = true;
     pollingCancelRef.current = { cancelled: false };
+    clearDetectorTimeout();
 
     try {
       let attempts = 0;
@@ -282,6 +301,7 @@ export function LivenessCheckPage({
     handlingErrorRef.current = false;
     handlingAnalysisRef.current = false;
     pollingCancelRef.current = { cancelled: false };
+    clearDetectorTimeout();
     sessionRequestedRef.current = false;
     setError(null);
     void startSession();
