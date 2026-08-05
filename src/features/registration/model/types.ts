@@ -13,7 +13,6 @@ export type PessoaPayload = {
   senha: string;
   cpf: string;
   campoEclesiastico: CampoEclesiasticoPayload;
-  documento: string;
   foto: string;
 };
 
@@ -27,7 +26,6 @@ export type PessoaPayload = {
     senhaConfirmacao: string;
     cpf: string;
     campoEclesiasticoId: number | undefined;
-    documento: string;
     foto: string;
   };
 
@@ -41,6 +39,5 @@ export const initialCadastroForm: CadastroForm = {
   senhaConfirmacao: "",
   cpf: "",
   campoEclesiasticoId: undefined,
-  documento: "",
   foto: "",
 };

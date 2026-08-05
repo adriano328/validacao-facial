@@ -76,10 +76,6 @@ export function validateCadastro(data: CadastroForm): CadastroErrors {
     errors.cargo = "Campo obrigatório";
   }
 
-  if (isEmpty(data.documento)) {
-    errors.documento = "Campo obrigatório";
-  }
-
   if (isEmpty(data.foto)) {
     errors.foto = "Campo obrigatório";
   }

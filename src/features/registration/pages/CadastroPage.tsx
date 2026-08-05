@@ -205,14 +205,6 @@ export function CadastroPage() {
               error={showError("foto")}
             />
 
-            <DocumentPhotoField
-              documentType="CNH"
-              value={formCadastro.documento}
-              onChange={(base64) => setFormCadastro("documento", base64)}
-              required
-              error={showError("documento")}
-            />
-
             <button
               className="vf-button vf-button--primary cadastro-submit"
               type="button"

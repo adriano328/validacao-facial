@@ -150,7 +150,6 @@ export function useCadastroForm() {
       senha: true,
       senhaConfirmacao: true,
       cpf: true,
-      documento: true,
       foto: true,
     });
   };
@@ -186,7 +185,6 @@ export function useCadastroForm() {
       campoEclesiastico: {
         id: 1,
       },
-      documento: stripDataUrl(formCadastro.documento),
       foto: stripDataUrl(formCadastro.foto),
     };
 
@@ -221,7 +219,6 @@ export function useCadastroForm() {
       !!formCadastro.email &&
       !!formCadastro.senha &&
       !!formCadastro.senhaConfirmacao &&
-      !!formCadastro.documento &&
       !!formCadastro.foto &&
       formCadastro.cargo !== undefined &&
       !isSubmitting
@@ -234,7 +231,6 @@ export function useCadastroForm() {
     formCadastro.email,
     formCadastro.senha,
     formCadastro.senhaConfirmacao,
-    formCadastro.documento,
     formCadastro.foto,
     formCadastro.cargo,
     isSubmitting,
