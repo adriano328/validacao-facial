@@ -1,5 +1,5 @@
 .login-page {
-  min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
   background: var(--vf-color-page);
   color: var(--vf-color-text);
@@ -7,11 +7,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 10px;
+  padding: 18px 16px;
 }
 
 .login-main {
-  width: 100%;
+  width: min(100%, var(--vf-card-width));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -22,11 +22,11 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  margin-bottom: 34px;
+  margin-bottom: 22px;
 }
 
 .login-brand h1 {
-  font-size: 30px;
+  font-size: clamp(22px, 2vw, 28px);
   line-height: 1;
   font-weight: var(--vf-font-extrabold);
   margin: 0 0 8px;
@@ -43,14 +43,14 @@
 .login-cardHeader {
   border-left: 0;
   padding-left: 0;
-  margin-bottom: 22px;
+  margin-bottom: 18px;
 }
 
 .login-footer {
-  margin-top: 42px;
+  margin-top: 24px;
   color: #667085;
-  font-size: 13px;
-  line-height: 1.7;
+  font-size: 12px;
+  line-height: 1.5;
   text-align: center;
 }
 
@@ -61,7 +61,7 @@
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .login-card .ff-container {
@@ -87,8 +87,8 @@
 .login-actions {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 8px;
+  gap: 8px;
+  margin-top: 6px;
 }
 
 .login-button {
@@ -116,7 +116,23 @@
   }
 
   .login-cardHeader {
-    padding-left: 14px;
-    margin-bottom: 20px;
+    padding-left: 0;
+    margin-bottom: 18px;
+  }
+}
+
+@media (max-height: 800px) and (min-width: 769px) {
+  .login-page {
+    justify-content: flex-start;
+    padding-top: 28px;
+    padding-bottom: 18px;
+  }
+
+  .login-brand {
+    margin-bottom: 16px;
+  }
+
+  .login-footer {
+    margin-top: 18px;
   }
 }

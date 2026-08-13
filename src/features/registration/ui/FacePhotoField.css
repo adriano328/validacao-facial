@@ -1,17 +1,17 @@
 .facePhoto {
   margin-top: 18px;
-  padding: 18px;
+  padding: 16px;
   border: 1px solid #eceef2;
   border-radius: var(--vf-radius-card);
   background: #f4f5f7;
   display: grid;
-  grid-template-columns: 132px 1fr;
-  gap: 18px;
+  grid-template-columns: 118px 1fr;
+  gap: 16px;
   align-items: center;
 }
 
 .facePhoto-preview {
-  width: 132px;
+  width: 118px;
   aspect-ratio: 4 / 5;
   border-radius: 8px;
   overflow: hidden;
@@ -36,13 +36,13 @@
 }
 
 .facePhoto-emptyIcon {
-  width: 42px;
-  height: 42px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: 2px solid currentColor;
   display: grid;
   place-items: center;
-  font-size: 26px;
+  font-size: 22px;
   line-height: 1;
   font-weight: var(--vf-font-semibold);
 }
@@ -93,7 +93,7 @@
 }
 
 .facePhoto-content p {
-  margin: 0 0 14px;
+  margin: 0 0 12px;
   color: var(--vf-color-text-muted);
   font-size: var(--vf-font-body);
   line-height: 1.5;
@@ -107,7 +107,7 @@
 
 .facePhoto-button {
   min-width: 138px;
-  min-height: 42px;
+  min-height: 38px;
 }
 
 .facePhoto-error {

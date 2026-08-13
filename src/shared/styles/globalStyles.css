@@ -1,10 +1,10 @@
 :root {
   --vf-font-family: Inter, Arial, Helvetica, sans-serif;
 
-  --vf-font-title: 18px;
-  --vf-font-heading: 16px;
-  --vf-font-body: 14px;
-  --vf-font-action: 14px;
+  --vf-font-title: 16px;
+  --vf-font-heading: 15px;
+  --vf-font-body: 13px;
+  --vf-font-action: 13px;
   --vf-font-link: 12px;
   --vf-font-error: 12px;
 
@@ -68,13 +68,13 @@
   --vf-radius-control: 7px;
   --vf-radius-card: 8px;
 
-  --vf-card-width: 520px;
-  --vf-card-padding: 26px 34px 30px;
-  --vf-card-padding-mobile: 24px 18px 28px;
+  --vf-card-width: 380px;
+  --vf-card-padding: 24px 28px;
+  --vf-card-padding-mobile: 22px 16px 24px;
   --vf-card-shadow: 0 2px 8px rgba(16, 24, 40, 0.08);
 
-  --vf-input-height: 48px;
-  --vf-button-height: 48px;
+  --vf-input-height: 38px;
+  --vf-button-height: 38px;
   --vf-focus-ring: 0 0 0 3px rgba(7, 60, 152, 0.22);
   --vf-transition-fast: 160ms ease;
 }
@@ -87,7 +87,7 @@
 }
 
 .vf-card {
-  width: min(var(--vf-card-width), calc(100vw - 40px));
+  width: min(var(--vf-card-width), calc(100vw - 32px));
   background: var(--vf-color-surface);
   border: 1px solid var(--gray-200);
   border-radius: var(--vf-radius-card);
@@ -97,7 +97,7 @@
 
 .vf-sectionHeader {
   border-left: 3px solid var(--vf-color-primary);
-  padding-left: 16px;
+  padding-left: 14px;
 }
 
 .vf-title {
@@ -120,10 +120,11 @@
   background: var(--vf-color-input);
   color: #1f2530;
   font-size: var(--vf-font-body);
-  padding: 0 16px;
+  padding: 0 11px;
   outline: none;
   transition:
     background var(--vf-transition-fast),
+    border-color var(--vf-transition-fast),
     box-shadow var(--vf-transition-fast);
 }
 
@@ -147,9 +148,9 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 0 18px;
+  padding: 0 14px;
   font-size: var(--vf-font-action);
-  font-weight: var(--vf-font-bold);
+  font-weight: var(--vf-font-semibold);
   transition:
     transform var(--vf-transition-fast),
     box-shadow var(--vf-transition-fast),
@@ -215,9 +216,9 @@
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  padding: 20px;
-  gap: 10px;
-  padding-bottom: 48px;
+  padding: 16px;
+  gap: 8px;
+  padding-bottom: 40px;
 }
 
 .containerCampo {
@@ -227,11 +228,11 @@
 }
 
 .campo {
-  height: 48px;
+  height: 38px;
   border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 0 14px;
-  font-size: 14px;
+  padding: 0 11px;
+  font-size: 13px;
   outline: none;
 }
 
@@ -240,12 +241,12 @@
 }
 
 .nomeCampo {
-  font-size: 14px;
+  font-size: 13px;
   opacity: 0.7;
 }
 
 .titulo {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   margin-bottom: 8px;
 }
@@ -262,12 +263,12 @@
 }
 
 .containerBotao {
-  margin-top: 20px;
+  margin-top: 16px;
 }
 
 .botao {
-  min-height: 48px;
-  border-radius: 12px;
+  min-height: 38px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;

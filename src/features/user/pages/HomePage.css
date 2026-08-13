@@ -1,17 +1,17 @@
 .portal-page {
   display: grid;
-  gap: 24px;
+  gap: 20px;
 }
 
 .portal-pageHeader {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .portal-pageHeader h1 {
   margin: 0;
   color: var(--gray-900, #101828);
-  font-size: 24px;
+  font-size: 22px;
   line-height: 1.2;
   font-weight: 600;
   letter-spacing: -0.02em;
@@ -21,8 +21,8 @@
   max-width: 760px;
   margin: 0;
   color: var(--gray-600, #475467);
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.5;
   font-weight: 400;
 }
 
@@ -31,8 +31,8 @@
   border-radius: 8px;
   background: #ffffff;
   color: var(--gray-600, #475467);
-  padding: 24px;
-  font-size: 14px;
+  padding: 18px;
+  font-size: 13px;
 }
 
 .portal-state--error {
@@ -73,22 +73,22 @@
   border: 1px solid var(--gray-200, #e4e7ec);
   border-radius: 8px;
   background: var(--background-surface, #ffffff);
-  padding: 24px;
+  padding: 18px;
 }
 
 .home-summaryHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .home-summaryHeader h2,
 .home-quick h2 {
   margin: 0;
   color: var(--gray-900, #101828);
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.3;
   font-weight: 600;
 }
@@ -96,15 +96,15 @@
 .home-summaryGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: 12px;
 }
 
 .home-summaryItem {
-  min-height: 90px;
+  min-height: 72px;
   border: 1px solid var(--gray-100, #f2f4f7);
   border-radius: 8px;
   background: var(--gray-50, #f8f9fb);
-  padding: 14px 16px;
+  padding: 12px 14px;
   display: grid;
   align-content: center;
   gap: 7px;
@@ -120,32 +120,32 @@
 
 .home-summaryItem strong {
   color: var(--gray-900, #101828);
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.3;
   font-weight: 600;
 }
 
 .home-quick {
   display: grid;
-  gap: 16px;
+  gap: 14px;
 }
 
 .home-quickGrid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
+  gap: 14px;
 }
 
 .home-quickCard {
-  min-height: 210px;
+  min-height: 168px;
   border: 1px solid var(--gray-200, #e4e7ec);
   border-radius: 8px;
   background: #ffffff;
-  padding: 24px;
+  padding: 18px;
   text-align: left;
   display: grid;
   align-content: start;
-  gap: 12px;
+  gap: 10px;
   position: relative;
   cursor: pointer;
   color: var(--gray-700, #344054);
@@ -162,8 +162,8 @@
 }
 
 .home-quickIcon {
-  width: 54px;
-  height: 54px;
+  width: 42px;
+  height: 42px;
   border-radius: 999px;
   display: grid;
   place-items: center;
@@ -172,31 +172,31 @@
 }
 
 .home-quickIcon svg {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   fill: currentColor;
 }
 
 .home-quickCard strong {
   color: var(--gray-900, #101828);
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1.25;
   font-weight: 600;
 }
 
 .home-quickCard > span:not(.home-quickIcon) {
   color: var(--gray-600, #475467);
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.5;
   font-weight: 400;
 }
 
 .home-quickCard em {
   position: absolute;
-  right: 22px;
-  bottom: 20px;
+  right: 18px;
+  bottom: 16px;
   color: var(--gray-500, #667085);
-  font-size: 28px;
+  font-size: 24px;
   line-height: 1;
   font-style: normal;
 }
@@ -223,6 +223,6 @@
   }
 
   .home-quickCard {
-    min-height: 170px;
+    min-height: 156px;
   }
 }

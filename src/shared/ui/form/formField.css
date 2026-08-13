@@ -1,13 +1,13 @@
 .ff-container {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
 }
 
 .ff-label {
-  font-size: 14px;
+  font-size: 13px;
   color: #5a5a5a;
   font-weight: 600;
 }

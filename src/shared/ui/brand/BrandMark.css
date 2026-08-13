@@ -1,4 +1,5 @@
 .brandMark {
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -6,24 +7,46 @@
 }
 
 .brandMark .brandMark-logo {
-  width: 82px;
-  height: 82px;
+  width: 60px;
+  height: 60px;
   object-fit: contain;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .brandMark .brandMark-title {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   margin: 0 0 6px;
-  font-size: clamp(24px, 5.4vw, 32px);
+  font-size: clamp(22px, 2vw, 28px);
   line-height: 1.12;
   font-weight: var(--vf-font-extrabold);
   letter-spacing: -0.02em;
   color: var(--vf-color-primary-strong);
+  overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 
 .brandMark .brandMark-subtitle {
   margin: 0;
   color: #667085;
-  font-size: clamp(13px, 3.4vw, 16px);
+  font-size: 13px;
   font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .brandMark .brandMark-title {
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .brandMark .brandMark-logo {
+    width: 58px;
+    height: 58px;
+  }
+
+  .brandMark .brandMark-title {
+    font-size: clamp(20px, 6vw, 24px);
+  }
 }

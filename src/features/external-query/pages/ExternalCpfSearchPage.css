@@ -1,12 +1,12 @@
 .externalCpf-page {
-  min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
   background: var(--vf-color-page);
   color: var(--vf-color-text);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 34px 20px 28px;
+  padding: 24px 16px 26px;
 }
 
 .externalCpf-main {
@@ -17,16 +17,16 @@
 }
 
 .externalCpf-card {
-  --vf-card-width: 760px;
+  --vf-card-width: 720px;
 }
 
 .externalCpf-header {
-  width: min(760px, 100%);
+  width: min(720px, 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 24px;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
 .externalCpf-headerBrand {
@@ -36,7 +36,7 @@
 
 .externalCpf-backButton {
   align-self: flex-start;
-  min-height: 44px;
+  min-height: var(--vf-button-height);
   border: 0;
   border-radius: 999px;
   display: inline-flex;
@@ -47,7 +47,7 @@
   color: #073c98;
   cursor: pointer;
   font-size: 13px;
-  font-weight: var(--vf-font-extrabold);
+  font-weight: var(--vf-font-semibold);
   transition:
     background var(--vf-transition-fast),
     transform var(--vf-transition-fast);
@@ -61,7 +61,7 @@
 .externalCpf-search {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 154px;
-  gap: 14px;
+  gap: 12px;
   align-items: end;
 }
 
@@ -79,26 +79,26 @@
 }
 
 .externalCpf-result {
-  margin-top: 24px;
+  margin-top: 20px;
   display: grid;
-  gap: 22px;
+  gap: 18px;
 }
 
 .externalCpf-photoPanel {
   background: #f4f5f7;
   border: 1px solid #eceef2;
   border-radius: var(--vf-radius-card);
-  padding: 20px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
   align-items: center;
   text-align: center;
 }
 
 .externalCpf-avatar {
-  width: 220px;
-  height: 220px;
+  width: 176px;
+  height: 176px;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -106,14 +106,14 @@
   background: #e8f0ff;
   border: 1px solid #d8dce6;
   color: #073c98;
-  font-size: 34px;
+  font-size: 26px;
   font-weight: var(--vf-font-extrabold);
   letter-spacing: 0.02em;
 }
 
 .externalCpf-photo {
-  width: 220px;
-  height: 220px;
+  width: 176px;
+  height: 176px;
   border-radius: 8px;
   object-fit: cover;
   background: #e8f0ff;
@@ -183,11 +183,11 @@
 .externalCpf-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 .externalCpf-field {
-  min-height: 68px;
+  min-height: 60px;
   border-radius: var(--vf-radius-control);
   background: var(--vf-color-input);
   padding: 10px 14px;
@@ -212,7 +212,7 @@
 }
 
 .externalCpf-empty {
-  margin-top: 24px;
+  margin-top: 20px;
   border: 1px dashed #c9cfe1;
   border-radius: var(--vf-radius-card);
   background: #f4f5f7;
@@ -220,7 +220,7 @@
   font-size: var(--vf-font-body);
   line-height: 1.5;
   text-align: center;
-  padding: 24px;
+  padding: 18px;
 }
 
 .externalCpf-actions {
@@ -230,13 +230,13 @@
 
 @media (max-width: 768px) {
   .externalCpf-page {
-    padding: 22px 14px 24px;
+    padding: 20px 14px 24px;
   }
 
   .externalCpf-header {
     width: 100%;
-    gap: 16px;
-    margin-bottom: 22px;
+    gap: 14px;
+    margin-bottom: 20px;
   }
 
   .externalCpf-headerBrand {
@@ -253,16 +253,16 @@
   }
 
   .externalCpf-backButton {
-    min-height: 46px;
+    min-height: 40px;
   }
 
   .externalCpf-avatar,
   .externalCpf-photo {
-    width: min(240px, 82vw);
-    height: min(240px, 82vw);
+    width: min(220px, 82vw);
+    height: min(220px, 82vw);
   }
 
   .externalCpf-avatar {
-    font-size: 32px;
+    font-size: 24px;
   }
 }

@@ -1,17 +1,17 @@
 .sectionHeader-title {
-  font-size: 24px;
+  font-size: 20px;
   line-height: 1.2;
 }
 
 .sectionHeader-subtitle {
-  margin: 8px 0 0;
-  font-size: 16px;
+  margin: 6px 0 0;
+  font-size: 13px;
   line-height: 1.45;
 }
 
 @media (max-width: 768px) {
   .sectionHeader-title {
-    font-size: 22px;
+    font-size: 20px;
   }
 
   .sectionHeader-subtitle {
