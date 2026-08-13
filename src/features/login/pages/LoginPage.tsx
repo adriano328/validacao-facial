@@ -17,6 +17,7 @@ export function LoginPage() {
     handleLogin,
     isSubmitting,
     irCadastrar,
+    irRecuperarSenha,
     qrCodeData,
     setQrCodeData,
     twoFactorStep,
@@ -86,7 +87,12 @@ export function LoginPage() {
                 <span>Cadastrar</span>
               </button>
 
-            <button className="vf-link login-forgot" type="button">
+            <button
+              className="vf-link login-forgot"
+              type="button"
+              onClick={irRecuperarSenha}
+              disabled={isSubmitting}
+            >
                 Esqueceu sua senha?
               </button>
             </div>

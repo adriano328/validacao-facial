@@ -85,6 +85,10 @@ export function useLoginForm() {
     navigate("/cadastro");
   }
 
+  function irRecuperarSenha() {
+    navigate("/recuperar-senha");
+  }
+
   /* ========================
    * 2FA FLOW
    * ======================== */
@@ -186,6 +190,7 @@ export function useLoginForm() {
     reset,
     handleLogin,
     irCadastrar,
+    irRecuperarSenha,
     setTwoFactorStep,
     qrCodeData,
     setQrCodeData,

@@ -25,6 +25,8 @@ const publicPaths = [
   "/usuario/confirmar-two-factor",
   "/usuario/verificar-two-factor",
   "/usuario/consulta-cpf",
+  "/usuario/solicitar-reset-senha",
+  "/usuario/resetar-senha",
 ];
 
 type JwtPayload = {
