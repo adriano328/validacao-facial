@@ -86,6 +86,16 @@
   color: #16a34a;
 }
 
+.confirmation-stateIcon--info {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.confirmation-stateIcon--warning {
+  background: #fef3c7;
+  color: #d97706;
+}
+
 .confirmation-stateIcon--success svg {
   width: 30px;
   height: 30px;
@@ -117,6 +127,14 @@
 
 .confirmation-title--success {
   color: #15803d;
+}
+
+.confirmation-title--info {
+  color: #1d4ed8;
+}
+
+.confirmation-title--warning {
+  color: #b45309;
 }
 
 .confirmation-title--error {
