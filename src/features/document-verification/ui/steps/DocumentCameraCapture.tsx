@@ -37,6 +37,30 @@ function isMobile() {
   return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 
+function videoHasFrame(video: HTMLVideoElement) {
+  return (
+    video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA &&
+    video.videoWidth > 0 &&
+    video.videoHeight > 0
+  );
+}
+
+function waitForVideoReady(video: HTMLVideoElement) {
+  if (videoHasFrame(video)) return Promise.resolve();
+
+  return new Promise<void>((resolve) => {
+    const done = () => {
+      if (!videoHasFrame(video)) return;
+      video.removeEventListener("loadedmetadata", done);
+      video.removeEventListener("canplay", done);
+      resolve();
+    };
+
+    video.addEventListener("loadedmetadata", done);
+    video.addEventListener("canplay", done);
+  });
+}
+
 // Tenta aplicar melhorias no track (quando suportado)
 async function enhanceTrack(track: MediaStreamTrack) {
   try {
@@ -74,6 +98,7 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
 
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
 
   const spec = useMemo(() => getFrameSpec(documentType), [documentType]);
 
@@ -91,9 +116,8 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
         const constraints: MediaStreamConstraints = {
           video: {
             ...(isMobile() ? { facingMode: { ideal: "environment" } } : {}),
-            // tenta 4K/2K; se não suportar, cai para o máximo possível
-            width: { ideal: 4096 },
-            height: { ideal: 2160 },
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
           },
           audio: false,
         };
@@ -112,19 +136,10 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
         if (track) enhanceTrack(track);
 
         if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-
-          // ✅ garante que metadata carregou (videoWidth/videoHeight corretos)
-          await new Promise<void>((resolve) => {
-            const v = videoRef.current!;
-            const onLoaded = () => {
-              v.removeEventListener("loadedmetadata", onLoaded);
-              resolve();
-            };
-            v.addEventListener("loadedmetadata", onLoaded);
-          });
-
-          await videoRef.current.play();
+          const video = videoRef.current;
+          video.srcObject = stream;
+          await video.play();
+          await waitForVideoReady(video);
           setReady(true);
         }
       } catch {
@@ -136,6 +151,7 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
 
     return () => {
       cancelled = true;
+      setIsCapturing(false);
       streamRef.current?.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
     };
@@ -144,9 +160,17 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
   if (!open) return null;
 
   function capture() {
+    if (!ready || isCapturing) return;
+
     const video = videoRef.current;
     const frame = frameRef.current;
     if (!video || !frame) return;
+    if (!videoHasFrame(video)) {
+      setReady(false);
+      return;
+    }
+
+    setIsCapturing(true);
 
     const vw = video.videoWidth || 1280;
     const vh = video.videoHeight || 720;
@@ -163,12 +187,12 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
     const sw = Math.min(vw - sx, Math.round(frameRect.width * scaleX));
     const sh = Math.min(vh - sy, Math.round(frameRect.height * scaleY));
 
-    // 🔥 Upscale leve melhora leitura de texto
-    const UPSCALE = 1.25;
+    const maxLongSide = 1600;
+    const scale = Math.min(1, maxLongSide / Math.max(sw, sh));
 
     const canvas = document.createElement("canvas");
-    canvas.width = Math.round(sw * UPSCALE);
-    canvas.height = Math.round(sh * UPSCALE);
+    canvas.width = Math.round(sw * scale);
+    canvas.height = Math.round(sh * scale);
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -191,7 +215,10 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
 
     canvas.toBlob(
       (blob) => {
-        if (!blob) return;
+        if (!blob) {
+          setIsCapturing(false);
+          return;
+        }
         const file = new File([blob], `${documentType}-${Date.now()}.jpg`, {
           type: "image/jpeg",
         });
@@ -199,7 +226,7 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
         onClose();
       },
       "image/jpeg",
-      0.95 // 🔥 melhor qualidade para documento
+      0.9
     );
   }
 
@@ -245,10 +272,10 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
           <button
             type="button"
             onClick={capture}
-            disabled={!ready || !!error}
-            style={btn(true, !ready || !!error)}
+            disabled={!ready || isCapturing || !!error}
+            style={btn(true, !ready || isCapturing || !!error)}
           >
-            Capturar
+            {isCapturing ? "Capturando..." : "Capturar"}
           </button>
         </div>
       </div>
@@ -323,7 +350,7 @@ const styles: Record<string, React.CSSProperties> = {
     top: "50%",
     transform: "translate(-50%, -50%)",
     borderRadius: 18,
-    boxShadow: "0 0 0 9999px rgba(0,0,0,0.58)",
+    boxShadow: "0 0 0 9999px rgba(0,0,0,0.22)",
     zIndex: 5,
     pointerEvents: "none",
   },

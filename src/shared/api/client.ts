@@ -4,11 +4,11 @@ import type { AxiosError, InternalAxiosRequestConfig } from "axios";
 let authToken: string | null = null;
 let unauthorizedHandler: (() => void) | null = null;
 
-// const baseURL =
-//   import.meta.env.VITE_API_BASE_URL ??
-//   "https://ihvjqtwvo5.execute-api.us-east-1.amazonaws.com/test";
-
-const baseURL = "http://localhost:8080";
+const baseURL =
+  import.meta.env.VITE_API_BASE_URL ??
+  (import.meta.env.DEV
+    ? "/api"
+    : "https://ihvjqtwvo5.execute-api.us-east-1.amazonaws.com/test");
 
 export const api = axios.create({
   baseURL,

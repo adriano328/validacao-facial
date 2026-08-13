@@ -14,7 +14,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import { alerts } from "@shared/lib/swal";
 import { brDateToISO, formatarDataToBr } from "@shared/utils/formataData";
-import { stripDataUrl } from "@shared/utils/formataBase64";
 import { salvarPessoa } from "@features/registration/api/pessoaApi";
 import { handleAxiosError } from "@shared/utils/messageErro";
 import { consultaMembro } from "@features/registration/api/consultaMembroApi";
@@ -183,12 +182,11 @@ export function useCadastroForm() {
       email: formCadastro.email,
       senha: formCadastro.senha,
       cpf: formCadastro.cpf.replace(/\D/g, ""),
-      tipoUsuario: formCadastro.tipoUsuario,
       campoEclesiastico: {
         id: 1,
       },
-      foto: stripDataUrl(formCadastro.foto),
-      fotoDocumento: stripDataUrl(formCadastro.fotoDocumento),
+      foto: formCadastro.foto,
+      fotoDocumento: formCadastro.fotoDocumento,
     };
 
     setIsSubmitting(true);
@@ -199,6 +197,18 @@ export function useCadastroForm() {
     } catch (err) {
       if (controller.signal.aborted || axios.isCancel(err)) {
         return;
+      }
+
+      if (import.meta.env.DEV && axios.isAxiosError(err)) {
+        console.error("Erro no cadastro de usuário", {
+          message: err.message,
+          code: err.code,
+          status: err.response?.status,
+          data: err.response?.data,
+          url: err.config?.url,
+          baseURL: err.config?.baseURL,
+          hasRequest: Boolean(err.request),
+        });
       }
 
       const message = handleAxiosError(err);
