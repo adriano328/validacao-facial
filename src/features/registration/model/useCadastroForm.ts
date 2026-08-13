@@ -193,7 +193,14 @@ export function useCadastroForm() {
 
     try {
       await salvarPessoa(payload, controller.signal);
-      navigate("/confirmacao");
+
+      await alerts.success({
+        title: "Cadastro realizado com sucesso",
+        text: "Recebemos seu cadastro na Plataforma de Voto Eletrônico da COMADEMAT. Para concluir a validação e liberar seu acesso, confirme seu endereço de e-mail pelo link enviado para sua caixa de entrada.",
+        timer: 6500,
+      });
+
+      navigate("/login", { replace: true });
     } catch (err) {
       if (controller.signal.aborted || axios.isCancel(err)) {
         return;
