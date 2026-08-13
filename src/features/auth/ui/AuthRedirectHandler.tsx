@@ -6,8 +6,6 @@ function isPublicRoute(pathname: string): boolean {
   if (pathname === "/") return true;
   if (pathname === "/login") return true;
   if (pathname === "/cadastro") return true;
-  if (pathname === "/liveness") return true;
-  if (pathname === "/valid") return true;
   if (pathname.startsWith("/confirmacao-email/")) return true;
 
   return false;

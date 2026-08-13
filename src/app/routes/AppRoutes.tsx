@@ -2,8 +2,6 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 import { ProtectedRoute } from "@features/auth/ui/ProtectedRoute";
 import { ExternalCpfSearchPage } from "@features/external-query/pages/ExternalCpfSearchPage";
-import AuthLivenessPage from "@features/liveness/pages/AuthLivenessPage";
-import RegistrationLivenessPage from "@features/liveness/pages/RegistrationLivenessPage";
 import { LoginPage } from "@features/login/pages/LoginPage";
 import { CadastroPage } from "@features/registration/pages/CadastroPage";
 import { EmailConfirmationPage } from "@features/registration/pages/EmailConfirmationPage";
@@ -18,8 +16,6 @@ export function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/cadastro" element={<CadastroPage />} />
       <Route path="/confirmacao" element={<RegistrationSubmittedPage />} />
-      <Route path="/liveness" element={<RegistrationLivenessPage />} />
-      <Route path="/valid" element={<AuthLivenessPage />} />
       <Route
         path="/confirmacao-email/:uuid"
         element={<EmailConfirmationPage />}

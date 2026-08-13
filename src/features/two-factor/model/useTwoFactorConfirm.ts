@@ -7,6 +7,7 @@ import {
   verificarTwoFactor,
 } from "@features/two-factor/api/twoFactorApi";
 import { useAuthFlow } from "@features/auth/model/AuthFlowContext";
+import { useAuthToken } from "@features/auth/model/AuthTokenContext";
 import { useTwoFactor } from "@features/two-factor/model/TwoFactorContext";
 
 const onlyDigits = (s: string) => s.replace(/\D/g, "").slice(0, 6);
@@ -32,6 +33,7 @@ export function useTwoFactorConfirm() {
 
   const { status, secret, clearSecret, setActive, resetTwoFactor } = useTwoFactor();
   const { email, clearAuthFlow } = useAuthFlow();
+  const { setToken } = useAuthToken();
 
   useEffect(() => {
     return () => abortRef.current?.abort();
@@ -96,9 +98,9 @@ export function useTwoFactorConfirm() {
     try {
       // ✅ status active: apenas verifica
       if (status === "active") {
-        const ok = await verificarTwoFactor({ email, code }, controller.signal);
+        const result = await verificarTwoFactor({ email, code }, controller.signal);
 
-        if (!ok) {
+        if (!result.ok) {
           // ✅ não navega, só libera para tentar de novo
           setCode("");
           alerts.error({ text: "Código inválido. Tente novamente." });
@@ -106,8 +108,17 @@ export function useTwoFactorConfirm() {
         }
 
         // ✅ sucesso
+        if (!result.token) {
+          alerts.error({
+            text: "Token de autenticacao nao retornado pela API de two-factor.",
+          });
+          return false;
+        }
+
+        setToken(result.token);
+        clearAuthFlow();
         clearAll();
-        navigate("/valid");
+        navigate("/home", { replace: true });
         return true;
       }
 

@@ -9,15 +9,11 @@ import { ReviewSubmitStep } from "@features/document-verification/ui/steps/Revie
 import { alerts } from "@shared/lib/swal";
 import type { DocumentSide } from "@features/document-verification/model/types";
 
-type Props = {
-  livenessSessionId: string;
-};
-
 type Phase = "idle" | "running" | "success";
 
-export function DocumentVerificationFlow({ livenessSessionId }: Props) {
+export function DocumentVerificationFlow() {
   const navigate = useNavigate();
-  const vm = useDocumentVerification(livenessSessionId);
+  const vm = useDocumentVerification();
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [loading, setLoading] = useState(false);
@@ -58,8 +54,6 @@ export function DocumentVerificationFlow({ livenessSessionId }: Props) {
 
   useEffect(() => {
     mountedRef.current = true;
-    // se quiser iniciar automaticamente igual ao liveness, descomente:
-    // start();
     return () => {
       mountedRef.current = false;
     };
@@ -140,7 +134,6 @@ export function DocumentVerificationFlow({ livenessSessionId }: Props) {
       <div style={{ marginBottom: 12, padding: 10, background: "#f6f6f6", borderRadius: 8 }}>
         <div><strong>step:</strong> {vm.step}</div>
         <div><strong>documentType:</strong> {vm.documentType ?? "(null)"}</div>
-        <div><strong>livenessSessionId:</strong> {livenessSessionId}</div>
         <div><strong>lado:</strong> frente</div>
       </div>
 
@@ -151,7 +144,7 @@ export function DocumentVerificationFlow({ livenessSessionId }: Props) {
       {vm.step === "CAPTURE" && vm.documentType ? (
         <DocumentCaptureStep
           documentType={vm.documentType}
-          requiredSides={requiredSides}           // ✅ só frente
+          requiredSides={requiredSides}
           files={vm.files}
           onPickFile={vm.setSideFile}
           onBack={vm.goBack}
@@ -163,11 +156,11 @@ export function DocumentVerificationFlow({ livenessSessionId }: Props) {
       {vm.step === "REVIEW" && vm.documentType ? (
         <ReviewSubmitStep
           documentType={vm.documentType}
-          requiredSides={requiredSides}           // ✅ só frente
+          requiredSides={requiredSides}
           files={vm.files}
           loading={loading || vm.loading}
           onBack={vm.goBack}
-          onSubmit={submitWithGuards}             // ✅ estrutura liveness
+          onSubmit={submitWithGuards}
         />
       ) : null}
 

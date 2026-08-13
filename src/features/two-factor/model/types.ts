@@ -8,3 +8,8 @@ export type TwoFactorPayload = {
   secret?: string;
   code: string;
 };
+
+export type VerificarTwoFactorResult = {
+  ok: boolean;
+  token?: string;
+};

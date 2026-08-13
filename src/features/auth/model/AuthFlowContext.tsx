@@ -1,20 +1,14 @@
 import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 
-const AUTH_FLOW_STORAGE_KEY = "vf:auth-flow";
+const AUTH_FLOW_STORAGE_KEY = "evoto:auth-flow";
 
 type StoredAuthFlow = {
-  pessoaId: number | null;
   email: string | null;
-  senha: string | null;
 };
 
 type PessoaContextType = {
-  pessoaId: number | null;
   email: string | null;
-  senha: string | null;
-  setPessoaId: (id: number | null) => void;
-  setSenha: (senha: string | null) => void;
   setEmail: (email: string | null) => void;
   clearAuthFlow: () => void;
 };
@@ -26,9 +20,7 @@ type AuthFlowProviderProps = {
 };
 
 const emptyAuthFlow: StoredAuthFlow = {
-  pessoaId: null,
   email: null,
-  senha: null,
 };
 
 function readStoredAuthFlow(): StoredAuthFlow {
@@ -70,16 +62,8 @@ export function AuthFlowProvider({ children }: AuthFlowProviderProps) {
     });
   }
 
-  function setPessoaId(id: number | null) {
-    updateAuthFlow({ pessoaId: id });
-  }
-
   function setEmail(email: string | null) {
     updateAuthFlow({ email });
-  }
-
-  function setSenha(senha: string | null) {
-    updateAuthFlow({ senha });
   }
 
   function clearAuthFlow() {
@@ -90,11 +74,7 @@ export function AuthFlowProvider({ children }: AuthFlowProviderProps) {
   return (
     <AuthFlowContext.Provider
       value={{
-        pessoaId: flow.pessoaId,
-        senha: flow.senha,
         email: flow.email,
-        setPessoaId,
-        setSenha,
         setEmail,
         clearAuthFlow,
       }}

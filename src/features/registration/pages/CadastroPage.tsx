@@ -1,4 +1,3 @@
-import { DocumentPhotoField } from "@features/registration/ui/DocumentPhotoField";
 import { FacePhotoField } from "@features/registration/ui/FacePhotoField";
 import { useCadastroForm } from "@features/registration/model/useCadastroForm";
 import type { CargoUsuario } from "@features/registration/model/types";

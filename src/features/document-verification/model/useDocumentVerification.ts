@@ -13,7 +13,7 @@ const requiredSidesByType: Record<DocumentType, DocumentSide[]> = {
   RG: ["front", "back"],
 };
 
-export function useDocumentVerification(livenessSessionId: string) {
+export function useDocumentVerification() {
   const [step, setStep] = useState<Step>("TYPE");
   const [documentType, setDocumentType] = useState<DocumentType | null>(null);
 
@@ -77,7 +77,6 @@ export function useDocumentVerification(livenessSessionId: string) {
 
       const res = await verificarDocumento({
         documentType,
-        livenessSessionId,
         s3Keys,
       });
 
@@ -88,7 +87,7 @@ export function useDocumentVerification(livenessSessionId: string) {
     } finally {
       setLoading(false);
     }
-  }, [documentType, files, requiredSides, livenessSessionId]);
+  }, [documentType, files, requiredSides]);
 
   return {
     step,

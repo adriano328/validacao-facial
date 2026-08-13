@@ -1,7 +1,7 @@
-# Validacao Facial
+# E-Voto
 
-Aplicacao React para cadastro, autenticacao com 2FA, validacao facial com AWS
-Amplify Liveness e exibicao de informacoes do usuario autenticado.
+Aplicacao React para cadastro, autenticacao com 2FA e exibicao de informacoes
+do usuario autenticado.
 
 ## Stack
 
@@ -10,7 +10,6 @@ Amplify Liveness e exibicao de informacoes do usuario autenticado.
 - Vite
 - React Router
 - Axios
-- AWS Amplify UI Liveness
 - SweetAlert2
 
 ## Scripts
@@ -27,7 +26,6 @@ Crie um arquivo `.env.local` quando precisar sobrescrever os valores padrao:
 
 ```bash
 VITE_API_BASE_URL=https://sua-api.execute-api.us-east-1.amazonaws.com/test
-VITE_COGNITO_IDENTITY_POOL_ID=us-east-1:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
 
 ## Arquitetura
@@ -45,7 +43,6 @@ src/
   features/
     auth/         # token, fluxo de autenticacao e rotas protegidas
     document-verification/
-    liveness/
     login/
     registration/
     two-factor/
@@ -82,7 +79,3 @@ O build de producao executa TypeScript e Vite:
 ```bash
 npm run build
 ```
-
-Observacao: o bundle principal pode gerar aviso de tamanho por causa das
-dependencias de liveness/Amplify. Se isso virar problema real de performance,
-o proximo passo e aplicar code splitting nas rotas de liveness.

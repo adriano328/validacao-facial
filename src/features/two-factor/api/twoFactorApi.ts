@@ -2,7 +2,38 @@ import { api } from "@shared/api/client";
 import type {
   AtivarTwoFactorResponse,
   TwoFactorPayload,
+  VerificarTwoFactorResult,
 } from "@features/two-factor/model/types";
+
+function getTokenFromResponse(data: unknown): string | undefined {
+  if (typeof data === "string") return data;
+
+  if (!data || typeof data !== "object") return undefined;
+
+  const record = data as Record<string, unknown>;
+  const tokenFields = ["token", "accessToken", "access_token", "tokenAcesso"];
+
+  for (const field of tokenFields) {
+    const value = record[field];
+    if (typeof value === "string" && value.trim()) return value;
+  }
+
+  return undefined;
+}
+
+function getBooleanResult(data: unknown): boolean | undefined {
+  if (typeof data === "boolean") return data;
+
+  if (!data || typeof data !== "object") return undefined;
+
+  const record = data as Record<string, unknown>;
+
+  if (typeof record.ok === "boolean") return record.ok;
+  if (typeof record.success === "boolean") return record.success;
+  if (typeof record.valido === "boolean") return record.valido;
+
+  return undefined;
+}
 
 export async function twoFactorAtivado(
   payload: { email: string; password: string },
@@ -51,10 +82,13 @@ export async function validarTwoFactor(
 export async function verificarTwoFactor(
   payload: TwoFactorPayload,
   signal?: AbortSignal
-): Promise<boolean> {
+): Promise<VerificarTwoFactorResult> {
   const res = await api.post("/usuario/verificar-two-factor", payload, {
     signal,
   });
 
-  return res.status >= 200 && res.status < 300;
+  return {
+    ok: getBooleanResult(res.data) ?? (res.status >= 200 && res.status < 300),
+    token: getTokenFromResponse(res.data),
+  };
 }
