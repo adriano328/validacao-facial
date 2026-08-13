@@ -16,7 +16,7 @@ type FrameSpec = {
 };
 
 function getFrameSpec(type: DocumentType): FrameSpec {
-  const base = { aspect: 1.58, widthRatio: 0.86 };
+  const base = { aspect: 1.58, widthRatio: 0.78 };
 
   if (type === "CNH") {
     return {
@@ -28,8 +28,8 @@ function getFrameSpec(type: DocumentType): FrameSpec {
 
   return {
     ...base,
-    title: "RG",
-    subtitle: "Posicione o RG inteiro dentro da moldura. Deixe bem nítido e sem cortes.",
+    title: "RG/CNH",
+    subtitle: "Posicione o documento inteiro dentro da moldura. Deixe bem nítido e sem cortes.",
   };
 }
 
@@ -222,7 +222,7 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
                 ref={frameRef}
                 style={{
                   ...styles.frame,
-                  width: `${Math.round(spec.widthRatio * 100)}%`,
+                  width: `min(${Math.round(spec.widthRatio * 100)}%, 640px)`,
                   aspectRatio: String(spec.aspect),
                 }}
               />
@@ -230,7 +230,7 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
               <div
                 style={{
                   ...styles.mask,
-                  width: `${Math.round(spec.widthRatio * 100)}%`,
+                  width: `min(${Math.round(spec.widthRatio * 100)}%, 640px)`,
                   aspectRatio: String(spec.aspect),
                 }}
               />
@@ -258,12 +258,15 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
 
 function btn(primary: boolean, disabled?: boolean): React.CSSProperties {
   return {
-    padding: "10px 14px",
-    borderRadius: 10,
+    minWidth: 124,
+    minHeight: 46,
+    padding: "12px 18px",
+    borderRadius: 12,
     border: "1px solid",
-    borderColor: primary ? "#2b7cff" : "#444",
-    background: primary ? "#2b7cff" : "transparent",
+    borderColor: primary ? "#5b8cff" : "rgba(255,255,255,0.35)",
+    background: primary ? "#2563eb" : "rgba(255,255,255,0.08)",
     color: "#fff",
+    fontWeight: primary ? 700 : 600,
     opacity: disabled ? 0.6 : 1,
     cursor: disabled ? "not-allowed" : "pointer",
   };
@@ -277,20 +280,22 @@ const styles: Record<string, React.CSSProperties> = {
     zIndex: 9999,
     display: "grid",
     placeItems: "center",
-    padding: 12,
+    padding: "max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom))",
   },
   shell: {
-    width: "min(980px, 98vw)",
-    height: "min(720px, 94vh)",
+    width: "min(920px, 96vw)",
+    height: "min(680px, 92vh)",
     background: "#0b0b0b",
-    borderRadius: 14,
+    border: "1px solid rgba(255,255,255,0.12)",
+    borderRadius: 18,
     overflow: "hidden",
     display: "flex",
     flexDirection: "column",
+    boxShadow: "0 24px 80px rgba(0,0,0,0.45)",
   },
-  header: { padding: 12, background: "#000", color: "#fff" },
-  title: { fontSize: 16, fontWeight: 700 },
-  subtitle: { fontSize: 13, opacity: 0.85, marginTop: 2 },
+  header: { padding: "14px 16px", background: "#050505", color: "#fff" },
+  title: { fontSize: 17, fontWeight: 800 },
+  subtitle: { fontSize: 13, opacity: 0.86, marginTop: 3, lineHeight: 1.35 },
   cameraArea: { position: "relative", flex: 1, background: "#000" },
   videoWrap: { position: "relative", width: "100%", height: "100%" },
   video: {
@@ -306,9 +311,10 @@ const styles: Record<string, React.CSSProperties> = {
     left: "50%",
     top: "50%",
     transform: "translate(-50%, -50%)",
-    borderRadius: 16,
-    border: "2px solid rgba(255,255,255,0.35)",
-    zIndex: 6,
+    borderRadius: 18,
+    border: "3px solid rgba(255,255,255,0.94)",
+    boxShadow: "0 0 0 1px rgba(37,99,235,0.8), inset 0 0 0 1px rgba(0,0,0,0.25)",
+    zIndex: 7,
     pointerEvents: "none",
   },
   mask: {
@@ -316,16 +322,17 @@ const styles: Record<string, React.CSSProperties> = {
     left: "50%",
     top: "50%",
     transform: "translate(-50%, -50%)",
-    borderRadius: 16,
-    boxShadow: "0 0 0 9999px rgba(0,0,0,0.55)",
+    borderRadius: 18,
+    boxShadow: "0 0 0 9999px rgba(0,0,0,0.58)",
     zIndex: 5,
     pointerEvents: "none",
   },
   footer: {
     display: "flex",
-    gap: 10,
+    gap: 12,
     justifyContent: "flex-end",
-    padding: 12,
-    background: "#000",
+    padding: "14px 16px calc(14px + env(safe-area-inset-bottom))",
+    background: "#050505",
+    flexWrap: "wrap",
   },
 };

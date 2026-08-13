@@ -319,10 +319,6 @@ export function ExternalCpfSearchPage() {
           )}
         </section>
       </main>
-
-      <footer className="cadastro-footer">
-        <p>&copy; 2024 E-Vote. Todos os direitos reservados.</p>
-      </footer>
     </div>
   );
 }

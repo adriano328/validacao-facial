@@ -1,4 +1,5 @@
 import { FacePhotoField } from "@features/registration/ui/FacePhotoField";
+import { DocumentPhotoField } from "@features/registration/ui/DocumentPhotoField";
 import { useCadastroForm } from "@features/registration/model/useCadastroForm";
 import type { CargoUsuario } from "@features/registration/model/types";
 import { CARGOS_ECLESIASTICOS } from "@shared/data/cargos";
@@ -204,6 +205,15 @@ export function CadastroPage() {
               error={showError("foto")}
             />
 
+            <DocumentPhotoField
+              label="Foto do documento"
+              documentType="RG"
+              value={formCadastro.fotoDocumento}
+              onChange={(base64) => setFormCadastro("fotoDocumento", base64)}
+              required
+              error={showError("fotoDocumento")}
+            />
+
             <button
               className="vf-button vf-button--primary cadastro-submit"
               type="button"
@@ -213,28 +223,9 @@ export function CadastroPage() {
               <span>{isSubmitting ? "Salvando..." : "Cadastrar"}</span>
               <BallotIcon className="cadastro-buttonIcon" />
             </button>
-
-            <p className="cadastro-terms">
-              Ao clicar em Cadastrar, voc&ecirc; concorda com nossos{" "}
-              <a href="/termos" onClick={(event) => event.preventDefault()}>
-                Termos de Uso
-              </a>{" "}
-              e{" "}
-              <a
-                href="/privacidade"
-                onClick={(event) => event.preventDefault()}
-              >
-                Pol&iacute;tica de Privacidade
-              </a>
-              .
-            </p>
           </div>
         </section>
       </main>
-
-      <footer className="cadastro-footer">
-        <p>&copy; 2024 E-Vote. Todos os direitos reservados.</p>
-      </footer>
     </div>
   );
 }

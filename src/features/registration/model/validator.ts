@@ -80,6 +80,10 @@ export function validateCadastro(data: CadastroForm): CadastroErrors {
     errors.foto = "Campo obrigatório";
   }
 
+  if (isEmpty(data.fotoDocumento)) {
+    errors.fotoDocumento = "Campo obrigatório";
+  }
+
   return errors;
 }
 

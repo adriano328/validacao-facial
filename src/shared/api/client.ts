@@ -4,14 +4,28 @@ import type { AxiosError, InternalAxiosRequestConfig } from "axios";
 let authToken: string | null = null;
 let unauthorizedHandler: (() => void) | null = null;
 
-const baseURL =
-  import.meta.env.VITE_API_BASE_URL ??
-  "https://ihvjqtwvo5.execute-api.us-east-1.amazonaws.com/test";
+// const baseURL =
+//   import.meta.env.VITE_API_BASE_URL ??
+//   "https://ihvjqtwvo5.execute-api.us-east-1.amazonaws.com/test";
+
+const baseURL = "http://localhost:8080";
 
 export const api = axios.create({
   baseURL,
   timeout: 20000,
 });
+
+const publicPaths = [
+  "/usuario/salvar",
+  "/usuario/login",
+  "/comademat/consulta",
+  "/usuario/two-factor-ativado",
+  "/usuario/confirmar-email",
+  "/usuario/ativar-two-factor",
+  "/usuario/confirmar-two-factor",
+  "/usuario/verificar-two-factor",
+  "/usuario/consulta-cpf",
+];
 
 type JwtPayload = {
   exp?: number;
@@ -50,6 +64,17 @@ function isTokenExpired(token: string): boolean {
   return payload.exp * 1000 <= Date.now();
 }
 
+function isPublicPath(url?: string): boolean {
+  if (!url) return false;
+
+  try {
+    const pathname = new URL(url, baseURL).pathname;
+    return publicPaths.some((path) => pathname === path);
+  } catch {
+    return publicPaths.some((path) => url.startsWith(path));
+  }
+}
+
 export function setAuthToken(token: string | null) {
   authToken = token;
 }
@@ -63,6 +88,10 @@ export function setUnauthorizedHandler(handler: (() => void) | null) {
 }
 
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  if (isPublicPath(config.url)) {
+    return config;
+  }
+
   if (!authToken) {
     return config;
   }

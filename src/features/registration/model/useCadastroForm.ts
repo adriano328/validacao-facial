@@ -151,6 +151,7 @@ export function useCadastroForm() {
       senhaConfirmacao: true,
       cpf: true,
       foto: true,
+      fotoDocumento: true,
     });
   };
 
@@ -182,10 +183,12 @@ export function useCadastroForm() {
       email: formCadastro.email,
       senha: formCadastro.senha,
       cpf: formCadastro.cpf.replace(/\D/g, ""),
+      tipoUsuario: formCadastro.tipoUsuario,
       campoEclesiastico: {
         id: 1,
       },
       foto: stripDataUrl(formCadastro.foto),
+      fotoDocumento: stripDataUrl(formCadastro.fotoDocumento),
     };
 
     setIsSubmitting(true);
@@ -220,6 +223,7 @@ export function useCadastroForm() {
       !!formCadastro.senha &&
       !!formCadastro.senhaConfirmacao &&
       !!formCadastro.foto &&
+      !!formCadastro.fotoDocumento &&
       formCadastro.cargo !== undefined &&
       !isSubmitting
     );
@@ -232,6 +236,7 @@ export function useCadastroForm() {
     formCadastro.senha,
     formCadastro.senhaConfirmacao,
     formCadastro.foto,
+    formCadastro.fotoDocumento,
     formCadastro.cargo,
     isSubmitting,
   ]);

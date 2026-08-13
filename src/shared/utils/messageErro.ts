@@ -3,32 +3,38 @@ import axios, { AxiosError } from "axios";
 
 type ApiErrorResponse = {
   message?: string;
+  mensagem?: string;
+  error?: string;
 };
 
 export function handleAxiosError(error: unknown): string {
-  // Erro do Axios
   if (axios.isAxiosError(error)) {
     const axiosError = error as AxiosError<ApiErrorResponse>;
 
-    // mensagem vinda do backend
-    if (axiosError.response?.data?.message) {
-      return axiosError.response.data.message;
+    const apiMessage =
+      axiosError.response?.data?.message ??
+      axiosError.response?.data?.mensagem ??
+      axiosError.response?.data?.error;
+
+    if (apiMessage) {
+      return apiMessage;
     }
 
-    // status HTTP sem message
     if (axiosError.response?.status) {
       return `Erro ${axiosError.response.status}. Não foi possível concluir a solicitação.`;
     }
 
-    // erro de rede / timeout
     if (axiosError.code === "ECONNABORTED") {
       return "Tempo de resposta excedido. Tente novamente.";
+    }
+
+    if (axiosError.message) {
+      return axiosError.message;
     }
 
     return "Erro de comunicação com o servidor.";
   }
 
-  // Erro genérico
   if (error instanceof Error) {
     return error.message;
   }

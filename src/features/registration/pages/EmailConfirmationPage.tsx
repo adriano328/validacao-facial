@@ -80,11 +80,6 @@ export function EmailConfirmationPage() {
         </h2>
         <p className="confirmation-message">{mensagem}</p>
       </section>
-
-      <footer className="confirmation-footer">
-        <span>© 2024 E-Voto. Todos os direitos reservados.</span>
-        <strong>Sistema de auditoria civil independente.</strong>
-      </footer>
     </main>
   );
 }

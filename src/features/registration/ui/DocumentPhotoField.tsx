@@ -43,7 +43,7 @@ export function DocumentPhotoField({
           {label} {required && <span style={{ color: "#c00" }}>*</span>}
         </strong>
         <span style={styles.badge(hasValue ? "ok" : "warn")}>
-          {hasValue ? "Ok" : "Obrigatório"}
+          {hasValue ? "Documento capturado" : "Obrigatório"}
         </span>
       </div>
 
@@ -51,7 +51,7 @@ export function DocumentPhotoField({
         {!hasValue ? (
           <div style={styles.empty}>
             <p style={{ fontSize: 13, opacity: 0.8 }}>
-              Tire uma foto nítida da frente do seu documento. Evite reflexos.
+              Tire uma foto nítida do documento inteiro. Evite reflexos e cortes.
             </p>
             <button
               type="button"
@@ -73,25 +73,14 @@ export function DocumentPhotoField({
               <span style={styles.previewHint}>Toque para ampliar</span>
             </button>
 
-            <div style={styles.actionsRow}>
-              <button
-                type="button"
-                disabled={disabled}
-                onClick={() => setOpenCam(true)}
-                style={styles.secondaryBtn(disabled)}
-              >
-                Tirar novamente
-              </button>
-
-              <button
-                type="button"
-                disabled={disabled}
-                onClick={() => onChange("")}
-                style={styles.dangerBtn(disabled)}
-              >
-                Remover
-              </button>
-            </div>
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={() => setOpenCam(true)}
+              style={styles.secondaryBtn(disabled)}
+            >
+              Tirar novamente
+            </button>
           </div>
         )}
 
@@ -126,8 +115,8 @@ export function DocumentPhotoField({
 }
 
 const styles: Record<string, any> = {
-  wrap: { border: "1px solid #ddd", borderRadius: 10, background: "#fff", marginTop: 18 },
-  header: { padding: 12, display: "flex", justifyContent: "space-between", background: "#f6f6f6" },
+  wrap: { border: "1px solid #ddd", borderRadius: 14, background: "#fff", marginTop: 18, overflow: "hidden" },
+  header: { padding: 12, display: "flex", gap: 12, justifyContent: "space-between", background: "#f6f6f6" },
   badge: (kind: "ok" | "warn") => ({
     fontSize: 12,
     padding: "4px 10px",
@@ -137,14 +126,14 @@ const styles: Record<string, any> = {
     borderColor: kind === "ok" ? "#86efac" : "#fca5a5",
     fontWeight: 600,
   }),
-  body: { padding: 12 },
+  body: { padding: 14 },
   empty: { display: "flex", flexDirection: "column", gap: 10 },
   filled: { display: "flex", flexDirection: "column", gap: 10 },
   actionsRow: { display: "flex", gap: 10, flexWrap: "wrap" },
 
   primaryBtn: (d?: boolean) => ({
     padding: "10px 14px",
-    borderRadius: 10,
+    borderRadius: 12,
     background: "#2563eb",
     color: "#fff",
     border: "1px solid #2563eb",
@@ -153,7 +142,7 @@ const styles: Record<string, any> = {
   }),
   secondaryBtn: (d?: boolean) => ({
     padding: "10px 14px",
-    borderRadius: 10,
+    borderRadius: 12,
     background: "#fff",
     border: "1px solid #ddd",
     cursor: d ? "not-allowed" : "pointer",
@@ -169,7 +158,7 @@ const styles: Record<string, any> = {
     opacity: d ? 0.6 : 1,
   }),
 
-  previewBtn: { width: "100%", borderRadius: 10, overflow: "hidden", background: "#000", position: "relative" },
+  previewBtn: { width: "100%", borderRadius: 12, overflow: "hidden", background: "#000", position: "relative", border: 0, padding: 0 },
   previewImg: { width: "100%", maxHeight: 220, objectFit: "cover" },
   previewHint: { position: "absolute", bottom: 8, right: 8, background: "rgba(0,0,0,.55)", color: "#fff", padding: "4px 8px", borderRadius: 8, fontSize: 12 },
 
