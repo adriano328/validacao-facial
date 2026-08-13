@@ -11,6 +11,7 @@ import {
   type TipoUsuario,
 } from "@features/user/model/permissions";
 import { alerts } from "@shared/lib/swal";
+import { isRequestCanceled } from "@shared/utils/http";
 import { maskCPF } from "@shared/utils/masks";
 import "@features/user/pages/HomePage.css";
 import "./PrivilegesPage.css";
@@ -74,11 +75,15 @@ export function PrivilegesPage() {
         signal
       );
       setData(response);
-    } catch {
+    } catch (requestError) {
+      if (isRequestCanceled(requestError)) return;
+
       setData(null);
       setError("Não foi possível carregar os membros.");
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) {
+        setLoading(false);
+      }
     }
   }
 

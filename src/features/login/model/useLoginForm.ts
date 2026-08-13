@@ -125,7 +125,7 @@ export function useLoginForm() {
       );
 
       if (!ativado) {
-        const twoFactor = await ativarTwoFactor(controller.signal);
+        const twoFactor = await ativarTwoFactor(email, controller.signal);
         setSecret(twoFactor.secret);
         setQrCodeData(twoFactor);
         setTwoFactorStep("qr");

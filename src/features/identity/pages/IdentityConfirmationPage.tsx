@@ -14,6 +14,7 @@ import {
 } from "@features/user/api/userApi";
 import { CARGOS_ECLESIASTICOS } from "@shared/data/cargos";
 import { alerts } from "@shared/lib/swal";
+import { isRequestCanceled } from "@shared/utils/http";
 import { maskCPF, maskPhoneBR } from "@shared/utils/masks";
 import "@features/user/pages/HomePage.css";
 import "./IdentityConfirmationPage.css";
@@ -162,11 +163,15 @@ export function IdentityConfirmationPage() {
         signal
       );
       setData(response);
-    } catch {
+    } catch (requestError) {
+      if (isRequestCanceled(requestError)) return;
+
       setData(null);
       setError("Não foi possível carregar os cadastros.");
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) {
+        setLoading(false);
+      }
     }
   }
 

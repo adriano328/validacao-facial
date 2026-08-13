@@ -34,11 +34,15 @@ export async function twoFactorAtivado(
 }
 
 export async function ativarTwoFactor(
+  email?: string,
   signal?: AbortSignal
 ): Promise<AtivarTwoFactorResponse> {
   const response = await api.get<AtivarTwoFactorResponse>(
     "/usuario/ativar-two-factor",
-    { signal }
+    {
+      params: email ? { email } : undefined,
+      signal,
+    }
   );
 
   return response.data;
