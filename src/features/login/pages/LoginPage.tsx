@@ -52,7 +52,7 @@ export function LoginPage() {
                 value={formLogin.email}
                 onChange={(e) => setFormLogin("email", e.target.value)}
                 onBlur={() => touchField("email")}
-                placeholder="seuemail@seuemail.com"
+                placeholder="seuemail@comademat.org.br"
                 inputMode="email"
                 autoCapitalize="none"
                 autoComplete="email"
@@ -75,7 +75,7 @@ export function LoginPage() {
                 type="submit"
                 disabled={isSubmitting}
               >
-                <span>{isSubmitting ? "Entrando..." : "Entrar"}</span>
+                <span>{isSubmitting ? "Entrando..." : "Entrar no Sistema"}</span>
               </button>
 
               <button
@@ -84,7 +84,7 @@ export function LoginPage() {
                 onClick={irCadastrar}
                 disabled={isSubmitting}
               >
-                <span>Cadastrar</span>
+                <span>Solicitar Acesso</span>
               </button>
 
             <button
@@ -98,6 +98,11 @@ export function LoginPage() {
             </div>
           </form>
         </section>
+
+        <footer className="login-footer">
+          <p>© 2024 COMADEMAT. Todos os direitos reservados.</p>
+          <p>Acesso monitorado e restrito a usuários autorizados.</p>
+        </footer>
       </main>
 
       {qrCodeData && (

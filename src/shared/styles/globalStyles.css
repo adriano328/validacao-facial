@@ -1,5 +1,5 @@
 :root {
-  --vf-font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  --vf-font-family: Inter, Arial, Helvetica, sans-serif;
 
   --vf-font-title: 18px;
   --vf-font-heading: 16px;
@@ -11,7 +11,45 @@
   --vf-font-regular: 400;
   --vf-font-semibold: 600;
   --vf-font-bold: 700;
-  --vf-font-extrabold: 800;
+  --vf-font-extrabold: 700;
+
+  --primary-50: #eef4ff;
+  --primary-100: #d9e7ff;
+  --primary-200: #b9d2ff;
+  --primary-300: #8bb5ff;
+  --primary-500: #1556b8;
+  --primary-600: #0b49a5;
+  --primary-700: #073b8c;
+  --primary-800: #062f70;
+
+  --gray-25: #fcfcfd;
+  --gray-50: #f8f9fb;
+  --gray-100: #f2f4f7;
+  --gray-200: #e4e7ec;
+  --gray-300: #d0d5dd;
+  --gray-400: #98a2b3;
+  --gray-500: #667085;
+  --gray-600: #475467;
+  --gray-700: #344054;
+  --gray-800: #1d2939;
+  --gray-900: #101828;
+
+  --success-50: #ecfdf3;
+  --success-600: #198754;
+  --success-700: #157347;
+  --warning-50: #fffaeb;
+  --warning-600: #dc9b17;
+  --warning-700: #b7791f;
+  --danger-50: #fef3f2;
+  --danger-600: #d92d20;
+  --danger-700: #b42318;
+  --info-50: #eff8ff;
+  --info-600: #1570ef;
+
+  --background-app: #f8f9fb;
+  --background-surface: #ffffff;
+  --background-muted: #f2f4f7;
+  --background-hover: #f8f9fb;
 
   --vf-color-page: #f4f5f7;
   --vf-color-surface: #ffffff;
@@ -20,8 +58,8 @@
   --vf-color-text-muted: #2d3340;
   --vf-color-primary: #073c98;
   --vf-color-primary-strong: #05338b;
-  --vf-color-input: #e0e1e3;
-  --vf-color-input-focus: #e8e9eb;
+  --vf-color-input: #ffffff;
+  --vf-color-input-focus: #ffffff;
   --vf-color-secondary-control: #e4e5e7;
   --vf-color-secondary-control-hover: #dcdee1;
   --vf-color-placeholder: #9ca3af;
@@ -33,7 +71,7 @@
   --vf-card-width: 520px;
   --vf-card-padding: 26px 34px 30px;
   --vf-card-padding-mobile: 24px 18px 28px;
-  --vf-card-shadow: 0 14px 32px rgba(18, 25, 38, 0.08);
+  --vf-card-shadow: 0 2px 8px rgba(16, 24, 40, 0.08);
 
   --vf-input-height: 48px;
   --vf-button-height: 48px;
@@ -51,6 +89,7 @@
 .vf-card {
   width: min(var(--vf-card-width), calc(100vw - 40px));
   background: var(--vf-color-surface);
+  border: 1px solid var(--gray-200);
   border-radius: var(--vf-radius-card);
   box-shadow: var(--vf-card-shadow);
   padding: var(--vf-card-padding);
@@ -76,7 +115,7 @@
 .vf-input {
   width: 100%;
   height: var(--vf-input-height);
-  border: 0;
+  border: 1px solid var(--gray-300);
   border-radius: var(--vf-radius-control);
   background: var(--vf-color-input);
   color: #1f2530;
@@ -95,6 +134,7 @@
 
 .vf-input:focus {
   background: var(--vf-color-input-focus);
+  border-color: var(--vf-color-primary);
   box-shadow: var(--vf-focus-ring);
 }
 

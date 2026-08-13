@@ -1,0 +1,321 @@
+.privileges-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.privileges-toolbar input {
+  width: min(440px, 100%);
+  height: 42px;
+  border: 1px solid var(--gray-300, #d0d5dd);
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--gray-800, #1d2939);
+  font-size: 14px;
+  padding: 0 12px;
+  outline: none;
+}
+
+.privileges-toolbar input:focus {
+  border-color: var(--primary-500, #1556b8);
+  box-shadow: 0 0 0 3px rgba(21, 86, 184, 0.1);
+}
+
+.privileges-toolbar button,
+.privileges-saveButton {
+  min-height: 42px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--primary-800, #062f70);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 0 18px;
+  cursor: pointer;
+}
+
+.privileges-tableCard {
+  border: 1px solid var(--gray-200, #e4e7ec);
+  border-radius: 8px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.privileges-tableWrap {
+  overflow-x: auto;
+}
+
+.privileges-table {
+  width: 100%;
+  min-width: 740px;
+  border-collapse: collapse;
+}
+
+.privileges-table th {
+  height: 48px;
+  padding: 0 24px;
+  background: var(--gray-50, #f8f9fb);
+  color: var(--gray-500, #667085);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.privileges-table td {
+  border-top: 1px solid var(--gray-200, #e4e7ec);
+  padding: 18px 24px;
+  color: var(--gray-700, #344054);
+  font-size: 14px;
+}
+
+.privileges-userCell {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.privileges-userCell strong {
+  color: var(--gray-900, #101828);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.privileges-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--gray-100, #f2f4f7);
+  color: var(--gray-500, #667085);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.privileges-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.privileges-role {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  border-radius: 6px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.privileges-role.is-votante {
+  background: var(--primary-100, #d9e7ff);
+  color: var(--primary-800, #062f70);
+}
+
+.privileges-role.is-membro_cpe {
+  background: #fff1eb;
+  color: #8a3b21;
+}
+
+.privileges-role.is-admin_cpe {
+  background: #421407;
+  color: #ffffff;
+}
+
+.privileges-rowAction {
+  min-height: 34px;
+  border: 1px solid var(--primary-200, #b9d2ff);
+  border-radius: 6px;
+  background: var(--primary-50, #eef4ff);
+  color: var(--primary-800, #062f70);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 0 12px;
+  cursor: pointer;
+}
+
+.privileges-empty {
+  min-height: 170px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  color: var(--gray-600, #475467);
+  text-align: center;
+}
+
+.privileges-empty strong {
+  color: var(--gray-900, #101828);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.privileges-pagination {
+  min-height: 56px;
+  border-top: 1px solid var(--gray-200, #e4e7ec);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 24px;
+  color: var(--gray-600, #475467);
+  font-size: 14px;
+}
+
+.privileges-pagination div {
+  display: flex;
+  gap: 8px;
+}
+
+.privileges-pagination button,
+.privileges-dialog footer button {
+  min-height: 34px;
+  border: 1px solid var(--gray-300, #d0d5dd);
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--gray-700, #344054);
+  padding: 0 12px;
+  cursor: pointer;
+}
+
+.privileges-pagination button:disabled,
+.privileges-dialog footer button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.privileges-dialogLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 35;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.privileges-dialogBackdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(16, 24, 40, 0.42);
+}
+
+.privileges-dialog {
+  width: min(520px, 100%);
+  position: relative;
+  z-index: 1;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 24px 64px rgba(16, 24, 40, 0.22);
+  padding: 22px;
+  display: grid;
+  gap: 18px;
+}
+
+.privileges-dialog header,
+.privileges-dialog footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.privileges-dialog h2 {
+  margin: 0;
+  color: var(--gray-900, #101828);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.privileges-dialog header button {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--gray-50, #f8f9fb);
+  color: var(--gray-700, #344054);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.privileges-selectedMember {
+  border: 1px solid var(--gray-200, #e4e7ec);
+  border-radius: 8px;
+  background: var(--gray-50, #f8f9fb);
+  padding: 14px;
+  display: grid;
+  gap: 5px;
+}
+
+.privileges-selectedMember span,
+.privileges-radioGroup legend {
+  color: var(--gray-500, #667085);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.privileges-selectedMember strong {
+  color: var(--gray-900, #101828);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.privileges-selectedMember em,
+.privileges-radioGroup em {
+  color: var(--gray-600, #475467);
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.privileges-radioGroup {
+  border: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.privileges-radioGroup label {
+  border: 1px solid var(--gray-200, #e4e7ec);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.privileges-radioGroup input {
+  margin-top: 3px;
+}
+
+.privileges-radioGroup span {
+  display: grid;
+  gap: 4px;
+}
+
+.privileges-radioGroup strong {
+  color: var(--gray-900, #101828);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.privileges-saveButton:disabled {
+  background: var(--gray-300, #d0d5dd);
+}
+
+@media (max-width: 720px) {
+  .privileges-toolbar,
+  .privileges-pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .privileges-toolbar input,
+  .privileges-toolbar button {
+    width: 100%;
+  }
+}

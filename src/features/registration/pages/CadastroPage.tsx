@@ -68,7 +68,7 @@ export function CadastroPage() {
   return (
     <div className="cadastro-page">
       <main className="cadastro-main" aria-labelledby="cadastro-title">
-        <BrandMark className="cadastro-brand" />
+        <BrandMark className="cadastro-brand" subtitle="" />
 
         <section className="vf-card cadastro-card">
           <SectionHeader
@@ -223,8 +223,25 @@ export function CadastroPage() {
               <span>{isSubmitting ? "Salvando..." : "Cadastrar"}</span>
               <BallotIcon className="cadastro-buttonIcon" />
             </button>
+
+            <p className="cadastro-terms">
+              Ao clicar em Cadastrar, você concorda com nossos{" "}
+              <a href="/termos" onClick={(event) => event.preventDefault()}>
+                Termos de Uso
+              </a>{" "}
+              e{" "}
+              <a href="/privacidade" onClick={(event) => event.preventDefault()}>
+                Política de Privacidade
+              </a>
+              .
+            </p>
           </div>
         </section>
+
+        <footer className="cadastro-footer">
+          <p>© 2024 COMADEMAT. Todos os direitos reservados.</p>
+          <p>Sistema de Auditoria Civil Independente.</p>
+        </footer>
       </main>
     </div>
   );

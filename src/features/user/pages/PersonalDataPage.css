@@ -1,0 +1,76 @@
+.personal-card {
+  border: 1px solid var(--gray-200, #e4e7ec);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 24px;
+}
+
+.personal-photo {
+  width: 180px;
+  height: 180px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--gray-100, #f2f4f7);
+  color: var(--gray-500, #667085);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+}
+
+.personal-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.personal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.personal-field {
+  min-height: 76px;
+  border: 1px solid var(--gray-200, #e4e7ec);
+  border-radius: 8px;
+  background: var(--gray-50, #f8f9fb);
+  padding: 12px 14px;
+  display: grid;
+  align-content: center;
+  gap: 5px;
+}
+
+.personal-field span {
+  color: var(--gray-500, #667085);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.personal-field strong {
+  color: var(--gray-900, #101828);
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.personal-field em {
+  color: var(--gray-500, #667085);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+@media (max-width: 760px) {
+  .personal-card,
+  .personal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .personal-photo {
+    width: 100%;
+    max-width: 240px;
+  }
+}

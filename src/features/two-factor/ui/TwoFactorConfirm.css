@@ -17,33 +17,30 @@
 .twofaCard {
   position: relative;
   z-index: 1;
-  width: min(330px, calc(100vw - 40px));
+  width: min(448px, calc(100vw - 40px));
   border: 1px solid rgba(226, 232, 240, 0.92);
   border-radius: 14px;
   background: #ffffff;
   box-shadow: 0 24px 58px rgba(15, 23, 42, 0.28);
-  padding: 26px 22px 18px;
+  padding: 34px 32px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   animation: twofa-pop 180ms ease-out;
+  overflow: hidden;
 }
 
-.twofaIcon {
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
-  display: grid;
-  place-items: center;
-  color: #2457d6;
-  background: #dfe8ff;
-  margin-bottom: 12px;
+.twofaLogo {
+  width: 66px;
+  height: 66px;
+  object-fit: contain;
+  margin-bottom: 20px;
 }
 
 .twofaTitle {
   margin: 0;
   color: #111827;
-  font-size: 18px;
+  font-size: 24px;
   line-height: 1.15;
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -51,11 +48,11 @@
 }
 
 .twofaHint {
-  width: min(240px, 100%);
-  margin: 8px 0 18px;
+  width: min(340px, 100%);
+  margin: 14px 0 28px;
   color: #6b7280;
-  font-size: 11px;
-  line-height: 1.45;
+  font-size: 16px;
+  line-height: 1.5;
   text-align: center;
 }
 
@@ -64,7 +61,7 @@
   width: 100%;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 8px;
+  gap: 14px;
   cursor: text;
 }
 
@@ -79,14 +76,14 @@
 }
 
 .twofaDigit {
-  height: 48px;
-  border: 1px solid #eef2f7;
+  height: 58px;
+  border: 1px solid #d0d5dd;
   border-radius: 8px;
   display: grid;
   place-items: center;
   color: #9ca3af;
   background: #f8fafc;
-  font-size: 18px;
+  font-size: 24px;
   font-weight: 800;
   transition:
     border-color 160ms ease,
@@ -124,7 +121,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 800;
   cursor: pointer;
   transition:
@@ -135,7 +132,7 @@
 }
 
 .twofaPrimary {
-  margin-top: 14px;
+  margin-top: 28px;
   color: #ffffff;
   background: #2563eb;
   box-shadow: 0 12px 20px rgba(37, 99, 235, 0.24);
@@ -155,16 +152,16 @@
 }
 
 .twofaSecondary {
-  margin-top: 9px;
+  margin-top: 12px;
   color: #111827;
   background: #ffffff;
   border: 1px solid #e5e7eb;
 }
 
 .twofaSupport {
-  margin: 16px 0 0;
+  margin: 24px 0 28px;
   color: #9ca3af;
-  font-size: 10px;
+  font-size: 15px;
   line-height: 1.4;
   text-align: center;
 }
@@ -188,6 +185,28 @@
   animation: twofa-spin 700ms linear infinite;
 }
 
+.twofaFooter {
+  width: calc(100% + 64px);
+  min-height: 52px;
+  border-top: 1px solid #e5e7eb;
+  background: #f8f9fb;
+  color: #667085;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.twofaFooter svg {
+  width: 16px;
+  height: 16px;
+  fill: #198754;
+}
+
 @keyframes twofa-spin {
   to {
     transform: rotate(360deg);
@@ -208,7 +227,7 @@
 
 @media (max-width: 420px) {
   .twofaCard {
-    padding: 24px 18px 18px;
+    padding: 28px 20px 0;
   }
 
   .twofaCodeWrap {
@@ -216,7 +235,11 @@
   }
 
   .twofaDigit {
-    height: 46px;
+    height: 50px;
     font-size: 16px;
+  }
+
+  .twofaFooter {
+    width: calc(100% + 40px);
   }
 }

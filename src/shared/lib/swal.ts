@@ -10,6 +10,13 @@ type AlertOptions = {
   timer?: number;
 };
 
+type ConfirmOptions = {
+  title: string;
+  text?: string;
+  confirmButtonText?: string;
+  cancelButtonText?: string;
+};
+
 export const alerts = {
   // ⏳ Processando
   loading: (opts?: { title?: string; text?: string }) => {
@@ -83,5 +90,26 @@ export const alerts = {
         confirmButton: "swal-small-button",
       },
     });
+  },
+
+  confirm: async (opts: ConfirmOptions) => {
+    const result = await MySwal.fire({
+      icon: "question",
+      title: opts.title,
+      text: opts.text,
+      showCancelButton: true,
+      confirmButtonText: opts.confirmButtonText ?? "Confirmar",
+      cancelButtonText: opts.cancelButtonText ?? "Cancelar",
+      reverseButtons: true,
+      customClass: {
+        title: "swal-small-title",
+        htmlContainer: "swal-small-text",
+        icon: "swal-small-icon",
+        confirmButton: "swal-small-button",
+        cancelButton: "swal-small-button",
+      },
+    });
+
+    return result.isConfirmed;
   },
 };
