@@ -171,14 +171,6 @@ export function AppLayout() {
         </nav>
 
         <div className="appLayout-sidebarFooter">
-          <NavLink
-            className="appLayout-navLink"
-            to="/minha-conta/dados-pessoais"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <Icon name="user" />
-            <span>Configurações</span>
-          </NavLink>
           <button className="appLayout-logout" type="button" onClick={handleLogout}>
             <Icon name="key" />
             <span>Sair</span>
@@ -197,17 +189,8 @@ export function AppLayout() {
             ☰
           </button>
 
-          <div className="appLayout-context">
-            <span>Sistema COMADEMAT</span>
-            <strong>{getPageTitle(location.pathname)}</strong>
-          </div>
-
+      
           <div className="appLayout-user">
-            <span className="appLayout-bell" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path d="M12 22a2.4 2.4 0 0 0 2.4-2.3H9.6A2.4 2.4 0 0 0 12 22Zm7-5h-1.2V10a5.8 5.8 0 0 0-4.6-5.7V3a1.2 1.2 0 1 0-2.4 0v1.3A5.8 5.8 0 0 0 6.2 10v7H5a1 1 0 1 0 0 2h14a1 1 0 1 0 0-2Zm-3.2 0H8.2v-7a3.8 3.8 0 0 1 7.6 0v7Z" />
-              </svg>
-            </span>
             <div className="appLayout-userCopy">
               <strong>{usuario?.nome ?? "Usuário"}</strong>
               <span>{getTipoUsuarioLabel(tipoUsuario)}</span>
