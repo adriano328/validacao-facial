@@ -120,8 +120,8 @@ export function HomePage() {
       <section className="home-summary" aria-labelledby="home-account-title">
         <div className="home-summaryHeader">
           <h2 id="home-account-title">Minha conta</h2>
-          <span className={`portal-badge portal-badge--${String(usuario.status ?? "ativo").toLowerCase()}`}>
-            {formatLabel(usuario.status ?? "ATIVO")}
+          <span className={`portal-badge portal-badge--${String(usuario.situacaoUsuario ?? "ativo").toLowerCase()}`}>
+            {formatLabel(usuario.situacaoUsuario ?? "ATIVO")}
           </span>
         </div>
 
