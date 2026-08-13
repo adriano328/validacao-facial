@@ -11,5 +11,4 @@ export type TwoFactorPayload = {
 
 export type VerificarTwoFactorResult = {
   ok: boolean;
-  token?: string;
 };

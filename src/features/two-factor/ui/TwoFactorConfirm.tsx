@@ -4,13 +4,14 @@ import "./TwoFactorConfirm.css";
 
 type TwoFactorConfirmProps = {
   open: boolean;
+  password?: string;
   onBack: () => void;
   onDone: () => void;
 };
 
 const CODE_LENGTH = 6;
 
-export function TwoFactorConfirm({ open, onBack, onDone }: TwoFactorConfirmProps) {
+export function TwoFactorConfirm({ open, password, onBack, onDone }: TwoFactorConfirmProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const {
     code,
@@ -20,7 +21,7 @@ export function TwoFactorConfirm({ open, onBack, onDone }: TwoFactorConfirmProps
     canSubmit,
     isSubmitting,
     confirm,
-  } = useTwoFactorConfirm();
+  } = useTwoFactorConfirm({ password });
 
   if (!open) return null;
 

@@ -107,6 +107,7 @@ export function LoginPage() {
 
       <TwoFactorConfirm
         open={twoFactorStep === "confirm"}
+        password={formLogin.password}
         onBack={() => {
           if (qrCodeData) setTwoFactorStep("qr");
           else setTwoFactorStep("none");

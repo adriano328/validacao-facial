@@ -5,22 +5,6 @@ import type {
   VerificarTwoFactorResult,
 } from "@features/two-factor/model/types";
 
-function getTokenFromResponse(data: unknown): string | undefined {
-  if (typeof data === "string") return data;
-
-  if (!data || typeof data !== "object") return undefined;
-
-  const record = data as Record<string, unknown>;
-  const tokenFields = ["token", "accessToken", "access_token", "tokenAcesso"];
-
-  for (const field of tokenFields) {
-    const value = record[field];
-    if (typeof value === "string" && value.trim()) return value;
-  }
-
-  return undefined;
-}
-
 function getBooleanResult(data: unknown): boolean | undefined {
   if (typeof data === "boolean") return data;
 
@@ -89,6 +73,5 @@ export async function verificarTwoFactor(
 
   return {
     ok: getBooleanResult(res.data) ?? (res.status >= 200 && res.status < 300),
-    token: getTokenFromResponse(res.data),
   };
 }

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { alerts } from "@shared/lib/swal";
 import { handleAxiosError } from "@shared/utils/messageErro";
+import { login } from "@features/auth/api/authApi";
 import {
   validarTwoFactor,
   verificarTwoFactor,
@@ -11,6 +12,10 @@ import { useAuthToken } from "@features/auth/model/AuthTokenContext";
 import { useTwoFactor } from "@features/two-factor/model/TwoFactorContext";
 
 const onlyDigits = (s: string) => s.replace(/\D/g, "").slice(0, 6);
+
+type UseTwoFactorConfirmParams = {
+  password?: string;
+};
 
 function isAbortError(err: unknown) {
   // fetch abort
@@ -24,7 +29,9 @@ function isAbortError(err: unknown) {
   return false;
 }
 
-export function useTwoFactorConfirm() {
+export function useTwoFactorConfirm({
+  password,
+}: UseTwoFactorConfirmParams = {}) {
   const [code, setCode] = useState("");
   const [touched, setTouched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,8 +55,8 @@ export function useTwoFactorConfirm() {
 
   const canSubmit = useMemo(() => {
     if (status === "inactive") return !!secret && !!email && code.length === 6 && !isSubmitting;
-    return !!email && code.length === 6 && !isSubmitting;
-  }, [status, secret, email, code, isSubmitting]);
+    return !!email && !!password && code.length === 6 && !isSubmitting;
+  }, [status, secret, email, password, code, isSubmitting]);
 
   function onChangeCode(v: string) {
     setCode(onlyDigits(v));
@@ -98,6 +105,11 @@ export function useTwoFactorConfirm() {
     try {
       // ✅ status active: apenas verifica
       if (status === "active") {
+        if (!password) {
+          alerts.warn({ text: "Senha não encontrada. Faça login novamente." });
+          return false;
+        }
+
         const result = await verificarTwoFactor({ email, code }, controller.signal);
 
         if (!result.ok) {
@@ -107,15 +119,9 @@ export function useTwoFactorConfirm() {
           return false;
         }
 
-        // ✅ sucesso
-        if (!result.token) {
-          alerts.error({
-            text: "Token de autenticacao nao retornado pela API de two-factor.",
-          });
-          return false;
-        }
+        const token = await login({ email, password }, controller.signal);
 
-        setToken(result.token);
+        setToken(token);
         clearAuthFlow();
         clearAll();
         navigate("/home", { replace: true });
