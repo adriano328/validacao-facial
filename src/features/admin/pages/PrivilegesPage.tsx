@@ -11,6 +11,7 @@ import {
   type TipoUsuario,
 } from "@features/user/model/permissions";
 import { alerts } from "@shared/lib/swal";
+import { DropdownField } from "@shared/ui/dropdown/DropdownField";
 import { isRequestCanceled } from "@shared/utils/http";
 import { maskCPF } from "@shared/utils/masks";
 import "@features/user/pages/HomePage.css";
@@ -61,7 +62,11 @@ export function PrivilegesPage() {
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UsuarioResponse | null>(null);
-  const [selectedRole, setSelectedRole] = useState<TipoUsuario>("VOTANTE");
+  const [selectedRole, setSelectedRole] = useState<TipoUsuario | undefined>(undefined);
+  const [dialogSearch, setDialogSearch] = useState("");
+  const [dialogUsers, setDialogUsers] = useState<UsuarioResponse[]>([]);
+  const [dialogLoading, setDialogLoading] = useState(false);
+  const [dialogError, setDialogError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   async function loadUsers(signal?: AbortSignal) {
@@ -94,6 +99,41 @@ export function PrivilegesPage() {
     return () => controller.abort();
   }, [page, search]);
 
+  useEffect(() => {
+    if (!dialogOpen) return;
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(async () => {
+      try {
+        setDialogLoading(true);
+        setDialogError(null);
+
+        const response = await listarUsuariosPrivilegios(
+          0,
+          12,
+          dialogSearch.trim(),
+          controller.signal
+        );
+
+        setDialogUsers(response.content);
+      } catch (requestError) {
+        if (isRequestCanceled(requestError)) return;
+
+        setDialogUsers([]);
+        setDialogError("Nao foi possivel carregar os usuarios.");
+      } finally {
+        if (!controller.signal.aborted) {
+          setDialogLoading(false);
+        }
+      }
+    }, 260);
+
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [dialogOpen, dialogSearch]);
+
   const filteredUsers = useMemo(() => {
     const searchText = search.trim().toLowerCase();
     const searchDigits = search.replace(/\D/g, "");
@@ -107,21 +147,47 @@ export function PrivilegesPage() {
     });
   }, [data?.content, search]);
 
+  const dialogUserOptions = useMemo(() => {
+    const users =
+      selectedUser && !dialogUsers.some((usuario) => usuario.id === selectedUser.id)
+        ? [selectedUser, ...dialogUsers]
+        : dialogUsers;
+
+    return users.map((usuario) => ({
+      value: usuario.id,
+      label: `${usuario.nome} - CPF: ${maskCPF(usuario.cpf ?? "")}`,
+    }));
+  }, [dialogUsers, selectedUser]);
+
   function openDialog(usuario?: UsuarioResponse) {
-    const nextUser = usuario ?? filteredUsers[0] ?? null;
-    setSelectedUser(nextUser);
-    setSelectedRole(normalizeTipoUsuario(nextUser?.tipoUsuario));
+    setSelectedUser(usuario ?? null);
+    setSelectedRole(usuario ? normalizeTipoUsuario(usuario.tipoUsuario) : undefined);
+    setDialogSearch(usuario?.nome ?? "");
+    setDialogUsers(usuario ? [usuario] : []);
+    setDialogError(null);
+    setDialogLoading(false);
     setDialogOpen(true);
   }
 
   function closeDialog() {
     setDialogOpen(false);
     setSelectedUser(null);
-    setSelectedRole("VOTANTE");
+    setSelectedRole(undefined);
+    setDialogSearch("");
+    setDialogUsers([]);
+    setDialogLoading(false);
+    setDialogError(null);
+  }
+
+  function handleSelectUser(usuarioId: number) {
+    const usuario = dialogUsers.find((item) => item.id === usuarioId) ?? null;
+
+    setSelectedUser(usuario);
+    setSelectedRole(usuario ? normalizeTipoUsuario(usuario.tipoUsuario) : undefined);
   }
 
   async function handleSave() {
-    if (!selectedUser || saving) return;
+    if (!selectedUser || !selectedRole || saving) return;
 
     if (selectedRole === normalizeTipoUsuario(selectedUser.tipoUsuario)) {
       await alerts.warn({ text: "Nenhuma alteração de perfil foi realizada." });
@@ -148,9 +214,11 @@ export function PrivilegesPage() {
   }
 
   const totalPages = data?.totalPages ?? 0;
-  const hasChange =
+  const hasChange = Boolean(
     selectedUser &&
-    selectedRole !== normalizeTipoUsuario(selectedUser.tipoUsuario);
+    selectedRole &&
+    selectedRole !== normalizeTipoUsuario(selectedUser.tipoUsuario)
+  );
 
   return (
     <section className="portal-page privileges-page" aria-labelledby="privileges-title">
@@ -269,16 +337,39 @@ export function PrivilegesPage() {
               </button>
             </header>
 
-            <div className="privileges-selectedMember">
-              <span>Membro</span>
+            <div className="privileges-dialogField">
+              <span className="privileges-fieldLabel">Membro</span>
+              <DropdownField<number>
+                value={selectedUser?.id}
+                placeholder="Buscar por nome ou CPF"
+                searchPlaceholder="Digite nome ou CPF..."
+                options={dialogUserOptions}
+                emptyText={
+                  dialogLoading
+                    ? "Carregando usuarios..."
+                    : "Nenhum usuario encontrado"
+                }
+                onSearchChange={setDialogSearch}
+                onChange={handleSelectUser}
+                disabled={saving}
+                invalid={!!dialogError}
+              />
+              {dialogLoading ? (
+                <span className="privileges-fieldHelp">Carregando usuarios...</span>
+              ) : null}
+              {dialogError ? (
+                <span className="privileges-fieldError">{dialogError}</span>
+              ) : null}
               {selectedUser ? (
-                <>
-                  <span className="privileges-selectedName">{selectedUser.nome}</span>
-                  <em>CPF: {maskCPF(selectedUser.cpf ?? "")}</em>
-                </>
-              ) : (
-                <span className="privileges-selectedName">Nenhum membro selecionado</span>
-              )}
+                <div className="privileges-selectedMember">
+                  <span>Perfil atual</span>
+                  <strong>{selectedUser.nome}</strong>
+                  <em>
+                    CPF: {maskCPF(selectedUser.cpf ?? "")} -{" "}
+                    {getTipoUsuarioLabel(selectedUser.tipoUsuario)}
+                  </em>
+                </div>
+              ) : null}
             </div>
 
             <fieldset className="privileges-radioGroup">
@@ -290,6 +381,7 @@ export function PrivilegesPage() {
                     name="tipoUsuario"
                     value={role.value}
                     checked={selectedRole === role.value}
+                    disabled={saving}
                     onChange={() => setSelectedRole(role.value)}
                   />
                   <span>

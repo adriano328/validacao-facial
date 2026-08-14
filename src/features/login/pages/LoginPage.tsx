@@ -52,7 +52,7 @@ export function LoginPage() {
                 value={formLogin.email}
                 onChange={(e) => setFormLogin("email", e.target.value)}
                 onBlur={() => touchField("email")}
-                placeholder="seuemail@comademat.org.br"
+                placeholder="seuemail@grandetemplo.com.br"
                 inputMode="email"
                 autoCapitalize="none"
                 autoComplete="email"

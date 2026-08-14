@@ -224,6 +224,30 @@
   font-weight: 600;
 }
 
+.privileges-dialogField {
+  display: grid;
+  gap: 7px;
+}
+
+.privileges-fieldLabel {
+  color: var(--gray-600, #475467);
+  font-size: 12px;
+}
+
+.privileges-fieldHelp,
+.privileges-fieldError {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.privileges-fieldHelp {
+  color: var(--gray-500, #667085);
+}
+
+.privileges-fieldError {
+  color: var(--danger-600, #d92d20);
+}
+
 .privileges-dialog header button {
   width: 32px;
   height: 32px;
@@ -239,7 +263,7 @@
   border: 1px solid var(--gray-200, #e4e7ec);
   border-radius: 8px;
   background: var(--gray-50, #f8f9fb);
-  padding: 12px;
+  padding: 10px 12px;
   display: grid;
   gap: 5px;
 }
@@ -253,6 +277,12 @@
 .privileges-selectedName {
   color: var(--gray-900, #101828);
   font-size: 12px;
+}
+
+.privileges-selectedMember strong {
+  color: var(--gray-900, #101828);
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .privileges-selectedMember em,

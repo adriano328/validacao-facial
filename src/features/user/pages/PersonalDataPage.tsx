@@ -178,14 +178,32 @@ export function PersonalDataPage() {
   const [analysisItems, setAnalysisItems] = useState<UsuarioAnaliseItemRequest[]>([]);
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [loadingCurrentUser, setLoadingCurrentUser] = useState(true);
   const [originalImages, setOriginalImages] = useState({
     foto: "",
     fotoDocumento: "",
   });
 
   const situacaoUsuario = usuario?.situacaoUsuario ?? "";
+  const aguardandoRevisao = situacaoUsuario === "PENDENTE";
+  const readonly = aguardandoRevisao || saving;
   const precisaCorrigir =
     situacaoUsuario === "REPROVADO" || situacaoUsuario === "CORRECAO_SOLICITADA";
+
+  useEffect(() => {
+    let active = true;
+
+    setLoadingCurrentUser(true);
+    recarregarUsuario().finally(() => {
+      if (active) {
+        setLoadingCurrentUser(false);
+      }
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [recarregarUsuario]);
 
   useEffect(() => {
     if (!usuario) {
@@ -335,7 +353,7 @@ export function PersonalDataPage() {
   }
 
   async function handleSalvar() {
-    if (!usuario || saving) return;
+    if (!usuario || saving || aguardandoRevisao) return;
 
     const nextErrors = validarFormulario(form, precisaCorrigir);
     setErrors(nextErrors);
@@ -396,7 +414,7 @@ export function PersonalDataPage() {
     }
   }
 
-  if (loading) {
+  if (loading || loadingCurrentUser) {
     return <section className="portal-state">Carregando dados pessoais...</section>;
   }
 
@@ -456,12 +474,22 @@ export function PersonalDataPage() {
           </section>
         ) : null}
 
+        {aguardandoRevisao ? (
+          <section className="personal-readonlyNotice" aria-label="Cadastro em revisao">
+            <h3>Cadastro em revisao</h3>
+            <p>
+              Suas informacoes foram enviadas para analise. Enquanto a revisao
+              estiver pendente, esta tela fica disponivel apenas para consulta.
+            </p>
+          </section>
+        ) : null}
+
         <div className="personal-media">
           <FacePhotoField
             label="Foto do membro"
             value={form.foto}
             onChange={(base64) => setField("foto", base64)}
-            disabled={saving}
+            disabled={readonly}
             required
             error={errors.foto}
           />
@@ -473,7 +501,7 @@ export function PersonalDataPage() {
             <input
               className={inputClass("nome")}
               value={form.nome}
-              disabled={!precisaCorrigir || saving}
+              disabled={!precisaCorrigir || readonly}
               aria-invalid={!!errors.nome}
               onChange={(event) => setField("nome", event.target.value)}
               onBlur={() => validateField("nome")}
@@ -485,7 +513,7 @@ export function PersonalDataPage() {
             <input
               className={inputClass("cpf")}
               value={form.cpf}
-              disabled={!precisaCorrigir || saving}
+              disabled={!precisaCorrigir || readonly}
               aria-invalid={!!errors.cpf}
               inputMode="numeric"
               onChange={(event) => setField("cpf", maskCPF(event.target.value))}
@@ -502,7 +530,7 @@ export function PersonalDataPage() {
             <input
               className={inputClass("dataNascimento")}
               value={form.dataNascimento}
-              disabled={!precisaCorrigir || saving}
+              disabled={!precisaCorrigir || readonly}
               aria-invalid={!!errors.dataNascimento}
               placeholder="DD/MM/AAAA"
               inputMode="numeric"
@@ -520,7 +548,7 @@ export function PersonalDataPage() {
               placeholder="Selecione o cargo"
               options={CARGOS_ECLESIASTICOS}
               onChange={(cargo) => handleCargoChange(cargo as CargoUsuario)}
-              disabled={saving}
+              disabled={readonly}
               invalid={!!errors.cargo}
             />
           </FormField>
@@ -529,7 +557,7 @@ export function PersonalDataPage() {
             <input
               className={inputClass("telefone")}
               value={form.telefone}
-              disabled={saving}
+              disabled={readonly}
               aria-invalid={!!errors.telefone}
               placeholder="(00) 00000-0000"
               inputMode="numeric"
@@ -542,7 +570,7 @@ export function PersonalDataPage() {
             <input
               className={inputClass("email")}
               value={form.email}
-              disabled={saving}
+              disabled={readonly}
               aria-invalid={!!errors.email}
               placeholder="email@dominio.com"
               inputMode="email"
@@ -569,7 +597,7 @@ export function PersonalDataPage() {
               documentType="RG"
               value={form.fotoDocumento}
               onChange={(base64) => setField("fotoDocumento", base64)}
-              disabled={saving}
+              disabled={readonly}
               required
               error={errors.fotoDocumento}
             />
@@ -582,7 +610,7 @@ export function PersonalDataPage() {
             className="vf-button vf-button--primary personal-submit"
             type="button"
             onClick={handleSalvar}
-            disabled={saving}
+            disabled={readonly}
           >
             {saving ? "Salvando..." : "Salvar alteracoes"}
           </button>

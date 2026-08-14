@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -36,11 +37,13 @@ export function UserInfoProvider({ children }: UserInfoProviderProps) {
     useState<ObterInformacaoUsuarioResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const recarregarPromiseRef = useRef<Promise<void> | null>(null);
 
   const limparUsuario = useCallback(() => {
     setUsuario(null);
     setError(null);
     setLoading(false);
+    recarregarPromiseRef.current = null;
   }, []);
 
   const recarregarUsuario = useCallback(async () => {
@@ -49,20 +52,29 @@ export function UserInfoProvider({ children }: UserInfoProviderProps) {
       return;
     }
 
-    const controller = new AbortController();
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      const data = await obterInformacaoUsuario(controller.signal);
-      setUsuario(data);
-    } catch {
-      setUsuario(null);
-      setError("Não foi possível carregar as informações do usuário.");
-    } finally {
-      setLoading(false);
+    if (recarregarPromiseRef.current) {
+      return recarregarPromiseRef.current;
     }
+
+    const controller = new AbortController();
+    const promise = (async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const data = await obterInformacaoUsuario(controller.signal);
+        setUsuario(data);
+      } catch {
+        setUsuario(null);
+        setError("Nao foi possivel carregar as informacoes do usuario.");
+      } finally {
+        setLoading(false);
+        recarregarPromiseRef.current = null;
+      }
+    })();
+
+    recarregarPromiseRef.current = promise;
+    return promise;
   }, [token, limparUsuario]);
 
   useEffect(() => {

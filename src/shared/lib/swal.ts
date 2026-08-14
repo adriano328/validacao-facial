@@ -4,6 +4,17 @@ import withReactContent from "sweetalert2-react-content";
 
 const MySwal = withReactContent(Swal);
 
+const compactSweetAlertClasses = {
+  popup: "swal-small-popup",
+  title: "swal-small-title",
+  htmlContainer: "swal-small-text",
+  icon: "swal-small-icon",
+  confirmButton: "swal-small-button",
+  cancelButton: "swal-small-button",
+  actions: "swal-small-actions",
+  loader: "swal-small-loader",
+};
+
 type AlertOptions = {
   title?: string;
   text?: string;
@@ -25,12 +36,7 @@ export const alerts = {
       text: opts?.text ?? "Aguarde um momento",
       allowOutsideClick: false,
       allowEscapeKey: false,
-      customClass: {
-        title: "swal-small-title",
-        htmlContainer: "swal-small-text",
-        icon: "swal-small-icon",
-        confirmButton: "swal-small-button",
-      },
+      customClass: compactSweetAlertClasses,
       didOpen: () => {
         MySwal.showLoading();
       },
@@ -51,12 +57,7 @@ export const alerts = {
       showConfirmButton: false,
       timer: opts?.timer ?? 1800,
       timerProgressBar: true,
-      customClass: {
-        title: "swal-small-title",
-        htmlContainer: "swal-small-text",
-        icon: "swal-small-icon",
-        confirmButton: "swal-small-button",
-      },
+      customClass: compactSweetAlertClasses,
     });
   },
 
@@ -67,12 +68,7 @@ export const alerts = {
       title: opts?.title ?? "Atenção",
       text: opts?.text ?? "Verifique as informações antes de continuar.",
       timer: opts?.timer ?? 1800,
-      customClass: {
-        title: "swal-small-title",
-        htmlContainer: "swal-small-text",
-        icon: "swal-small-icon",
-        confirmButton: "swal-small-button",
-      },
+      customClass: compactSweetAlertClasses,
     });
   },
 
@@ -83,12 +79,7 @@ export const alerts = {
       title: opts?.title ?? "Atenção",
       text: opts?.text ?? "Ocorreu um erro. Tente novamente.",
       confirmButtonText: "Ok",
-      customClass: {
-        title: "swal-small-title",
-        htmlContainer: "swal-small-text",
-        icon: "swal-small-icon",
-        confirmButton: "swal-small-button",
-      },
+      customClass: compactSweetAlertClasses,
     });
   },
 
@@ -101,13 +92,7 @@ export const alerts = {
       confirmButtonText: opts.confirmButtonText ?? "Confirmar",
       cancelButtonText: opts.cancelButtonText ?? "Cancelar",
       reverseButtons: true,
-      customClass: {
-        title: "swal-small-title",
-        htmlContainer: "swal-small-text",
-        icon: "swal-small-icon",
-        confirmButton: "swal-small-button",
-        cancelButton: "swal-small-button",
-      },
+      customClass: compactSweetAlertClasses,
     });
 
     return result.isConfirmed;

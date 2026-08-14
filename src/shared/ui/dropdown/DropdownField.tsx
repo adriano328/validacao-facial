@@ -19,6 +19,7 @@ type DropdownFieldProps<T extends string | number = string> = {
   searchable?: boolean;
   searchPlaceholder?: string;
   emptyText?: string;
+  onSearchChange?: (query: string) => void;
 };
 
 const normalize = (s: string) =>
@@ -39,6 +40,7 @@ export function DropdownField<T extends string | number = string>({
   searchable = true,
   searchPlaceholder = "Buscar...",
   emptyText = "Nenhum resultado",
+  onSearchChange,
 }: DropdownFieldProps<T>) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -70,6 +72,7 @@ export function DropdownField<T extends string | number = string>({
     setOpen(true);
     if (searchable) {
       setQuery("");
+      onSearchChange?.("");
     }
 
     requestAnimationFrame(() => inputRef.current?.focus());
@@ -117,8 +120,10 @@ export function DropdownField<T extends string | number = string>({
           onFocus={openSelect}
           onClick={openSelect}
           onChange={(event) => {
-            setQuery(event.target.value);
+            const nextQuery = event.target.value;
+            setQuery(nextQuery);
             setOpen(true);
+            onSearchChange?.(nextQuery);
           }}
           autoComplete="off"
           autoCorrect="off"
