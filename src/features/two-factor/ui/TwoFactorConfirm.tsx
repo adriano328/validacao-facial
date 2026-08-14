@@ -52,13 +52,13 @@ export function TwoFactorConfirm({ open, password, onBack, onDone }: TwoFactorCo
         </h1>
 
         <p className="twofaHint">
-          Insira o código de 6 dígitos gerado no seu aplicativo autenticador.
+          Abra o Google Authenticator e insira o código de 6 dígitos gerado para este acesso.
         </p>
 
         <div
           className="twofaCodeWrap"
           onClick={() => inputRef.current?.focus()}
-          aria-label="Código do Authenticator"
+          aria-label="Código do Google Authenticator"
         >
           <input
             ref={inputRef}
@@ -106,12 +106,6 @@ export function TwoFactorConfirm({ open, password, onBack, onDone }: TwoFactorCo
           Cancelar
         </button>
 
-        <p className="twofaSupport">
-          Não consegue acessar o código?{" "}
-          <button type="button" onClick={onBack} disabled={isSubmitting}>
-            Tente outro método
-          </button>
-        </p>
 
         <footer className="twofaFooter">
           <svg viewBox="0 0 24 24" aria-hidden="true">

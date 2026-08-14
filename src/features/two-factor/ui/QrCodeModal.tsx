@@ -58,11 +58,16 @@ export function QrCodeModal({
         </h2>
 
         <p className="qr-text">
-          Escaneie o QR Code com seu aplicativo autenticador ou use o código manual.
+          Escaneie o QR Code com o Google Authenticator ou use o código manual.
         </p>
 
         <div className="qr-qrWrap">
           <img src={qrCodeUrl} alt="QR Code do Two-Factor" className="qr-qr" />
+        </div>
+
+        <div className="qr-appNote">
+          <strong>Aplicativo recomendado</strong>
+          <span>Use o Google Authenticator para gerar os códigos de acesso.</span>
         </div>
 
         <div className="qr-secret">

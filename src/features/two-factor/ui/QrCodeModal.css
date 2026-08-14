@@ -81,6 +81,31 @@
   border-radius: 8px;
 }
 
+.qr-appNote {
+  width: 100%;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  background: #eff6ff;
+  padding: 9px 11px;
+  margin-bottom: 12px;
+  display: grid;
+  gap: 3px;
+  text-align: left;
+}
+
+.qr-appNote strong {
+  color: #1d4ed8;
+  font-size: 12px;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.qr-appNote span {
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 .qr-secret {
   width: 100%;
   border: 1px solid #e8eef7;
