@@ -5,6 +5,7 @@
 
 .df-control {
   height: var(--vf-input-height);
+  min-height: 30px;
   width: 100%;
   border-radius: var(--vf-radius-control);
   background: var(--vf-color-input);
@@ -23,6 +24,7 @@
 }
 
 .df-control--invalid {
+  border-color: var(--vf-color-error);
   box-shadow: 0 0 0 2px rgba(214, 69, 69, 0.25);
 }
 

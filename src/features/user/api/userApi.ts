@@ -60,6 +60,29 @@ export type UsuarioAnaliseRequest = {
   itens: UsuarioAnaliseItemRequest[];
 };
 
+export type UsuarioAnaliseResponse = {
+  id: number;
+  resultado: string;
+  avaliadorEmail?: string;
+  observacao?: string;
+  criadoEm: string;
+  itens: UsuarioAnaliseItemRequest[];
+};
+
+export type UsuarioAtualizarRequest = {
+  nome?: string;
+  cpf?: string;
+  cargo?: string;
+  telefone?: string;
+  email?: string;
+  dataNascimento?: string;
+  campoEclesiastico?: {
+    id: number;
+  };
+  foto?: string;
+  fotoDocumento?: string;
+};
+
 export type PageResponse<T> = {
   content: T[];
   totalElements: number;
@@ -74,6 +97,31 @@ export async function obterInformacaoUsuario(
   const response = await api.get<ObterInformacaoUsuarioResponse>(
     "/usuario/obter-informacao-usuario",
     { signal }
+  );
+
+  return response.data;
+}
+
+export async function obterMinhaUltimaAnalise(
+  signal?: AbortSignal
+): Promise<UsuarioAnaliseResponse | null> {
+  const response = await api.get<UsuarioAnaliseResponse>(
+    "/usuario/minha-ultima-analise",
+    {
+      signal,
+      validateStatus: (status) => status === 200 || status === 204,
+    }
+  );
+
+  return response.status === 204 ? null : response.data;
+}
+
+export async function atualizarMeusDados(
+  payload: UsuarioAtualizarRequest
+): Promise<ObterInformacaoUsuarioResponse> {
+  const response = await api.put<ObterInformacaoUsuarioResponse>(
+    "/usuario/atualizar",
+    payload
   );
 
   return response.data;

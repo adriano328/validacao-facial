@@ -14,13 +14,12 @@
 
 .identity-search,
 .identity-toolbar select {
-  height: 38px;
+  height: 30px;
   border: 1px solid var(--gray-300, #d0d5dd);
   border-radius: 6px;
   background: #ffffff;
   color: var(--gray-800, #1d2939);
   font-size: 13px;
-  font-weight: 400;
   padding: 0 11px;
   outline: none;
 }
@@ -49,12 +48,11 @@
 }
 
 .identity-table th {
-  height: 42px;
-  padding: 0 14px;
+  height: 36px;
+  padding: 0 12px;
   background: var(--gray-50, #f8f9fb);
   color: var(--gray-500, #667085);
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 11px;
   text-align: left;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -63,25 +61,22 @@
 .identity-table td {
   border-top: 1px solid var(--gray-200, #e4e7ec);
   color: var(--gray-700, #344054);
-  font-size: 13px;
-  font-weight: 400;
-  padding: 11px 14px;
+  font-size: 12px;
+  padding: 9px 12px;
   vertical-align: middle;
 }
 
 .identity-tableName {
   color: var(--gray-900, #101828) !important;
-  font-weight: 500 !important;
 }
 
 .identity-actionButton {
-  min-height: 34px;
+  min-height: 30px;
   border: 1px solid var(--primary-200, #b9d2ff);
   border-radius: 6px;
   background: var(--primary-50, #eef4ff);
   color: var(--primary-800, #062f70);
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 12px;
   padding: 0 12px;
   cursor: pointer;
 }
@@ -100,16 +95,14 @@
 .identity-empty strong {
   color: var(--gray-900, #101828);
   font-size: 15px;
-  font-weight: 600;
 }
 
 .identity-empty span {
   font-size: 13px;
-  font-weight: 400;
 }
 
 .identity-pagination {
-  min-height: 48px;
+  min-height: 42px;
   border-top: 1px solid var(--gray-200, #e4e7ec);
   display: flex;
   align-items: center;
@@ -117,7 +110,7 @@
   gap: 12px;
   padding: 0 14px;
   color: var(--gray-600, #475467);
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .identity-pagination div {
@@ -126,7 +119,7 @@
 }
 
 .identity-pagination button {
-  min-height: 34px;
+  min-height: 30px;
   border: 1px solid var(--gray-300, #d0d5dd);
   border-radius: 6px;
   background: #ffffff;
@@ -200,7 +193,7 @@
 .identity-drawerBody {
   flex: 1;
   overflow-y: auto;
-  padding: 20px 18px 132px;
+  padding: 10px 14px 168px;
   display: grid;
   align-content: start;
   gap: 18px;
@@ -261,10 +254,9 @@
   fill: currentColor;
 }
 
-.identity-statusCard strong {
+.identity-statusTitle {
   color: var(--gray-900, #101828);
   font-size: 13px;
-  font-weight: 600;
 }
 
 .identity-statusCard em {
@@ -273,7 +265,6 @@
   color: var(--primary-800, #062f70);
   padding: 7px 11px;
   font-size: 10px;
-  font-weight: 600;
   font-style: normal;
   letter-spacing: 0.08em;
   line-height: 1;
@@ -316,22 +307,20 @@
   gap: 4px;
 }
 
-.identity-memberFieldValue span,
-.identity-memberStaticGrid span,
+.identity-memberFieldValue > span:first-child,
+.identity-memberStaticGrid div > span:first-child,
 .identity-fieldReason span,
 .identity-photoLabel {
   color: var(--primary-800, #062f70);
   font-size: 9px;
-  font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.identity-memberFieldValue strong,
-.identity-memberStaticGrid strong {
+.identity-memberValue,
+.identity-photoQuestionMain > span:first-child {
   color: var(--gray-900, #101828);
   font-size: 12px;
-  font-weight: 500;
   overflow-wrap: anywhere;
 }
 
@@ -349,7 +338,6 @@
   background: #ffffff;
   color: var(--gray-800, #1d2939);
   font-size: 10px;
-  font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
@@ -475,7 +463,6 @@
   background: #ffffff;
   color: var(--gray-700, #344054);
   font-size: 12px;
-  font-weight: 600;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -494,13 +481,16 @@
   gap: 10px;
 }
 
-.identity-approveButton {
-  border-color: var(--primary-800, #062f70);
-  background: var(--primary-800, #062f70);
+.identity-approveButton,
+.identity-approveButton.is-enabled:not(:disabled) {
+  border-color: var(--primary-800, #062f70) !important;
+  background: var(--primary-800, #062f70) !important;
   color: #ffffff !important;
+  opacity: 1 !important;
 }
 
-.identity-approveButton:disabled {
+.identity-approveButton:disabled,
+.identity-approveButton.is-disabled {
   border-color: #9a9a9a !important;
   background: #969696 !important;
   color: #ffffff !important;
@@ -575,7 +565,7 @@
   }
 
   .identity-drawerBody {
-    padding: 16px 16px 150px;
+    padding: 12px 16px 176px;
   }
 
   .identity-drawerFooter {

@@ -73,7 +73,7 @@
   --vf-card-padding-mobile: 22px 16px 24px;
   --vf-card-shadow: 0 2px 8px rgba(16, 24, 40, 0.08);
 
-  --vf-input-height: 30px;
+  --vf-input-height: clamp(30px, calc(42px - 0.75vw), 40px);
   --vf-button-height: 38px;
   --vf-focus-ring: 0 0 0 3px rgba(7, 60, 152, 0.22);
   --vf-transition-fast: 160ms ease;
@@ -115,6 +115,7 @@
 .vf-input {
   width: 100%;
   height: var(--vf-input-height);
+  min-height: 30px;
   border: 1px solid var(--gray-300);
   border-radius: var(--vf-radius-control);
   background: var(--vf-color-input);
@@ -137,6 +138,11 @@
   background: var(--vf-color-input-focus);
   border-color: var(--vf-color-primary);
   box-shadow: var(--vf-focus-ring);
+}
+
+.vf-input[aria-invalid="true"] {
+  border-color: var(--vf-color-error);
+  box-shadow: 0 0 0 2px rgba(214, 69, 69, 0.18);
 }
 
 .vf-button {

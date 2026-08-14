@@ -208,7 +208,7 @@ export function PrivilegesPage() {
                               getInitials(usuario.nome)
                             )}
                           </span>
-                          <strong>{usuario.nome}</strong>
+                          <span className="privileges-userName">{usuario.nome}</span>
                         </div>
                       </td>
                       <td>{maskCPF(usuario.cpf ?? "")}</td>
@@ -273,11 +273,11 @@ export function PrivilegesPage() {
               <span>Membro</span>
               {selectedUser ? (
                 <>
-                  <strong>{selectedUser.nome}</strong>
+                  <span className="privileges-selectedName">{selectedUser.nome}</span>
                   <em>CPF: {maskCPF(selectedUser.cpf ?? "")}</em>
                 </>
               ) : (
-                <strong>Nenhum membro selecionado</strong>
+                <span className="privileges-selectedName">Nenhum membro selecionado</span>
               )}
             </div>
 
@@ -293,7 +293,7 @@ export function PrivilegesPage() {
                     onChange={() => setSelectedRole(role.value)}
                   />
                   <span>
-                    <strong>{role.title}</strong>
+                    <span className="privileges-roleTitle">{role.title}</span>
                     <em>{role.description}</em>
                   </span>
                 </label>

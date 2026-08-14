@@ -1,12 +1,13 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { DocumentType } from "@features/document-verification/model/types";
 import { DocumentCameraCapture } from "@features/document-verification/ui/steps/DocumentCameraCapture";
+import "./FacePhotoField.css";
 
 type Props = {
   label?: string;
   required?: boolean;
   documentType: DocumentType;
-  value: string;                 
+  value: string;
   onChange: (base64: string) => void;
   disabled?: boolean;
   error?: string | null;
@@ -22,7 +23,7 @@ function fileToBase64(file: File): Promise<string> {
 }
 
 export function DocumentPhotoField({
-  label = "Foto do documento (frente)",
+  label = "Foto do documento",
   required = true,
   documentType,
   value,
@@ -31,60 +32,60 @@ export function DocumentPhotoField({
   error,
 }: Props) {
   const [openCam, setOpenCam] = useState(false);
-  const [openPreview, setOpenPreview] = useState(false);
-
-  const hasValue = !!value;
-  const previewSrc = useMemo(() => (hasValue ? value : ""), [hasValue, value]);
+  const hasValue = value.trim().length > 0;
 
   return (
-    <div style={styles.wrap}>
-      <div style={styles.header}>
-        <strong>
-          {label} {required && <span style={{ color: "#c00" }}>*</span>}
-        </strong>
-        <span style={styles.badge(hasValue ? "ok" : "warn")}>
-          {hasValue ? "Documento capturado" : "Obrigatório"}
-        </span>
-      </div>
-
-      <div style={styles.body}>
-        {!hasValue ? (
-          <div style={styles.empty}>
-            <p style={{ fontSize: 13, opacity: 0.8 }}>
-              Tire uma foto nítida do documento inteiro. Evite reflexos e cortes.
-            </p>
-            <button
-              type="button"
-              disabled={disabled}
-              onClick={() => setOpenCam(true)}
-              style={styles.primaryBtn(disabled)}
-            >
-              Tirar foto
-            </button>
-          </div>
+    <section className="facePhoto documentPhotoField" aria-label={label}>
+      <div className="facePhoto-preview documentPhotoField-preview">
+        {hasValue ? (
+          <img
+            className="facePhoto-image documentPhotoField-image"
+            src={value}
+            alt="Documento capturado"
+          />
         ) : (
-          <div style={styles.filled}>
-            <button
-              type="button"
-              onClick={() => setOpenPreview(true)}
-              style={styles.previewBtn}
-            >
-              <img src={previewSrc} alt="document-preview" style={styles.previewImg} />
-              <span style={styles.previewHint}>Toque para ampliar</span>
-            </button>
-
-            <button
-              type="button"
-              disabled={disabled}
-              onClick={() => setOpenCam(true)}
-              style={styles.secondaryBtn(disabled)}
-            >
-              Tirar novamente
-            </button>
+          <div className="facePhoto-empty" aria-hidden="true">
+            <span className="facePhoto-emptyIcon">+</span>
           </div>
         )}
+      </div>
 
-        {error && <div style={styles.error}>{error}</div>}
+      <div className="facePhoto-content">
+        <div className="facePhoto-heading">
+          <h3>
+            {label}
+            {required ? <span aria-hidden="true"> *</span> : null}
+          </h3>
+          <span className={`facePhoto-status ${hasValue ? "is-ok" : "is-pending"}`}>
+            {hasValue ? "Ok" : "Obrigatorio"}
+          </span>
+        </div>
+
+        <p>Tire uma foto nitida do documento inteiro. Evite reflexos e cortes.</p>
+
+        <div className="facePhoto-actions">
+          <button
+            className="vf-button vf-button--primary facePhoto-button"
+            type="button"
+            disabled={disabled}
+            onClick={() => setOpenCam(true)}
+          >
+            {hasValue ? "Tirar novamente" : "Tirar foto"}
+          </button>
+
+          {hasValue ? (
+            <button
+              className="vf-button vf-button--secondary facePhoto-button"
+              type="button"
+              disabled={disabled}
+              onClick={() => onChange("")}
+            >
+              Remover
+            </button>
+          ) : null}
+        </div>
+
+        {error ? <span className="facePhoto-error">{error}</span> : null}
       </div>
 
       <DocumentCameraCapture
@@ -93,80 +94,9 @@ export function DocumentPhotoField({
         onClose={() => setOpenCam(false)}
         onCapture={async (file) => {
           const base64 = await fileToBase64(file);
-          onChange(base64);        // ✅ salva base64 no form
+          onChange(base64);
         }}
       />
-
-      {openPreview && hasValue && (
-        <div style={styles.previewBackdrop} onClick={() => setOpenPreview(false)}>
-          <div style={styles.previewModal} onClick={(e) => e.stopPropagation()}>
-            <div style={styles.previewTop}>
-              <strong>Pré-visualização</strong>
-              <button type="button" onClick={() => setOpenPreview(false)} style={styles.closeBtn}>
-                Fechar
-              </button>
-            </div>
-            <img src={previewSrc} alt="preview-large" style={styles.previewLarge} />
-          </div>
-        </div>
-      )}
-    </div>
+    </section>
   );
 }
-
-const styles: Record<string, any> = {
-  wrap: { border: "1px solid #ddd", borderRadius: 14, background: "#fff", marginTop: 18, overflow: "hidden" },
-  header: { padding: 12, display: "flex", gap: 12, justifyContent: "space-between", background: "#f6f6f6" },
-  badge: (kind: "ok" | "warn") => ({
-    fontSize: 12,
-    padding: "4px 10px",
-    borderRadius: 999,
-    background: kind === "ok" ? "#dcfce7" : "#fee2e2",
-    border: "1px solid",
-    borderColor: kind === "ok" ? "#86efac" : "#fca5a5",
-    fontWeight: 600,
-  }),
-  body: { padding: 14 },
-  empty: { display: "flex", flexDirection: "column", gap: 10 },
-  filled: { display: "flex", flexDirection: "column", gap: 10 },
-  actionsRow: { display: "flex", gap: 10, flexWrap: "wrap" },
-
-  primaryBtn: (d?: boolean) => ({
-    padding: "10px 14px",
-    borderRadius: 12,
-    background: "#2563eb",
-    color: "#fff",
-    border: "1px solid #2563eb",
-    cursor: d ? "not-allowed" : "pointer",
-    opacity: d ? 0.6 : 1,
-  }),
-  secondaryBtn: (d?: boolean) => ({
-    padding: "10px 14px",
-    borderRadius: 12,
-    background: "#fff",
-    border: "1px solid #ddd",
-    cursor: d ? "not-allowed" : "pointer",
-    opacity: d ? 0.6 : 1,
-  }),
-  dangerBtn: (d?: boolean) => ({
-    padding: "10px 14px",
-    borderRadius: 10,
-    background: "#fff",
-    border: "1px solid #fca5a5",
-    color: "#b91c1c",
-    cursor: d ? "not-allowed" : "pointer",
-    opacity: d ? 0.6 : 1,
-  }),
-
-  previewBtn: { width: "100%", borderRadius: 12, overflow: "hidden", background: "#000", position: "relative", border: 0, padding: 0 },
-  previewImg: { width: "100%", maxHeight: 220, objectFit: "cover" },
-  previewHint: { position: "absolute", bottom: 8, right: 8, background: "rgba(0,0,0,.55)", color: "#fff", padding: "4px 8px", borderRadius: 8, fontSize: 12 },
-
-  error: { marginTop: 8, color: "#b91c1c", fontSize: 13 },
-
-  previewBackdrop: { position: "fixed", inset: 0, background: "rgba(0,0,0,.75)", display: "grid", placeItems: "center", zIndex: 9999 },
-  previewModal: { width: "min(920px, 96vw)", background: "#111", borderRadius: 12 },
-  previewTop: { display: "flex", justifyContent: "space-between", padding: 12, color: "#fff", background: "#000" },
-  closeBtn: { background: "transparent", border: "1px solid #333", color: "#fff", padding: "6px 10px", borderRadius: 8 },
-  previewLarge: { width: "100%", objectFit: "contain", background: "#000" },
-};

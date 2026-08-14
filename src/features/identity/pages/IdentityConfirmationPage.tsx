@@ -185,6 +185,10 @@ function hasRejectedWithObservation(evaluations: Evaluations): boolean {
   );
 }
 
+function hasRejected(evaluations: Evaluations): boolean {
+  return Object.values(evaluations).some((item) => item.status === "reprovado");
+}
+
 function getPhotoMatchStatus(evaluations: Evaluations): EvaluationStatus {
   if (
     evaluations.foto.status === "aprovado" &&
@@ -447,6 +451,7 @@ export function IdentityConfirmationPage() {
   const totalPages = data?.totalPages ?? 0;
   const users = data?.content ?? [];
   const canApprove = isAllApproved(evaluations);
+  const canSendRejected = hasRejected(evaluations);
   const photoMatchStatus = getPhotoMatchStatus(evaluations);
   const photoMatchNote =
     evaluations.foto.observacao || evaluations.fotoDocumento.observacao;
@@ -608,7 +613,7 @@ export function IdentityConfirmationPage() {
                     <span className="identity-statusIcon" aria-hidden="true">
                       <IdentityIcon name="status" />
                     </span>
-                    <strong>Status Atual</strong>
+                    <span className="identity-statusTitle">Status Atual</span>
                     <em>{getReviewStatusLabel(selectedUser)}</em>
                   </section>
 
@@ -632,7 +637,9 @@ export function IdentityConfirmationPage() {
                             <div className="identity-memberAnalysisMain">
                               <div className="identity-memberFieldValue">
                                 <span>{field.label}</span>
-                                <strong>{field.getValue(selectedUser)}</strong>
+                                <span className="identity-memberValue">
+                                  {field.getValue(selectedUser)}
+                                </span>
                               </div>
 
                               <div className="identity-choiceGroup">
@@ -677,11 +684,15 @@ export function IdentityConfirmationPage() {
                     <div className="identity-memberStaticGrid">
                       <div>
                         <span>Cargo vinculado</span>
-                        <strong>{formatLabel(selectedUser.cargo)}</strong>
+                        <span className="identity-memberValue">
+                          {formatLabel(selectedUser.cargo)}
+                        </span>
                       </div>
                       <div>
                         <span>Campo declarado</span>
-                        <strong>{getCampoLabel(selectedUser)}</strong>
+                        <span className="identity-memberValue">
+                          {getCampoLabel(selectedUser)}
+                        </span>
                       </div>
                     </div>
                   </section>
@@ -726,7 +737,7 @@ export function IdentityConfirmationPage() {
 
                     <div className={`identity-photoQuestion is-${photoMatchStatus}`}>
                       <div className="identity-photoQuestionMain">
-                        <strong>As fotos correspondem à mesma pessoa?</strong>
+                        <span>As fotos correspondem à mesma pessoa?</span>
                         <div className="identity-choiceGroup">
                           <button
                             type="button"
@@ -766,7 +777,7 @@ export function IdentityConfirmationPage() {
 
                 <footer className="identity-drawerFooter">
                   <button
-                    className="identity-approveButton"
+                    className={`identity-approveButton ${canApprove ? "is-enabled" : "is-disabled"}`}
                     type="button"
                     disabled={!canApprove || submitting}
                     onClick={() => void handleApprove()}
@@ -780,7 +791,7 @@ export function IdentityConfirmationPage() {
                     <button
                       type="button"
                       className="identity-correctionButton"
-                      disabled={submitting}
+                      disabled={!canSendRejected || submitting}
                       onClick={() => void handleSolicitarCorrecao()}
                     >
                       <span aria-hidden="true">
@@ -791,7 +802,7 @@ export function IdentityConfirmationPage() {
                     <button
                       className="identity-rejectButton"
                       type="button"
-                      disabled={submitting}
+                      disabled={!canSendRejected || submitting}
                       onClick={() => void handleReprovar()}
                     >
                       <span aria-hidden="true">

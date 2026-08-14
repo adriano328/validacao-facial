@@ -28,8 +28,7 @@
   border-radius: 6px;
   background: var(--primary-800, #062f70);
   color: #ffffff;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
   padding: 0 14px;
   cursor: pointer;
 }
@@ -52,12 +51,11 @@
 }
 
 .privileges-table th {
-  height: 38px;
-  padding: 0 16px;
+  height: 36px;
+  padding: 0 12px;
   background: var(--gray-50, #f8f9fb);
   color: var(--gray-500, #667085);
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 11px;
   text-align: left;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -65,9 +63,9 @@
 
 .privileges-table td {
   border-top: 1px solid var(--gray-200, #e4e7ec);
-  padding: 10px 16px;
+  padding: 9px 12px;
   color: var(--gray-700, #344054);
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .privileges-userCell {
@@ -76,10 +74,9 @@
   gap: 10px;
 }
 
-.privileges-userCell strong {
+.privileges-userName {
   color: var(--gray-900, #101828);
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 12px;
 }
 
 .privileges-avatar {
@@ -92,7 +89,6 @@
   background: var(--gray-100, #f2f4f7);
   color: var(--gray-500, #667085);
   font-size: 12px;
-  font-weight: 700;
 }
 
 .privileges-avatar img {
@@ -107,8 +103,7 @@
   min-height: 24px;
   border-radius: 6px;
   padding: 0 10px;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
 }
 
 .privileges-role.is-votante {
@@ -127,13 +122,12 @@
 }
 
 .privileges-rowAction {
-  min-height: 32px;
+  min-height: 30px;
   border: 1px solid var(--primary-200, #b9d2ff);
   border-radius: 6px;
   background: var(--primary-50, #eef4ff);
   color: var(--primary-800, #062f70);
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 12px;
   padding: 0 12px;
   cursor: pointer;
 }
@@ -151,7 +145,6 @@
 .privileges-empty strong {
   color: var(--gray-900, #101828);
   font-size: 15px;
-  font-weight: 600;
 }
 
 .privileges-pagination {
@@ -163,7 +156,7 @@
   gap: 12px;
   padding: 0 16px;
   color: var(--gray-600, #475467);
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .privileges-pagination div {
@@ -255,21 +248,18 @@
 .privileges-radioGroup legend {
   color: var(--gray-500, #667085);
   font-size: 12px;
-  font-weight: 600;
 }
 
-.privileges-selectedMember strong {
+.privileges-selectedName {
   color: var(--gray-900, #101828);
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 12px;
 }
 
 .privileges-selectedMember em,
 .privileges-radioGroup em {
   color: var(--gray-600, #475467);
-  font-size: 13px;
+  font-size: 12px;
   font-style: normal;
-  font-weight: 400;
 }
 
 .privileges-radioGroup {
@@ -297,10 +287,9 @@
   gap: 4px;
 }
 
-.privileges-radioGroup strong {
+.privileges-roleTitle {
   color: var(--gray-900, #101828);
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 12px;
 }
 
 .privileges-saveButton:disabled {
