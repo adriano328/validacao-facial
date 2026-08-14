@@ -50,7 +50,7 @@ const evaluationApiFields: Record<EvaluationKey, CampoAnaliseUsuario> = {
 
 const statusOptions = [
   { value: "PENDENTE", label: "Pendente" },
-  { value: "CORRECAO_SOLICITADA", label: "Correção solicitada" },
+  { value: "REANALISE", label: "Reanálise" },
 ];
 
 const initialEvaluations: Evaluations = {
@@ -160,6 +160,7 @@ function getReviewStatusLabel(usuario: UsuarioResponse): string {
   const status = getCadastroStatus(usuario);
 
   if (status === "PENDENTE") return "Aguardando revisão";
+  if (status === "REANALISE") return "Em reanálise";
   return formatLabel(status);
 }
 

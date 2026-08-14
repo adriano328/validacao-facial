@@ -18,7 +18,7 @@ export type ObterInformacaoUsuarioResponse = {
   email?: string;
   cpf: string;
   status?: string;
-  situacaoUsuario?: string;
+  situacaoUsuario?: SituacaoUsuario;
   tipoUsuario?: TipoUsuario | number | string;
   foto?: string;
   fotoDocumento?: string;
@@ -35,7 +35,7 @@ export type UsuarioResponse = {
   campoEclesiastico?: CampoEclesiastico;
   cargo: string;
   status: string;
-  situacaoUsuario?: string;
+  situacaoUsuario?: SituacaoUsuario;
   tipoUsuario: TipoUsuario | number | string;
   foto: string;
   fotoDocumento: string;
@@ -50,6 +50,13 @@ export type CampoAnaliseUsuario =
 
 export type ResultadoAnaliseUsuario = "APROVADO" | "REPROVADO";
 
+export type SituacaoUsuario =
+  | "APROVADO"
+  | "PENDENTE"
+  | "REANALISE"
+  | "CORRECAO_SOLICITADA"
+  | "REPROVADO";
+
 export type UsuarioAnaliseItemRequest = {
   campo: CampoAnaliseUsuario;
   resultado: ResultadoAnaliseUsuario;
@@ -62,7 +69,7 @@ export type UsuarioAnaliseRequest = {
 
 export type UsuarioAnaliseResponse = {
   id: number;
-  resultado: string;
+  resultado: SituacaoUsuario;
   avaliadorEmail?: string;
   observacao?: string;
   criadoEm: string;

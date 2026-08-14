@@ -42,6 +42,10 @@ function formatDateTime(value?: string | null): string {
 function formatLabel(value?: string | null): string {
   if (!value) return "-";
 
+  if (value === "REANALISE") {
+    return "Em reanálise";
+  }
+
   return value
     .toLowerCase()
     .split("_")

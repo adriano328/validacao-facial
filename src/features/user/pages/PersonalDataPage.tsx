@@ -85,9 +85,11 @@ function getSituacaoLabel(value?: string | null): string {
     case "APROVADO":
       return "Aprovado";
     case "PENDENTE":
-      return "Aguardando revisao";
+      return "Aguardando revisão";
+    case "REANALISE":
+      return "Em reanálise";
     case "CORRECAO_SOLICITADA":
-      return "Correcao solicitada";
+      return "Correção solicitada";
     case "REPROVADO":
       return "Reprovado";
     default:
@@ -185,8 +187,9 @@ export function PersonalDataPage() {
   });
 
   const situacaoUsuario = usuario?.situacaoUsuario ?? "";
-  const aguardandoRevisao = situacaoUsuario === "PENDENTE";
-  const readonly = aguardandoRevisao || saving;
+  const aguardandoAnalise =
+    situacaoUsuario === "PENDENTE" || situacaoUsuario === "REANALISE";
+  const readonly = aguardandoAnalise || saving;
   const precisaCorrigir =
     situacaoUsuario === "REPROVADO" || situacaoUsuario === "CORRECAO_SOLICITADA";
 
@@ -353,7 +356,7 @@ export function PersonalDataPage() {
   }
 
   async function handleSalvar() {
-    if (!usuario || saving || aguardandoRevisao) return;
+    if (!usuario || saving || aguardandoAnalise) return;
 
     const nextErrors = validarFormulario(form, precisaCorrigir);
     setErrors(nextErrors);
@@ -404,7 +407,7 @@ export function PersonalDataPage() {
       await alerts.success({
         title: "Dados salvos",
         text: precisaCorrigir
-          ? "Seu cadastro foi enviado para reanalise."
+          ? "Seu cadastro foi enviado para reanálise."
           : "Suas informacoes foram atualizadas.",
       });
     } catch (err) {
@@ -451,7 +454,7 @@ export function PersonalDataPage() {
               <h3>Apontamentos da analise</h3>
               <p>
                 Corrija os campos indicados e salve para enviar o cadastro para
-                reanalise.
+                reanálise.
               </p>
             </div>
 
@@ -474,11 +477,11 @@ export function PersonalDataPage() {
           </section>
         ) : null}
 
-        {aguardandoRevisao ? (
+        {aguardandoAnalise ? (
           <section className="personal-readonlyNotice" aria-label="Cadastro em revisao">
-            <h3>Cadastro em revisao</h3>
+            <h3>{situacaoUsuario === "REANALISE" ? "Cadastro em reanálise" : "Cadastro em revisão"}</h3>
             <p>
-              Suas informacoes foram enviadas para analise. Enquanto a revisao
+              Suas informacoes foram enviadas para analise. Enquanto a verificacao
               estiver pendente, esta tela fica disponivel apenas para consulta.
             </p>
           </section>
