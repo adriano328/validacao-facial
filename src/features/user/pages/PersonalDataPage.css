@@ -2,15 +2,15 @@
   border: 1px solid var(--gray-200, #e4e7ec);
   border-radius: 8px;
   background: #ffffff;
-  padding: 18px;
+  padding: 16px;
   display: grid;
-  grid-template-columns: 148px minmax(0, 1fr);
-  gap: 18px;
+  grid-template-columns: 128px minmax(0, 1fr);
+  gap: 16px;
 }
 
 .personal-photo {
-  width: 148px;
-  height: 148px;
+  width: 128px;
+  height: 128px;
   border-radius: 8px;
   overflow: hidden;
   background: var(--gray-100, #f2f4f7);
@@ -29,18 +29,18 @@
 .personal-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
 .personal-field {
-  min-height: 66px;
+  min-height: 58px;
   border: 1px solid var(--gray-200, #e4e7ec);
   border-radius: 8px;
   background: var(--gray-50, #f8f9fb);
-  padding: 10px 12px;
+  padding: 8px 11px;
   display: grid;
   align-content: center;
-  gap: 5px;
+  gap: 4px;
 }
 
 .personal-field span {

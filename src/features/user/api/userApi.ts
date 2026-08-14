@@ -32,6 +32,7 @@ export type UsuarioResponse = {
   telefone: string;
   dataNascimento: string;
   campoEclesiasticoId: number;
+  campoEclesiastico?: CampoEclesiastico;
   cargo: string;
   status: string;
   situacaoUsuario?: string;

@@ -1,24 +1,24 @@
 .portal-page {
   display: grid;
-  gap: 20px;
+  gap: 18px;
 }
 
 .portal-pageHeader {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .portal-pageHeader h1 {
   margin: 0;
   color: var(--gray-900, #101828);
-  font-size: 22px;
+  font-size: 21px;
   line-height: 1.2;
   font-weight: 600;
   letter-spacing: -0.02em;
 }
 
 .portal-pageHeader p {
-  max-width: 760px;
+  max-width: 680px;
   margin: 0;
   color: var(--gray-600, #475467);
   font-size: 13px;
@@ -31,7 +31,7 @@
   border-radius: 8px;
   background: #ffffff;
   color: var(--gray-600, #475467);
-  padding: 18px;
+  padding: 14px 16px;
   font-size: 13px;
 }
 
@@ -73,7 +73,7 @@
   border: 1px solid var(--gray-200, #e4e7ec);
   border-radius: 8px;
   background: var(--background-surface, #ffffff);
-  padding: 18px;
+  padding: 16px;
 }
 
 .home-summaryHeader {
@@ -81,7 +81,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .home-summaryHeader h2,
@@ -96,18 +96,18 @@
 .home-summaryGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
 .home-summaryItem {
-  min-height: 72px;
+  min-height: 58px;
   border: 1px solid var(--gray-100, #f2f4f7);
   border-radius: 8px;
   background: var(--gray-50, #f8f9fb);
-  padding: 12px 14px;
+  padding: 10px 12px;
   display: grid;
   align-content: center;
-  gap: 7px;
+  gap: 5px;
 }
 
 .home-summaryItem span {
@@ -127,25 +127,25 @@
 
 .home-quick {
   display: grid;
-  gap: 14px;
+  gap: 12px;
 }
 
 .home-quickGrid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 .home-quickCard {
-  min-height: 168px;
+  min-height: 136px;
   border: 1px solid var(--gray-200, #e4e7ec);
   border-radius: 8px;
   background: #ffffff;
-  padding: 18px;
+  padding: 16px;
   text-align: left;
   display: grid;
   align-content: start;
-  gap: 10px;
+  gap: 8px;
   position: relative;
   cursor: pointer;
   color: var(--gray-700, #344054);
@@ -162,8 +162,8 @@
 }
 
 .home-quickIcon {
-  width: 42px;
-  height: 42px;
+  width: 36px;
+  height: 36px;
   border-radius: 999px;
   display: grid;
   place-items: center;
@@ -172,31 +172,31 @@
 }
 
 .home-quickIcon svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   fill: currentColor;
 }
 
 .home-quickCard strong {
   color: var(--gray-900, #101828);
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.25;
   font-weight: 600;
 }
 
 .home-quickCard > span:not(.home-quickIcon) {
   color: var(--gray-600, #475467);
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 12.5px;
+  line-height: 1.45;
   font-weight: 400;
 }
 
 .home-quickCard em {
   position: absolute;
-  right: 18px;
-  bottom: 16px;
+  right: 16px;
+  bottom: 14px;
   color: var(--gray-500, #667085);
-  font-size: 24px;
+  font-size: 20px;
   line-height: 1;
   font-style: normal;
 }
@@ -209,7 +209,7 @@
 
 @media (max-width: 640px) {
   .home-summary {
-    padding: 18px;
+    padding: 16px;
   }
 
   .home-summaryHeader {
@@ -223,6 +223,6 @@
   }
 
   .home-quickCard {
-    min-height: 156px;
+    min-height: 132px;
   }
 }

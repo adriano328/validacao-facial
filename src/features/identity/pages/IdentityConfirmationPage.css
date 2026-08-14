@@ -149,7 +149,7 @@
 }
 
 .identity-drawer {
-  width: min(520px, 100vw);
+  width: min(408px, 100vw);
   position: fixed;
   top: 0;
   right: 0;
@@ -158,29 +158,32 @@
   display: flex;
   flex-direction: column;
   background: #ffffff;
-  box-shadow: -18px 0 36px rgba(16, 24, 40, 0.12);
+  border-radius: 18px 0 0 0;
+  box-shadow: -18px 0 44px rgba(16, 24, 40, 0.16);
+  overflow: hidden;
 }
 
 .identity-drawerHeader {
-  min-height: 72px;
+  min-height: 76px;
   border-bottom: 1px solid var(--gray-200, #e4e7ec);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px 20px;
+  padding: 18px 18px 15px;
+  background: #ffffff;
 }
 
 .identity-drawerHeader h2 {
   margin: 0;
   color: var(--primary-800, #062f70);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
 }
 
 .identity-drawerHeader span {
-  color: var(--gray-600, #475467);
-  font-size: 13px;
+  color: var(--gray-700, #344054);
+  font-size: 11px;
 }
 
 .identity-drawerHeader button {
@@ -188,8 +191,8 @@
   height: 32px;
   border: 0;
   border-radius: 6px;
-  background: var(--gray-50, #f8f9fb);
-  color: var(--gray-700, #344054);
+  background: transparent;
+  color: var(--primary-800, #062f70);
   font-size: 22px;
   cursor: pointer;
 }
@@ -197,211 +200,259 @@
 .identity-drawerBody {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 20px 102px;
+  padding: 20px 18px 132px;
   display: grid;
   align-content: start;
-  gap: 12px;
+  gap: 18px;
+  background: #f6f7f9;
 }
 
 .identity-drawerCard {
   border: 1px solid var(--gray-200, #e4e7ec);
   border-radius: 12px;
   background: #ffffff;
-  padding: 14px;
+  padding: 16px;
   display: grid;
   gap: 12px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 }
 
 .identity-drawerCard h3 {
   margin: 0;
   color: var(--primary-800, #062f70);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
 }
 
 .identity-drawerCard p {
   margin: 0;
   color: var(--gray-600, #475467);
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .identity-statusCard {
-  display: flex;
+  min-height: 62px;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
+  gap: 10px;
 }
 
-.identity-statusCard span {
-  color: var(--gray-700, #344054);
-  font-size: 13px;
-  font-weight: 500;
+.identity-statusIcon,
+.identity-cardIcon {
+  display: inline-grid;
+  place-items: center;
+  color: var(--primary-800, #062f70);
+}
+
+.identity-statusIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: var(--primary-50, #eef4ff);
+}
+
+.identity-statusIcon svg,
+.identity-cardIcon svg,
+.identity-drawerFooter svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
 }
 
 .identity-statusCard strong {
-  border-radius: 999px;
-  background: var(--primary-100, #d9e7ff);
-  color: var(--primary-800, #062f70);
-  padding: 6px 10px;
-  font-size: 12px;
+  color: var(--gray-900, #101828);
+  font-size: 13px;
   font-weight: 600;
 }
 
-.identity-memberGrid {
+.identity-statusCard em {
+  border-radius: 999px;
+  background: #dce6ff;
+  color: var(--primary-800, #062f70);
+  padding: 7px 11px;
+  font-size: 10px;
+  font-weight: 600;
+  font-style: normal;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.identity-cardTitle {
+  border-bottom: 1px solid var(--gray-200, #e4e7ec);
+  padding-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.identity-memberRows {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
-.identity-memberGrid div {
-  border: 1px solid var(--gray-200, #e4e7ec);
+.identity-memberAnalysisField,
+.identity-photoQuestion {
+  border: 1px solid var(--gray-100, #f2f4f7);
   border-radius: 8px;
   background: var(--gray-50, #f8f9fb);
-  padding: 10px;
+  padding: 11px 12px;
   display: grid;
-  gap: 6px;
+  gap: 10px;
 }
 
-.identity-memberGrid span {
-  color: var(--gray-500, #667085);
-  font-size: 12px;
+.identity-memberAnalysisMain,
+.identity-photoQuestionMain {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.identity-memberFieldValue {
+  display: grid;
+  gap: 4px;
+}
+
+.identity-memberFieldValue span,
+.identity-memberStaticGrid span,
+.identity-fieldReason span,
+.identity-photoLabel {
+  color: var(--primary-800, #062f70);
+  font-size: 9px;
   font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.identity-memberGrid strong {
+.identity-memberFieldValue strong,
+.identity-memberStaticGrid strong {
   color: var(--gray-900, #101828);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   overflow-wrap: anywhere;
 }
 
-.identity-docGrid {
+.identity-choiceGroup {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.identity-choiceGroup button {
+  min-width: 72px;
+  min-height: 26px;
+  border: 1px solid var(--gray-200, #e4e7ec);
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--gray-800, #1d2939);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.identity-choiceGroup button.is-approved {
+  border-color: #ffc7b8;
+  background: #fff1ec;
+  color: #7a271a;
+}
+
+.identity-choiceGroup button.is-rejected {
+  border-color: #fca5a5;
+  background: #fee2e2;
+  color: var(--danger-700, #b42318);
+}
+
+.identity-fieldReason {
+  border-top: 1px solid var(--gray-200, #e4e7ec);
+  padding-top: 9px;
+  display: grid;
+  gap: 7px;
+}
+
+.identity-fieldReason input {
+  width: 100%;
+  height: 32px;
+  border: 1px solid var(--gray-200, #e4e7ec);
+  border-radius: 7px;
+  background: #ffffff;
+  color: var(--gray-800, #1d2939);
+  font-size: 12px;
+  padding: 0 10px;
+  outline: none;
+}
+
+.identity-fieldReason input:focus {
+  border-color: var(--primary-300, #8bb5ff);
+  box-shadow: 0 0 0 3px rgba(21, 86, 184, 0.08);
+}
+
+.identity-memberStaticGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.identity-docGrid button {
-  border: 1px dashed var(--gray-300, #d0d5dd);
+  gap: 0;
+  border: 1px solid var(--gray-100, #f2f4f7);
   border-radius: 8px;
-  background: var(--gray-50, #f8f9fb);
-  padding: 10px;
-  display: grid;
-  gap: 8px;
-  cursor: pointer;
-  color: var(--gray-700, #344054);
+  overflow: hidden;
 }
 
-.identity-docGrid img,
-.identity-docGrid button > span {
+.identity-memberStaticGrid div {
+  min-height: 54px;
+  background: #ffffff;
+  padding: 11px 12px;
+  display: grid;
+  align-content: center;
+  gap: 5px;
+}
+
+.identity-memberStaticGrid div + div {
+  border-left: 1px solid var(--gray-100, #f2f4f7);
+}
+
+.identity-photoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.identity-photoPreviewButton {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  gap: 8px;
+  display: grid;
+  cursor: pointer;
+  color: var(--primary-800, #062f70);
+}
+
+.identity-photoLabel {
+  width: fit-content;
+  justify-self: center;
+  border-radius: 999px;
+  background: var(--gray-50, #f8f9fb);
+  padding: 4px 9px;
+  color: var(--gray-800, #1d2939);
+}
+
+.identity-photoPreviewButton img,
+.identity-photoPlaceholder {
   width: 100%;
-  aspect-ratio: 4 / 3;
-  border-radius: 6px;
+  aspect-ratio: 3 / 4;
+  border-radius: 10px;
   object-fit: cover;
   background: var(--gray-100, #f2f4f7);
   display: grid;
   place-items: center;
+  color: var(--gray-500, #667085);
+  font-size: 12px;
 }
 
-.identity-docGrid strong {
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.identity-evaluationList {
-  display: grid;
-  gap: 12px;
-}
-
-.identity-evaluationItem {
-  border: 1px solid var(--gray-200, #e4e7ec);
-  border-radius: 8px;
-  padding: 10px;
-  display: grid;
-  gap: 8px;
-}
-
-.identity-evaluationHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.identity-evaluationHeader strong {
-  color: var(--gray-900, #101828);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.identity-evaluationStatus {
-  border-radius: 999px;
-  padding: 5px 9px;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.identity-evaluationStatus.is-pendente {
-  background: var(--warning-50, #fffaeb);
-  color: var(--warning-700, #b7791f);
-}
-
-.identity-evaluationStatus.is-aprovado {
-  background: var(--success-50, #ecfdf3);
-  color: var(--success-700, #157347);
-}
-
-.identity-evaluationStatus.is-reprovado {
-  background: var(--danger-50, #fef3f2);
-  color: var(--danger-700, #b42318);
-}
-
-.identity-evaluationActions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.identity-evaluationActions button {
-  min-height: 34px;
-  border: 1px solid var(--gray-300, #d0d5dd);
-  border-radius: 6px;
+.identity-photoQuestion {
   background: #ffffff;
-  color: var(--gray-700, #344054);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.identity-evaluationActions button.is-selected {
-  border-color: var(--success-600, #198754);
-  background: var(--success-50, #ecfdf3);
-  color: var(--success-700, #157347);
-}
-
-.identity-evaluationActions button.is-danger {
-  border-color: var(--danger-600, #d92d20);
-  background: var(--danger-50, #fef3f2);
-  color: var(--danger-700, #b42318);
-}
-
-.identity-note {
-  display: grid;
-  gap: 6px;
-  color: var(--gray-700, #344054);
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.identity-note textarea {
-  min-height: 72px;
-  resize: vertical;
-  border: 1px solid var(--gray-300, #d0d5dd);
-  border-radius: 6px;
-  padding: 9px 11px;
-  color: var(--gray-800, #1d2939);
-  font-size: 13px;
-  font-family: inherit;
 }
 
 .identity-drawerFooter {
@@ -410,21 +461,26 @@
   right: 0;
   bottom: 0;
   border-top: 1px solid var(--gray-200, #e4e7ec);
-  background: #ffffff;
-  padding: 12px 20px 14px;
+  background: rgba(255, 255, 255, 0.96);
+  padding: 16px 18px 20px;
   display: grid;
-  gap: 10px;
+  gap: 12px;
+  box-shadow: 0 -10px 24px rgba(16, 24, 40, 0.08);
 }
 
 .identity-drawerFooter button {
-  min-height: 38px;
-  border-radius: 6px;
+  min-height: 42px;
+  border-radius: 8px;
   border: 1px solid var(--gray-300, #d0d5dd);
   background: #ffffff;
   color: var(--gray-700, #344054);
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
 }
 
 .identity-drawerFooter button:disabled {
@@ -439,9 +495,21 @@
 }
 
 .identity-approveButton {
-  border-color: var(--primary-800, #062f70) !important;
-  background: var(--primary-800, #062f70) !important;
+  border-color: var(--primary-800, #062f70);
+  background: var(--primary-800, #062f70);
   color: #ffffff !important;
+}
+
+.identity-approveButton:disabled {
+  border-color: #9a9a9a !important;
+  background: #969696 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.identity-correctionButton {
+  border-color: var(--gray-400, #98a2b3) !important;
+  color: var(--gray-700, #344054) !important;
 }
 
 .identity-rejectButton {
@@ -480,14 +548,30 @@
 
 @media (max-width: 640px) {
   .identity-toolbar,
-  .identity-memberGrid,
-  .identity-docGrid,
+  .identity-memberAnalysisMain,
+  .identity-photoQuestionMain,
+  .identity-memberStaticGrid,
+  .identity-photoGrid,
   .identity-drawerFooter > div {
     grid-template-columns: 1fr;
   }
 
+  .identity-drawer {
+    width: 100vw;
+    border-radius: 0;
+  }
+
   .identity-search {
     grid-column: auto;
+  }
+
+  .identity-memberStaticGrid div + div {
+    border-top: 1px solid var(--gray-100, #f2f4f7);
+    border-left: 0;
+  }
+
+  .identity-choiceGroup button {
+    flex: 1;
   }
 
   .identity-drawerBody {

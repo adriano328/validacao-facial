@@ -201,7 +201,7 @@ export function AppLayout() {
           </div>
         </header>
 
-        <main className="appLayout-main">
+        <main className="appLayout-main" aria-label={getPageTitle(location.pathname)}>
           <Outlet />
         </main>
       </div>

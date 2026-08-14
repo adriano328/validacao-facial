@@ -7,10 +7,10 @@
 }
 
 .brandMark .brandMark-logo {
-  width: 60px;
-  height: 60px;
+  width: 76px;
+  height: 76px;
   object-fit: contain;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .brandMark .brandMark-title {
@@ -42,8 +42,8 @@
 
 @media (max-width: 480px) {
   .brandMark .brandMark-logo {
-    width: 58px;
-    height: 58px;
+    width: 68px;
+    height: 68px;
   }
 
   .brandMark .brandMark-title {

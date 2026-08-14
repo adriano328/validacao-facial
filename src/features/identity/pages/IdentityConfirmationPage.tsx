@@ -21,6 +21,7 @@ import "./IdentityConfirmationPage.css";
 
 type EvaluationStatus = "pendente" | "aprovado" | "reprovado";
 type EvaluationKey = "foto" | "nome" | "cpf" | "dataNascimento" | "fotoDocumento";
+type IdentityIconName = "status" | "member" | "document" | "check" | "correction" | "reject";
 
 type EvaluationItem = {
   status: EvaluationStatus;
@@ -60,6 +61,51 @@ const initialEvaluations: Evaluations = {
   fotoDocumento: { status: "pendente", observacao: "" },
 };
 
+const memberEvaluationFields: Array<{
+  key: Extract<EvaluationKey, "nome" | "cpf" | "dataNascimento">;
+  label: string;
+  getValue: (usuario: UsuarioResponse) => string;
+}> = [
+  {
+    key: "nome",
+    label: "Nome completo",
+    getValue: (usuario) => usuario.nome,
+  },
+  {
+    key: "cpf",
+    label: "CPF",
+    getValue: (usuario) => maskCPF(usuario.cpf ?? ""),
+  },
+  {
+    key: "dataNascimento",
+    label: "Data de nascimento",
+    getValue: (usuario) => formatDateWithAge(usuario.dataNascimento),
+  },
+];
+
+function IdentityIcon({ name }: { name: IdentityIconName }) {
+  const paths: Record<IdentityIconName, string> = {
+    status:
+      "M8 4h8v2h3v14H5V6h3V4Zm2 2h4V5h-4v1ZM7 8v10h10V8H7Zm2 3h6v2H9v-2Zm0 3h4v2H9v-2Z",
+    member:
+      "M7 3h10a1 1 0 0 1 1 1v16H6V4a1 1 0 0 1 1-1Zm1 2v14h8V5H8Zm2 2h4v2h-4V7Zm0 4h4v2h-4v-2Zm0 4h3v2h-3v-2Z",
+    document:
+      "M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14H4V5Zm2 0v12h12V5H6Zm2 2h4v4H8V7Zm6 1h2v2h-2V8Zm-6 5h8v2H8v-2Z",
+    check:
+      "M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm-1.1 13.6 6-6-1.4-1.4-4.6 4.6-2.1-2.1-1.4 1.4 3.5 3.5Z",
+    correction:
+      "M4 6h12v2H4V6Zm0 5h8v2H4v-2Zm12.7.3 1.4 1.4-4.8 4.8H12v-1.3l4.7-4.9Zm2.1-2.1.7.7a1 1 0 0 1 0 1.4l-.7.7-1.4-1.4.7-.7a1 1 0 0 1 .7-.3ZM4 16h6v2H4v-2Z",
+    reject:
+      "M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm-4.2 6.4 7.8 7.8.6-.6-7.8-7.8-.6.6Zm1.4 9.4 8.6-8.6-1.4-1.4-8.6 8.6 1.4 1.4Z",
+  };
+
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d={paths[name]} />
+    </svg>
+  );
+}
+
 function formatLabel(value?: string | number | null): string {
   if (value === null || value === undefined || value === "") return "-";
   return String(value)
@@ -74,6 +120,25 @@ function formatDate(value?: string | null): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" }).format(date);
+}
+
+function formatDateWithAge(value?: string | null): string {
+  if (!value) return "-";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+
+  const today = new Date();
+  let age = today.getFullYear() - date.getFullYear();
+  const birthdayPassed =
+    today.getMonth() > date.getMonth() ||
+    (today.getMonth() === date.getMonth() && today.getDate() >= date.getDate());
+
+  if (!birthdayPassed) age -= 1;
+
+  const formattedDate = formatDate(value);
+
+  return age >= 0 ? `${formattedDate} (${age} anos)` : formattedDate;
 }
 
 function getImageSrc(value?: string | null): string | null {
@@ -91,6 +156,20 @@ function getCadastroStatus(usuario: UsuarioResponse): string {
   return usuario.situacaoUsuario ?? usuario.status ?? "PENDENTE";
 }
 
+function getReviewStatusLabel(usuario: UsuarioResponse): string {
+  const status = getCadastroStatus(usuario);
+
+  if (status === "PENDENTE") return "Aguardando revisão";
+  return formatLabel(status);
+}
+
+function getCampoLabel(usuario: UsuarioResponse): string {
+  return (
+    usuario.campoEclesiastico?.nomeCampo ??
+    (usuario.campoEclesiasticoId ? `Campo ${usuario.campoEclesiasticoId}` : "-")
+  );
+}
+
 function isAllApproved(evaluations: Evaluations): boolean {
   return Object.values(evaluations).every((item) => item.status === "aprovado");
 }
@@ -104,6 +183,24 @@ function hasRejectedWithObservation(evaluations: Evaluations): boolean {
     rejected.length > 0 &&
     rejected.every((item) => item.observacao.trim().length > 0)
   );
+}
+
+function getPhotoMatchStatus(evaluations: Evaluations): EvaluationStatus {
+  if (
+    evaluations.foto.status === "aprovado" &&
+    evaluations.fotoDocumento.status === "aprovado"
+  ) {
+    return "aprovado";
+  }
+
+  if (
+    evaluations.foto.status === "reprovado" ||
+    evaluations.fotoDocumento.status === "reprovado"
+  ) {
+    return "reprovado";
+  }
+
+  return "pendente";
 }
 
 function toApiResultado(status: EvaluationStatus): ResultadoAnaliseUsuario | null {
@@ -228,6 +325,35 @@ export function IdentityConfirmationPage() {
     }));
   }
 
+  function setPhotoMatchStatus(nextStatus: Extract<EvaluationStatus, "aprovado" | "reprovado">) {
+    setEvaluations((current) => ({
+      ...current,
+      foto: {
+        status: nextStatus,
+        observacao: nextStatus === "reprovado" ? current.foto.observacao : "",
+      },
+      fotoDocumento: {
+        status: nextStatus,
+        observacao:
+          nextStatus === "reprovado" ? current.fotoDocumento.observacao : "",
+      },
+    }));
+  }
+
+  function setPhotoMatchNote(observacao: string) {
+    setEvaluations((current) => ({
+      ...current,
+      foto: {
+        ...current.foto,
+        observacao,
+      },
+      fotoDocumento: {
+        ...current.fotoDocumento,
+        observacao,
+      },
+    }));
+  }
+
   async function handleApprove() {
     if (!selectedUser || !isAllApproved(evaluations) || submitting) return;
 
@@ -321,7 +447,9 @@ export function IdentityConfirmationPage() {
   const totalPages = data?.totalPages ?? 0;
   const users = data?.content ?? [];
   const canApprove = isAllApproved(evaluations);
-  const canSendRejected = hasRejectedWithObservation(evaluations);
+  const photoMatchStatus = getPhotoMatchStatus(evaluations);
+  const photoMatchNote =
+    evaluations.foto.observacao || evaluations.fotoDocumento.observacao;
   const facePhoto = getImageSrc(selectedUser?.foto);
   const documentPhoto = getImageSrc(selectedUser?.fotoDocumento);
 
@@ -477,85 +605,67 @@ export function IdentityConfirmationPage() {
               <>
                 <div className="identity-drawerBody">
                   <section className="identity-drawerCard identity-statusCard">
-                    <span>Status atual</span>
-                    <strong>{formatLabel(getCadastroStatus(selectedUser))}</strong>
+                    <span className="identity-statusIcon" aria-hidden="true">
+                      <IdentityIcon name="status" />
+                    </span>
+                    <strong>Status Atual</strong>
+                    <em>{getReviewStatusLabel(selectedUser)}</em>
                   </section>
 
-                  <section className="identity-drawerCard">
-                    <h3>Dados do membro</h3>
-                    <div className="identity-memberGrid">
-                      <div>
-                        <span>Nome completo</span>
-                        <strong>{selectedUser.nome}</strong>
-                      </div>
-                      <div>
-                        <span>CPF</span>
-                        <strong>{maskCPF(selectedUser.cpf ?? "")}</strong>
-                      </div>
-                      <div>
-                        <span>Data de nascimento</span>
-                        <strong>{formatDate(selectedUser.dataNascimento)}</strong>
-                      </div>
-                      <div>
-                        <span>Cargo vinculado</span>
-                        <strong>{formatLabel(selectedUser.cargo)}</strong>
-                      </div>
-                    </div>
-                  </section>
+                  <section className="identity-drawerCard identity-memberCard">
+                    <header className="identity-cardTitle">
+                      <span className="identity-cardIcon" aria-hidden="true">
+                        <IdentityIcon name="member" />
+                      </span>
+                      <h3>Dados do Membro</h3>
+                    </header>
 
-                  <section className="identity-drawerCard">
-                    <h3>Documentação</h3>
-                    <p>Verifique se a foto do membro corresponde ao documento oficial.</p>
-                    <div className="identity-docGrid">
-                      <button type="button" onClick={() => facePhoto && setPreview(facePhoto)}>
-                        {facePhoto ? <img src={facePhoto} alt="Foto do membro" /> : <span>Sem foto</span>}
-                        <strong>Foto do membro</strong>
-                      </button>
-                      <button type="button" onClick={() => documentPhoto && setPreview(documentPhoto)}>
-                        {documentPhoto ? <img src={documentPhoto} alt="Foto do documento" /> : <span>Sem documento</span>}
-                        <strong>Foto do documento</strong>
-                      </button>
-                    </div>
-                  </section>
+                    <div className="identity-memberRows">
+                      {memberEvaluationFields.map((field) => {
+                        const item = evaluations[field.key];
 
-                  <section className="identity-drawerCard">
-                    <h3>Validação individual</h3>
-                    <div className="identity-evaluationList">
-                      {(Object.keys(evaluationLabels) as EvaluationKey[]).map((key) => {
-                        const item = evaluations[key];
                         return (
-                          <div className="identity-evaluationItem" key={key}>
-                            <div className="identity-evaluationHeader">
-                              <strong>{evaluationLabels[key]}</strong>
-                              <span className={`identity-evaluationStatus is-${item.status}`}>
-                                {formatLabel(item.status)}
-                              </span>
-                            </div>
+                          <div
+                            className={`identity-memberAnalysisField is-${item.status}`}
+                            key={field.key}
+                          >
+                            <div className="identity-memberAnalysisMain">
+                              <div className="identity-memberFieldValue">
+                                <span>{field.label}</span>
+                                <strong>{field.getValue(selectedUser)}</strong>
+                              </div>
 
-                            <div className="identity-evaluationActions">
-                              <button
-                                type="button"
-                                className={item.status === "aprovado" ? "is-selected" : ""}
-                                onClick={() => setEvaluationStatus(key, "aprovado")}
-                              >
-                                Aprovado
-                              </button>
-                              <button
-                                type="button"
-                                className={item.status === "reprovado" ? "is-selected is-danger" : ""}
-                                onClick={() => setEvaluationStatus(key, "reprovado")}
-                              >
-                                Reprovado
-                              </button>
+                              <div className="identity-choiceGroup">
+                                <button
+                                  type="button"
+                                  className={
+                                    item.status === "aprovado" ? "is-approved" : ""
+                                  }
+                                  onClick={() => setEvaluationStatus(field.key, "aprovado")}
+                                >
+                                  Aprovar
+                                </button>
+                                <button
+                                  type="button"
+                                  className={
+                                    item.status === "reprovado" ? "is-rejected" : ""
+                                  }
+                                  onClick={() => setEvaluationStatus(field.key, "reprovado")}
+                                >
+                                  Reprovar
+                                </button>
+                              </div>
                             </div>
 
                             {item.status === "reprovado" ? (
-                              <label className="identity-note">
-                                Motivo *
-                                <textarea
+                              <label className="identity-fieldReason">
+                                <span>Motivo da Reprovação</span>
+                                <input
                                   value={item.observacao}
-                                  onChange={(event) => setEvaluationNote(key, event.target.value)}
-                                  placeholder="Descreva o motivo da reprovação deste atributo."
+                                  onChange={(event) =>
+                                    setEvaluationNote(field.key, event.target.value)
+                                  }
+                                  placeholder="Informe o motivo da divergência..."
                                 />
                               </label>
                             ) : null}
@@ -563,7 +673,95 @@ export function IdentityConfirmationPage() {
                         );
                       })}
                     </div>
+
+                    <div className="identity-memberStaticGrid">
+                      <div>
+                        <span>Cargo vinculado</span>
+                        <strong>{formatLabel(selectedUser.cargo)}</strong>
+                      </div>
+                      <div>
+                        <span>Campo declarado</span>
+                        <strong>{getCampoLabel(selectedUser)}</strong>
+                      </div>
+                    </div>
                   </section>
+
+                  <section className="identity-drawerCard identity-photoCard">
+                    <header className="identity-cardTitle">
+                      <span className="identity-cardIcon" aria-hidden="true">
+                        <IdentityIcon name="document" />
+                      </span>
+                      <h3>Documentação Fotográfica</h3>
+                    </header>
+                    <p>
+                      Compare visualmente a selfie enviada com a foto do documento
+                      oficial para confirmar a identidade.
+                    </p>
+                    <div className="identity-photoGrid">
+                      <button
+                        className="identity-photoPreviewButton"
+                        type="button"
+                        onClick={() => facePhoto && setPreview(facePhoto)}
+                      >
+                        <span className="identity-photoLabel">Foto do Membro (Selfie)</span>
+                        {facePhoto ? (
+                          <img src={facePhoto} alt="Foto do membro" />
+                        ) : (
+                          <span className="identity-photoPlaceholder">Sem foto</span>
+                        )}
+                      </button>
+                      <button
+                        className="identity-photoPreviewButton"
+                        type="button"
+                        onClick={() => documentPhoto && setPreview(documentPhoto)}
+                      >
+                        <span className="identity-photoLabel">Documento Oficial</span>
+                        {documentPhoto ? (
+                          <img src={documentPhoto} alt="Foto do documento" />
+                        ) : (
+                          <span className="identity-photoPlaceholder">Sem documento</span>
+                        )}
+                      </button>
+                    </div>
+
+                    <div className={`identity-photoQuestion is-${photoMatchStatus}`}>
+                      <div className="identity-photoQuestionMain">
+                        <strong>As fotos correspondem à mesma pessoa?</strong>
+                        <div className="identity-choiceGroup">
+                          <button
+                            type="button"
+                            className={
+                              photoMatchStatus === "aprovado" ? "is-approved" : ""
+                            }
+                            onClick={() => setPhotoMatchStatus("aprovado")}
+                          >
+                            Sim
+                          </button>
+                          <button
+                            type="button"
+                            className={
+                              photoMatchStatus === "reprovado" ? "is-rejected" : ""
+                            }
+                            onClick={() => setPhotoMatchStatus("reprovado")}
+                          >
+                            Não
+                          </button>
+                        </div>
+                      </div>
+
+                      {photoMatchStatus === "reprovado" ? (
+                        <label className="identity-fieldReason">
+                          <span>Detalhes da inconsistência visual</span>
+                          <input
+                            value={photoMatchNote}
+                            onChange={(event) => setPhotoMatchNote(event.target.value)}
+                            placeholder="Ex: Rosto não confere, foto ilegível..."
+                          />
+                        </label>
+                      ) : null}
+                    </div>
+                  </section>
+
                 </div>
 
                 <footer className="identity-drawerFooter">
@@ -573,22 +771,32 @@ export function IdentityConfirmationPage() {
                     disabled={!canApprove || submitting}
                     onClick={() => void handleApprove()}
                   >
+                    <span aria-hidden="true">
+                      <IdentityIcon name="check" />
+                    </span>
                     {submitting ? "Aprovando..." : "Aprovar Cadastro"}
                   </button>
                   <div>
                     <button
                       type="button"
-                      disabled={!canSendRejected || submitting}
+                      className="identity-correctionButton"
+                      disabled={submitting}
                       onClick={() => void handleSolicitarCorrecao()}
                     >
+                      <span aria-hidden="true">
+                        <IdentityIcon name="correction" />
+                      </span>
                       Solicitar Correção
                     </button>
                     <button
                       className="identity-rejectButton"
                       type="button"
-                      disabled={!canSendRejected || submitting}
+                      disabled={submitting}
                       onClick={() => void handleReprovar()}
                     >
+                      <span aria-hidden="true">
+                        <IdentityIcon name="reject" />
+                      </span>
                       Reprovar
                     </button>
                   </div>
