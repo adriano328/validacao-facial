@@ -6,6 +6,8 @@ import { IdentityConfirmationPage } from "@features/identity/pages/IdentityConfi
 import { ExternalCpfSearchPage } from "@features/external-query/pages/ExternalCpfSearchPage";
 import { ForgotPasswordPage } from "@features/login/pages/ForgotPasswordPage";
 import { LoginPage } from "@features/login/pages/LoginPage";
+import { MemberProfilePage } from "@features/members/pages/MemberProfilePage";
+import { MembersPage } from "@features/members/pages/MembersPage";
 import { PrivilegesPage } from "@features/admin/pages/PrivilegesPage";
 import { ResetPasswordPage } from "@features/login/pages/ResetPasswordPage";
 import { CadastroPage } from "@features/registration/pages/CadastroPage";
@@ -49,6 +51,8 @@ export function AppRoutes() {
               path="/cpe/confirmacao-identidade"
               element={<IdentityConfirmationPage />}
             />
+            <Route path="/membros" element={<MembersPage />} />
+            <Route path="/membros/:id" element={<MemberProfilePage />} />
           </Route>
 
           <Route

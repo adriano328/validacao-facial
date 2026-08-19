@@ -57,6 +57,8 @@ export type SituacaoUsuario =
   | "CORRECAO_SOLICITADA"
   | "REPROVADO";
 
+export type StatusUsuario = "ATIVO" | "INATIVO";
+
 export type UsuarioAnaliseItemRequest = {
   campo: CampoAnaliseUsuario;
   resultado: ResultadoAnaliseUsuario;
@@ -165,6 +167,7 @@ export async function listarUsuariosPendentes(
   filters?: {
     busca?: string;
     cargo?: string;
+    status?: string;
     situacao?: string;
   },
   signal?: AbortSignal
@@ -177,11 +180,52 @@ export async function listarUsuariosPendentes(
         size,
         busca: filters?.busca || undefined,
         cargo: filters?.cargo || undefined,
+        status: filters?.status || undefined,
         situacao: filters?.situacao || undefined,
       },
       signal,
     }
   );
+
+  return response.data;
+}
+
+export async function listarMembros(
+  page: number,
+  size: number,
+  filters?: {
+    busca?: string;
+    cargo?: string;
+    status?: string;
+    situacao?: string;
+  },
+  signal?: AbortSignal
+): Promise<PageResponse<UsuarioResponse>> {
+  const response = await api.get<PageResponse<UsuarioResponse>>(
+    "/usuario/membros",
+    {
+      params: {
+        page,
+        size,
+        busca: filters?.busca || undefined,
+        cargo: filters?.cargo || undefined,
+        status: filters?.status || undefined,
+        situacao: filters?.situacao || undefined,
+      },
+      signal,
+    }
+  );
+
+  return response.data;
+}
+
+export async function obterMembroPorId(
+  id: number,
+  signal?: AbortSignal
+): Promise<UsuarioResponse> {
+  const response = await api.get<UsuarioResponse>(`/usuario/membros/${id}`, {
+    signal,
+  });
 
   return response.data;
 }
@@ -194,6 +238,27 @@ export async function listarUsuariosPrivilegios(
 ): Promise<PageResponse<UsuarioResponse>> {
   const response = await api.get<PageResponse<UsuarioResponse>>(
     "/usuario/privilegios",
+    {
+      params: {
+        page,
+        size,
+        busca: busca || undefined,
+      },
+      signal,
+    }
+  );
+
+  return response.data;
+}
+
+export async function listarUsuariosVotantesPrivilegios(
+  page: number,
+  size: number,
+  busca?: string,
+  signal?: AbortSignal
+): Promise<PageResponse<UsuarioResponse>> {
+  const response = await api.get<PageResponse<UsuarioResponse>>(
+    "/usuario/privilegios/votantes",
     {
       params: {
         page,

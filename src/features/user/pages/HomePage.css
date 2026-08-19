@@ -68,6 +68,11 @@
   color: #1d4ed8;
 }
 
+.portal-badge--correcao_solicitada {
+  background: #fff7ed;
+  color: #9a3412;
+}
+
 .portal-badge--reprovado {
   background: var(--danger-50, #fef3f2);
   color: var(--danger-700, #b42318);

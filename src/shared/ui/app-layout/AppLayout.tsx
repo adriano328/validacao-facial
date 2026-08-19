@@ -55,6 +55,7 @@ function getImageSrc(photo?: string | null): string | null {
 function getPageTitle(pathname: string): string {
   if (pathname.includes("/votacao")) return "Cabine de Votação";
   if (pathname.includes("/minha-conta")) return "Minha Conta";
+  if (pathname.includes("/membros")) return "Membros";
   if (pathname.includes("/cpe")) return "CPE";
   if (pathname.includes("/administracao")) return "Administração";
   return "Início";
@@ -103,6 +104,12 @@ export function AppLayout() {
             label: "Confirmação de Identidade",
             to: "/cpe/confirmacao-identidade",
             icon: "fingerprint",
+            visible: canAccessIdentity(tipoUsuario),
+          },
+          {
+            label: "Membros",
+            to: "/membros",
+            icon: "user",
             visible: canAccessIdentity(tipoUsuario),
           },
         ],

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   alterarTipoUsuario,
   listarUsuariosPrivilegios,
+  listarUsuariosVotantesPrivilegios,
   type PageResponse,
   type UsuarioResponse,
 } from "@features/user/api/userApi";
@@ -108,7 +109,7 @@ export function PrivilegesPage() {
         setDialogLoading(true);
         setDialogError(null);
 
-        const response = await listarUsuariosPrivilegios(
+        const response = await listarUsuariosVotantesPrivilegios(
           0,
           12,
           dialogSearch.trim(),
@@ -134,30 +135,24 @@ export function PrivilegesPage() {
     };
   }, [dialogOpen, dialogSearch]);
 
-  const filteredUsers = useMemo(() => {
-    const searchText = search.trim().toLowerCase();
-    const searchDigits = search.replace(/\D/g, "");
+  const dialogDropdownUsers = useMemo(() => {
+    const voterUsers = dialogUsers.filter(
+      (usuario) => normalizeTipoUsuario(usuario.tipoUsuario) === "VOTANTE"
+    );
 
-    return (data?.content ?? []).filter((usuario) => {
-      if (!searchText) return true;
-      return (
-        usuario.nome.toLowerCase().includes(searchText) ||
-        usuario.cpf.replace(/\D/g, "").includes(searchDigits)
-      );
-    });
-  }, [data?.content, search]);
+    return (
+      selectedUser && !voterUsers.some((usuario) => usuario.id === selectedUser.id)
+        ? [selectedUser, ...voterUsers]
+        : voterUsers
+    );
+  }, [dialogUsers, selectedUser]);
 
   const dialogUserOptions = useMemo(() => {
-    const users =
-      selectedUser && !dialogUsers.some((usuario) => usuario.id === selectedUser.id)
-        ? [selectedUser, ...dialogUsers]
-        : dialogUsers;
-
-    return users.map((usuario) => ({
+    return dialogDropdownUsers.map((usuario) => ({
       value: usuario.id,
       label: `${usuario.nome} - CPF: ${maskCPF(usuario.cpf ?? "")}`,
     }));
-  }, [dialogUsers, selectedUser]);
+  }, [dialogDropdownUsers]);
 
   function openDialog(usuario?: UsuarioResponse) {
     setSelectedUser(usuario ?? null);
@@ -180,7 +175,7 @@ export function PrivilegesPage() {
   }
 
   function handleSelectUser(usuarioId: number) {
-    const usuario = dialogUsers.find((item) => item.id === usuarioId) ?? null;
+    const usuario = dialogDropdownUsers.find((item) => item.id === usuarioId) ?? null;
 
     setSelectedUser(usuario);
     setSelectedRole(usuario ? normalizeTipoUsuario(usuario.tipoUsuario) : undefined);
@@ -214,6 +209,7 @@ export function PrivilegesPage() {
   }
 
   const totalPages = data?.totalPages ?? 0;
+  const users = data?.content ?? [];
   const hasChange = Boolean(
     selectedUser &&
     selectedRole &&
@@ -246,7 +242,7 @@ export function PrivilegesPage() {
           <div className="portal-state">Carregando membros...</div>
         ) : error ? (
           <div className="portal-state portal-state--error">{error}</div>
-        ) : filteredUsers.length === 0 ? (
+        ) : users.length === 0 ? (
           <div className="privileges-empty">
             <strong>Nenhum membro encontrado</strong>
             <span>Ajuste a busca para localizar outro cadastro.</span>
@@ -263,7 +259,7 @@ export function PrivilegesPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredUsers.map((usuario) => {
+                {users.map((usuario) => {
                   const photo = getImageSrc(usuario.foto);
                   return (
                     <tr key={usuario.id}>

@@ -260,7 +260,7 @@ export function IdentityConfirmationPage() {
         {
           busca: search.trim(),
           cargo,
-          situacao: status,
+          status,
         },
         signal
       );
