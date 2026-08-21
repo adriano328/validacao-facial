@@ -16,6 +16,7 @@ import { alerts } from "@shared/lib/swal";
 import { DropdownField } from "@shared/ui/dropdown/DropdownField";
 import { FormField } from "@shared/ui/form/FormField";
 import { brDateToISO, formatarDataToBr } from "@shared/utils/formataData";
+import { getDocumentMediaSrc } from "@shared/utils/documentMedia";
 import { handleAxiosError } from "@shared/utils/messageErro";
 import { maskCPF, maskDateBR, maskPhoneBR } from "@shared/utils/masks";
 import { isValidCPF } from "@shared/utils/cpfValidator";
@@ -149,7 +150,7 @@ function validarFormulario(form: PersonalForm, podeEditarCadastro: boolean): Per
     }
 
     if (!form.fotoDocumento.trim()) {
-      errors.fotoDocumento = "Envie a foto do documento.";
+      errors.fotoDocumento = "Envie a foto ou o PDF do documento.";
     }
   }
 
@@ -214,7 +215,8 @@ export function PersonalDataPage() {
     }
 
     const foto = getImageSrc(usuario.foto);
-    const fotoDocumento = getImageSrc(usuario.fotoDocumento);
+    const fotoDocumento =
+      getDocumentMediaSrc(usuario.fotoDocumento, usuario.fotoDocumentoContentType) ?? "";
 
     setForm({
       nome: usuario.nome ?? "",

@@ -8,6 +8,7 @@ import {
   getTipoUsuarioLabel,
 } from "@features/user/model/permissions";
 import logoUrl from "@shared/assets/comademat-logo.png";
+import { MemberAvatar } from "@shared/ui/member-avatar/MemberAvatar";
 import "./AppLayout.css";
 
 type NavItem = {
@@ -39,19 +40,6 @@ function Icon({ name }: { name: NavItem["icon"] }) {
   );
 }
 
-function getInitials(name?: string | null): string {
-  const parts = (name ?? "").trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) return "U";
-  return `${parts[0]?.[0] ?? ""}${parts[parts.length - 1]?.[0] ?? ""}`.toUpperCase();
-}
-
-function getImageSrc(photo?: string | null): string | null {
-  const value = (photo ?? "").trim();
-  if (!value) return null;
-  if (value.startsWith("data:image/") || /^https?:\/\//i.test(value)) return value;
-  return `data:image/jpeg;base64,${value}`;
-}
-
 function getPageTitle(pathname: string): string {
   if (pathname.includes("/votacao")) return "Cabine de Votação";
   if (pathname.includes("/minha-conta")) return "Minha Conta";
@@ -68,7 +56,6 @@ export function AppLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const foto = getImageSrc(usuario?.foto);
   const tipoUsuario = usuario?.tipoUsuario;
   const navGroups = useMemo<NavGroup[]>(
     () => [
@@ -202,9 +189,12 @@ export function AppLayout() {
               <strong>{usuario?.nome ?? "Usuário"}</strong>
               <span>{getTipoUsuarioLabel(tipoUsuario)}</span>
             </div>
-            <div className="appLayout-avatar" aria-hidden="true">
-              {foto ? <img src={foto} alt="" /> : <span>{getInitials(usuario?.nome)}</span>}
-            </div>
+            <MemberAvatar
+              className="appLayout-avatar"
+              src={usuario?.foto}
+              fallback={usuario?.nome}
+              size="sm"
+            />
           </div>
         </header>
 

@@ -11,6 +11,7 @@ import type { ConsultaCpfResponse } from "@features/external-query/api/externalC
 import { alerts } from "@shared/lib/swal";
 import { BrandMark } from "@shared/ui/brand/BrandMark";
 import { FormField } from "@shared/ui/form/FormField";
+import { MemberAvatar } from "@shared/ui/member-avatar/MemberAvatar";
 import { SectionHeader } from "@shared/ui/section-header/SectionHeader";
 import { maskCPF } from "@shared/utils/masks";
 import "./ExternalCpfSearchPage.css";
@@ -46,19 +47,6 @@ function formatEnumLabel(value?: string | null): string {
     .split("_")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
-}
-
-function getInitials(name?: string | null): string {
-  const parts = (name ?? "").trim().split(/\s+/).filter(Boolean);
-
-  if (parts.length === 0) {
-    return "U";
-  }
-
-  const first = parts[0]?.[0] ?? "";
-  const last = parts.length > 1 ? parts[parts.length - 1]?.[0] ?? "" : "";
-
-  return `${first}${last}`.toUpperCase();
 }
 
 function getPhotoSrc(photo?: string | null): string | null {
@@ -264,17 +252,13 @@ export function ExternalCpfSearchPage() {
           {result ? (
             <section className="externalCpf-result" aria-live="polite">
               <div className="externalCpf-photoPanel">
-                {photoSrc ? (
-                  <img
-                    className="externalCpf-photo"
-                    src={photoSrc}
-                    alt={`Foto de ${resultName}`}
-                  />
-                ) : (
-                  <div className="externalCpf-avatar" aria-hidden="true">
-                    {getInitials(result.nome)}
-                  </div>
-                )}
+                <MemberAvatar
+                  className={photoSrc ? "externalCpf-photo" : "externalCpf-avatar"}
+                  src={photoSrc}
+                  alt={`Foto de ${resultName}`}
+                  fallback={result.nome}
+                  shape="rounded"
+                />
                 <div>
                   <div className="externalCpf-nameRow">
                     <h2>{resultName}</h2>

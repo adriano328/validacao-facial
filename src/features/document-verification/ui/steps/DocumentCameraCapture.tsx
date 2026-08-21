@@ -1,5 +1,8 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import type { DocumentType } from "@features/document-verification/model/types";
+import { useDocumentQuality } from "@features/document-verification/hooks/useDocumentQuality";
+import { DocumentQualityStatus } from "@features/document-verification/ui/DocumentQualityStatus";
 
 type Props = {
   open: boolean;
@@ -33,10 +36,6 @@ function getFrameSpec(type: DocumentType): FrameSpec {
   };
 }
 
-function isMobile() {
-  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-}
-
 function videoHasFrame(video: HTMLVideoElement) {
   return (
     video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA &&
@@ -61,14 +60,33 @@ function waitForVideoReady(video: HTMLVideoElement) {
   });
 }
 
+type CameraTrackCapabilities = {
+  exposureMode?: string[];
+  focusMode?: string[];
+};
+
+type CameraTrackConstraintSet = MediaTrackConstraintSet & {
+  exposureMode?: string;
+  focusMode?: string;
+};
+
+type EnhancedMediaTrack = MediaStreamTrack & {
+  getCapabilities?: () => CameraTrackCapabilities;
+  applyConstraints: (
+    constraints: MediaTrackConstraints & { advanced?: CameraTrackConstraintSet[] }
+  ) => Promise<void>;
+};
+
 // Tenta aplicar melhorias no track (quando suportado)
 async function enhanceTrack(track: MediaStreamTrack) {
   try {
-    // Alguns browsers expõem capabilities; outros não.
-    const anyTrack = track as any;
-    const caps = typeof anyTrack.getCapabilities === "function" ? anyTrack.getCapabilities() : null;
+    const enhancedTrack = track as EnhancedMediaTrack;
+    const caps: CameraTrackCapabilities | null =
+      typeof enhancedTrack.getCapabilities === "function"
+        ? (enhancedTrack.getCapabilities() as CameraTrackCapabilities)
+        : null;
 
-    const advanced: any[] = [];
+    const advanced: CameraTrackConstraintSet[] = [];
 
     // Preferir foco contínuo se suportado (Android/Chrome geralmente)
     if (caps?.focusMode?.includes?.("continuous")) {
@@ -84,7 +102,7 @@ async function enhanceTrack(track: MediaStreamTrack) {
     // if (caps?.torch) advanced.push({ torch: true });
 
     if (advanced.length) {
-      await anyTrack.applyConstraints({ advanced });
+      await enhancedTrack.applyConstraints({ advanced });
     }
   } catch {
     // ignore (não suportado)
@@ -101,6 +119,14 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
   const [isCapturing, setIsCapturing] = useState(false);
 
   const spec = useMemo(() => getFrameSpec(documentType), [documentType]);
+  const documentQuality = useDocumentQuality({
+    enabled: open && !error,
+    ready,
+    videoRef,
+    frameRef,
+  });
+  const captureDisabled =
+    !ready || isCapturing || !!error || !documentQuality.quality.valid;
 
   useEffect(() => {
     if (!open) return;
@@ -115,7 +141,7 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
         // 🎯 Constraints melhores: tenta alta resolução
         const constraints: MediaStreamConstraints = {
           video: {
-            ...(isMobile() ? { facingMode: { ideal: "environment" } } : {}),
+            facingMode: { ideal: "environment" },
             width: { ideal: 1920 },
             height: { ideal: 1080 },
           },
@@ -160,7 +186,7 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
   if (!open) return null;
 
   function capture() {
-    if (!ready || isCapturing) return;
+    if (captureDisabled) return;
 
     const video = videoRef.current;
     const frame = frameRef.current;
@@ -199,7 +225,7 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
 
     // 🔥 melhora nitidez
     ctx.imageSmoothingEnabled = true;
-    (ctx as any).imageSmoothingQuality = "high";
+    ctx.imageSmoothingQuality = "high";
 
     ctx.drawImage(
       video,
@@ -261,6 +287,11 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
                   aspectRatio: String(spec.aspect),
                 }}
               />
+
+              <DocumentQualityStatus
+                quality={documentQuality.quality}
+                loading={!documentQuality.openCvReady && !documentQuality.loadError}
+              />
             </div>
           )}
         </div>
@@ -272,10 +303,14 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
           <button
             type="button"
             onClick={capture}
-            disabled={!ready || isCapturing || !!error}
-            style={btn(true, !ready || isCapturing || !!error)}
+            disabled={captureDisabled}
+            style={btn(true, captureDisabled)}
           >
-            {isCapturing ? "Capturando..." : "Capturar"}
+            {isCapturing
+              ? "Capturando..."
+              : documentQuality.quality.valid
+                ? "Capturar"
+                : "Aguardando qualidade"}
           </button>
         </div>
       </div>
@@ -283,7 +318,7 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
   );
 }
 
-function btn(primary: boolean, disabled?: boolean): React.CSSProperties {
+function btn(primary: boolean, disabled?: boolean): CSSProperties {
   return {
     minWidth: 124,
     minHeight: 46,
@@ -299,7 +334,7 @@ function btn(primary: boolean, disabled?: boolean): React.CSSProperties {
   };
 }
 
-const styles: Record<string, React.CSSProperties> = {
+const styles: Record<string, CSSProperties> = {
   backdrop: {
     position: "fixed",
     inset: 0,

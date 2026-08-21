@@ -80,21 +80,7 @@
 }
 
 .privileges-avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  background: var(--gray-100, #f2f4f7);
-  color: var(--gray-500, #667085);
-  font-size: 12px;
-}
-
-.privileges-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  flex: 0 0 auto;
 }
 
 .privileges-role {

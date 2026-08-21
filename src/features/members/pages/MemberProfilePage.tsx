@@ -7,6 +7,8 @@ import {
 import { getTipoUsuarioLabel } from "@features/user/model/permissions";
 import { isRequestCanceled } from "@shared/utils/http";
 import { formatarDataToBr } from "@shared/utils/formataData";
+import { MemberAvatar } from "@shared/ui/member-avatar/MemberAvatar";
+import { getDocumentMediaSrc, isPdfDocument } from "@shared/utils/documentMedia";
 import { maskCPF, maskPhoneBR } from "@shared/utils/masks";
 import "@features/user/pages/HomePage.css";
 import "@features/user/pages/PersonalDataPage.css";
@@ -26,12 +28,6 @@ function getImageSrc(value?: string | null): string | null {
   if (!photo) return null;
   if (photo.startsWith("data:image/") || /^https?:\/\//i.test(photo)) return photo;
   return `data:image/jpeg;base64,${photo}`;
-}
-
-function getInitials(name?: string | null): string {
-  const parts = (name ?? "").trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) return "M";
-  return `${parts[0]?.[0] ?? ""}${parts[parts.length - 1]?.[0] ?? ""}`.toUpperCase();
 }
 
 function getCampoLabel(usuario: UsuarioResponse): string {
@@ -74,6 +70,7 @@ export function MemberProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [documentImageFailed, setDocumentImageFailed] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -91,6 +88,7 @@ export function MemberProfilePage() {
         setError(null);
         const response = await obterMembroPorId(userId, controller.signal);
         setUsuario(response);
+        setDocumentImageFailed(false);
       } catch (requestError) {
         if (isRequestCanceled(requestError)) return;
 
@@ -121,7 +119,13 @@ export function MemberProfilePage() {
   }
 
   const foto = getImageSrc(usuario.foto);
-  const fotoDocumento = getImageSrc(usuario.fotoDocumento);
+  const fotoDocumento = getDocumentMediaSrc(
+    usuario.fotoDocumento,
+    usuario.fotoDocumentoContentType
+  );
+  const documentoIsPdf =
+    isPdfDocument(usuario.fotoDocumento, usuario.fotoDocumentoContentType) ||
+    documentImageFailed;
   const situacaoUsuario = usuario.situacaoUsuario ?? "";
 
   return (
@@ -151,9 +155,12 @@ export function MemberProfilePage() {
         </div>
 
         <section className="member-profileHero">
-          <div className="member-profileAvatar" aria-hidden="true">
-            {foto ? <img src={foto} alt="" /> : <span>{getInitials(usuario.nome)}</span>}
-          </div>
+          <MemberAvatar
+            className="member-profileAvatar"
+            src={foto}
+            fallback={usuario.nome}
+            size="lg"
+          />
           <div>
             <h2>{usuario.nome}</h2>
             <span>{maskCPF(usuario.cpf ?? "")}</span>
@@ -195,17 +202,45 @@ export function MemberProfilePage() {
               disabled={!foto}
             >
               <span>Foto do membro</span>
-              {foto ? <img src={foto} alt="Foto do membro" /> : <em>Sem foto</em>}
+              {foto ? (
+                <MemberAvatar
+                  className="member-photoAvatar"
+                  src={foto}
+                  alt="Foto do membro"
+                  fallback={usuario.nome}
+                  shape="rounded"
+                />
+              ) : (
+                <em>Sem foto</em>
+              )}
             </button>
             <button
               className="member-photoButton"
               type="button"
-              onClick={() => fotoDocumento && setPreview(fotoDocumento)}
+              onClick={() => {
+                if (!fotoDocumento) return;
+                if (documentoIsPdf) {
+                  window.open(fotoDocumento, "_blank", "noopener,noreferrer");
+                  return;
+                }
+                setPreview(fotoDocumento);
+              }}
               disabled={!fotoDocumento}
             >
               <span>Foto do documento</span>
               {fotoDocumento ? (
-                <img src={fotoDocumento} alt="Foto do documento" />
+                documentoIsPdf ? (
+                  <span className="member-documentPdf">
+                    <strong>PDF</strong>
+                    <span>Abrir documento</span>
+                  </span>
+                ) : (
+                  <img
+                    src={fotoDocumento}
+                    alt="Foto do documento"
+                    onError={() => setDocumentImageFailed(true)}
+                  />
+                )
               ) : (
                 <em>Sem documento</em>
               )}

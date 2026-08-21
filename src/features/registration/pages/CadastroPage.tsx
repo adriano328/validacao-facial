@@ -6,6 +6,7 @@ import { CARGOS_ECLESIASTICOS } from "@shared/data/cargos";
 import { BrandMark } from "@shared/ui/brand/BrandMark";
 import { DropdownField } from "@shared/ui/dropdown/DropdownField";
 import { FormField } from "@shared/ui/form/FormField";
+import { PasswordInput } from "@shared/ui/password-input/PasswordInput";
 import { SectionHeader } from "@shared/ui/section-header/SectionHeader";
 import { maskCPF, maskDateBR, maskPhoneBR } from "@shared/utils/masks";
 import "./CadastroPage.css";
@@ -170,9 +171,8 @@ export function CadastroPage() {
               </FormField>
 
               <FormField label="Senha" required error={showError("senha")}>
-                <input
+                <PasswordInput
                   className="vf-input"
-                  type="password"
                   value={formCadastro.senha}
                   onChange={(event) =>
                     setFormCadastro("senha", event.target.value)
@@ -186,9 +186,8 @@ export function CadastroPage() {
                 required
                 error={showError("senhaConfirmacao")}
               >
-                <input
+                <PasswordInput
                   className="vf-input"
-                  type="password"
                   value={formCadastro.senhaConfirmacao}
                   onChange={(event) =>
                     setFormCadastro("senhaConfirmacao", event.target.value)

@@ -427,15 +427,42 @@
 }
 
 .identity-photoPreviewButton img,
+.identity-pdfPreview,
 .identity-photoPlaceholder {
   width: 100%;
   aspect-ratio: 3 / 4;
   border-radius: 10px;
   object-fit: cover;
+  object-position: center center;
   background: var(--gray-100, #f2f4f7);
   display: grid;
   place-items: center;
   color: var(--gray-500, #667085);
+  font-size: 12px;
+}
+
+.identity-pdfPreview {
+  align-content: center;
+  gap: 8px;
+  background: #ffffff;
+  color: var(--primary-800, #062f70);
+  border: 1px solid var(--gray-200, #e4e7ec);
+}
+
+.identity-pdfPreview strong {
+  width: 58px;
+  min-height: 42px;
+  justify-self: center;
+  border-radius: 8px;
+  background: var(--primary-50, #eef4ff);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.identity-pdfPreview span {
+  color: var(--gray-600, #475467);
   font-size: 12px;
 }
 

@@ -81,7 +81,7 @@ export function validateCadastro(data: CadastroForm): CadastroErrors {
   }
 
   if (isEmpty(data.fotoDocumento)) {
-    errors.fotoDocumento = "Campo obrigatório";
+    errors.fotoDocumento = "Envie a foto ou o PDF do documento";
   }
 
   return errors;

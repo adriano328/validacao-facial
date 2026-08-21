@@ -13,6 +13,7 @@ import {
 } from "@features/user/model/permissions";
 import { alerts } from "@shared/lib/swal";
 import { DropdownField } from "@shared/ui/dropdown/DropdownField";
+import { MemberAvatar } from "@shared/ui/member-avatar/MemberAvatar";
 import { isRequestCanceled } from "@shared/utils/http";
 import { maskCPF } from "@shared/utils/masks";
 import "@features/user/pages/HomePage.css";
@@ -41,19 +42,6 @@ const roles: Array<{
     description: "Pode realizar confirmações e gerenciar privilégios.",
   },
 ];
-
-function getImageSrc(value?: string | null): string | null {
-  const photo = (value ?? "").trim();
-  if (!photo) return null;
-  if (photo.startsWith("data:image/") || /^https?:\/\//i.test(photo)) return photo;
-  return `data:image/jpeg;base64,${photo}`;
-}
-
-function getInitials(name?: string | null): string {
-  const parts = (name ?? "").trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) return "U";
-  return `${parts[0]?.[0] ?? ""}${parts[parts.length - 1]?.[0] ?? ""}`.toUpperCase();
-}
 
 export function PrivilegesPage() {
   const [page, setPage] = useState(0);
@@ -260,18 +248,16 @@ export function PrivilegesPage() {
               </thead>
               <tbody>
                 {users.map((usuario) => {
-                  const photo = getImageSrc(usuario.foto);
                   return (
                     <tr key={usuario.id}>
                       <td>
                         <div className="privileges-userCell">
-                          <span className="privileges-avatar">
-                            {photo ? (
-                              <img src={photo} alt="" />
-                            ) : (
-                              getInitials(usuario.nome)
-                            )}
-                          </span>
+                          <MemberAvatar
+                            className="privileges-avatar"
+                            src={usuario.foto}
+                            fallback={usuario.nome}
+                            size="sm"
+                          />
                           <span className="privileges-userName">{usuario.nome}</span>
                         </div>
                       </td>

@@ -14,6 +14,7 @@ import {
 } from "@features/user/api/userApi";
 import { CARGOS_ECLESIASTICOS } from "@shared/data/cargos";
 import { alerts } from "@shared/lib/swal";
+import { getDocumentMediaSrc, isPdfDocument } from "@shared/utils/documentMedia";
 import { isRequestCanceled } from "@shared/utils/http";
 import { maskCPF, maskPhoneBR } from "@shared/utils/masks";
 import "@features/user/pages/HomePage.css";
@@ -248,6 +249,7 @@ export function IdentityConfirmationPage() {
   const [drawerLoading, setDrawerLoading] = useState(false);
   const [evaluations, setEvaluations] = useState<Evaluations>(initialEvaluations);
   const [preview, setPreview] = useState<string | null>(null);
+  const [documentImageFailed, setDocumentImageFailed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   async function loadUsers(signal?: AbortSignal) {
@@ -288,6 +290,7 @@ export function IdentityConfirmationPage() {
     setDrawerLoading(true);
     setSelectedUser(null);
     setEvaluations(initialEvaluations);
+    setDocumentImageFailed(false);
 
     try {
       const details = await obterUsuarioPorId(usuario.id);
@@ -307,6 +310,7 @@ export function IdentityConfirmationPage() {
     setDrawerOpen(false);
     setSelectedUser(null);
     setPreview(null);
+    setDocumentImageFailed(false);
     setEvaluations(initialEvaluations);
   }
 
@@ -457,7 +461,13 @@ export function IdentityConfirmationPage() {
   const photoMatchNote =
     evaluations.foto.observacao || evaluations.fotoDocumento.observacao;
   const facePhoto = getImageSrc(selectedUser?.foto);
-  const documentPhoto = getImageSrc(selectedUser?.fotoDocumento);
+  const documentPhoto = getDocumentMediaSrc(
+    selectedUser?.fotoDocumento,
+    selectedUser?.fotoDocumentoContentType
+  );
+  const documentIsPdf =
+    isPdfDocument(selectedUser?.fotoDocumento, selectedUser?.fotoDocumentoContentType) ||
+    documentImageFailed;
 
   return (
     <section className="portal-page identity-page" aria-labelledby="identity-title">
@@ -723,13 +733,33 @@ export function IdentityConfirmationPage() {
                         )}
                       </button>
                       <button
-                        className="identity-photoPreviewButton"
+                        className={`identity-photoPreviewButton ${
+                          documentIsPdf ? "identity-photoPreviewButton--pdf" : ""
+                        }`}
                         type="button"
-                        onClick={() => documentPhoto && setPreview(documentPhoto)}
+                        onClick={() => {
+                          if (!documentPhoto) return;
+                          if (documentIsPdf) {
+                            window.open(documentPhoto, "_blank", "noopener,noreferrer");
+                            return;
+                          }
+                          setPreview(documentPhoto);
+                        }}
                       >
                         <span className="identity-photoLabel">Documento Oficial</span>
                         {documentPhoto ? (
-                          <img src={documentPhoto} alt="Foto do documento" />
+                          documentIsPdf ? (
+                            <span className="identity-pdfPreview">
+                              <strong>PDF</strong>
+                              <span>Abrir documento</span>
+                            </span>
+                          ) : (
+                            <img
+                              src={documentPhoto}
+                              alt="Foto do documento"
+                              onError={() => setDocumentImageFailed(true)}
+                            />
+                          )
                         ) : (
                           <span className="identity-photoPlaceholder">Sem documento</span>
                         )}

@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { resetarSenha } from "@features/auth/api/authApi";
 import { BrandMark } from "@shared/ui/brand/BrandMark";
 import { FormField } from "@shared/ui/form/FormField";
+import { PasswordInput } from "@shared/ui/password-input/PasswordInput";
 import { SectionHeader } from "@shared/ui/section-header/SectionHeader";
 import "./PasswordResetPages.css";
 
@@ -278,9 +279,8 @@ export function ResetPasswordPage() {
                 }}
               >
                 <FormField label="Nova senha" required error={showError("novaSenha")}>
-                  <input
+                  <PasswordInput
                     className="vf-input"
-                    type="password"
                     value={form.novaSenha}
                     onChange={(event) => setField("novaSenha", event.target.value)}
                     onBlur={() =>
@@ -296,9 +296,8 @@ export function ResetPasswordPage() {
                   required
                   error={showError("confirmacaoSenha")}
                 >
-                  <input
+                  <PasswordInput
                     className="vf-input"
-                    type="password"
                     value={form.confirmacaoSenha}
                     onChange={(event) =>
                       setField("confirmacaoSenha", event.target.value)

@@ -1,4 +1,5 @@
 .swal-small-popup {
+  --swal2-icon-zoom: 0.58;
   width: min(360px, calc(100vw - 32px)) !important;
   padding: 16px 18px 18px !important;
   border-radius: 8px !important;
@@ -17,14 +18,7 @@
 }
 
 .swal-small-icon {
-  width: 46px !important;
-  height: 46px !important;
   margin: 8px auto 12px !important;
-  border-width: 3px !important;
-}
-
-.swal-small-icon .swal2-icon-content {
-  font-size: 1.7rem !important;
 }
 
 .swal-small-actions {
@@ -62,6 +56,7 @@
 
 @media (max-width: 480px) {
   .swal-small-popup {
+    --swal2-icon-zoom: 0.5;
     width: min(320px, calc(100vw - 24px)) !important;
     padding: 14px 14px 16px !important;
   }
@@ -75,13 +70,7 @@
   }
 
   .swal-small-icon {
-    width: 40px !important;
-    height: 40px !important;
     margin-bottom: 10px !important;
-  }
-
-  .swal-small-icon .swal2-icon-content {
-    font-size: 1.45rem !important;
   }
 
   .swal-small-button {

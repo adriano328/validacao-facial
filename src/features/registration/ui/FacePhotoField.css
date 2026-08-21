@@ -23,6 +23,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center center;
   display: block;
 }
 
@@ -34,6 +35,40 @@
 .documentPhotoField-image {
   object-fit: contain;
   background: #dfe3e8;
+}
+
+.documentPhotoField-pdfPreview {
+  width: 100%;
+  height: 100%;
+  padding: 12px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  background: #ffffff;
+  color: var(--vf-color-primary-strong);
+  text-align: center;
+}
+
+.documentPhotoField-pdfPreview span {
+  min-width: 46px;
+  min-height: 34px;
+  border-radius: 6px;
+  background: #eef4ff;
+  color: var(--vf-color-primary-strong);
+  display: inline-grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: var(--vf-font-bold);
+}
+
+.documentPhotoField-pdfPreview strong {
+  max-width: 100%;
+  color: var(--vf-color-text);
+  font-size: var(--vf-font-link);
+  line-height: 1.25;
+  font-weight: var(--vf-font-semibold);
+  overflow-wrap: anywhere;
 }
 
 .facePhoto-empty {
@@ -115,6 +150,52 @@
   gap: 10px;
 }
 
+.documentPhotoField-actions {
+  align-items: center;
+}
+
+.documentPhotoField-separator {
+  color: var(--vf-color-text-muted);
+  font-size: var(--vf-font-link);
+}
+
+.documentPhotoField-pdfInfo {
+  margin-top: 10px;
+  border: 1px solid #d6dce8;
+  border-radius: var(--vf-radius-control);
+  background: #fff;
+  padding: 10px;
+  color: var(--vf-color-text);
+  font-size: var(--vf-font-link);
+  line-height: 1.35;
+}
+
+.documentPhotoField-pdfInfo strong {
+  font-weight: var(--vf-font-bold);
+}
+
+.documentPhotoField-pdfInfo p {
+  margin: 6px 0 8px;
+  color: var(--vf-color-text-muted);
+  font-size: var(--vf-font-link);
+}
+
+.documentPhotoField-pdfInfo button {
+  min-height: 30px;
+  border: 1px solid #cfd6e3;
+  border-radius: var(--vf-radius-control);
+  background: #fff;
+  color: var(--vf-color-text);
+  padding: 0 10px;
+  font-size: var(--vf-font-link);
+  cursor: pointer;
+}
+
+.documentPhotoField-pdfInfo button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .facePhoto-button {
   min-width: 138px;
   min-height: 38px;
@@ -185,6 +266,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center center;
   transform: scaleX(-1);
 }
 
@@ -237,6 +319,11 @@
 
   .facePhoto-button {
     width: 100%;
+  }
+
+  .documentPhotoField-separator {
+    width: 100%;
+    text-align: center;
   }
 
   .faceCamera {

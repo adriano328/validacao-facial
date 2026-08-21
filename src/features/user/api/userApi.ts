@@ -22,6 +22,7 @@ export type ObterInformacaoUsuarioResponse = {
   tipoUsuario?: TipoUsuario | number | string;
   foto?: string;
   fotoDocumento?: string;
+  fotoDocumentoContentType?: string;
 };
 
 export type UsuarioResponse = {
@@ -39,6 +40,7 @@ export type UsuarioResponse = {
   tipoUsuario: TipoUsuario | number | string;
   foto: string;
   fotoDocumento: string;
+  fotoDocumentoContentType?: string;
 };
 
 export type CampoAnaliseUsuario =

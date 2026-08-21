@@ -1,0 +1,111 @@
+.memberAvatar {
+  --member-avatar-size: 34px;
+  --member-avatar-fit: cover;
+
+  /*
+   * Não utilizar 86% como padrão.
+   * O padrão precisa funcionar para qualquer foto.
+   */
+  --member-avatar-object-position: center center;
+
+  width: var(--member-avatar-size);
+  height: var(--member-avatar-size);
+  aspect-ratio: 1 / 1;
+
+  position: relative;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 var(--member-avatar-size);
+
+  overflow: hidden;
+
+  background: var(--primary-50, #eef4ff);
+  color: var(--primary-800, #062f70);
+
+  border: 1px solid var(--gray-200, #e4e7ec);
+
+  font-size: calc(var(--member-avatar-size) * 0.35);
+  line-height: 1;
+
+  box-sizing: border-box;
+}
+
+/* tamanhos */
+
+.memberAvatar--xs {
+  --member-avatar-size: 34px;
+}
+
+.memberAvatar--sm {
+  --member-avatar-size: 42px;
+}
+
+.memberAvatar--md {
+  --member-avatar-size: 72px;
+}
+
+.memberAvatar--lg {
+  --member-avatar-size: 112px;
+}
+
+/* formatos */
+
+.memberAvatar--circle {
+  border-radius: 50%;
+}
+
+.memberAvatar--rounded {
+  border-radius: 8px;
+}
+
+/* imagem */
+
+.memberAvatar img {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: var(--member-avatar-fit);
+  object-position: var(--member-avatar-object-position);
+
+  max-width: none;
+  max-height: none;
+
+  border: 0;
+
+  user-select: none;
+}
+
+/* comportamento padrão para avatar */
+
+.memberAvatar--fit-cover {
+  --member-avatar-fit: cover;
+}
+
+/* disponível apenas para casos específicos */
+
+.memberAvatar--fit-contain {
+  --member-avatar-fit: contain;
+}
+
+/* fallback */
+
+.memberAvatar__fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+
+  font-size: inherit;
+  font-weight: 600;
+  line-height: 1;
+}

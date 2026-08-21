@@ -7,6 +7,7 @@ import {
 } from "@features/user/api/userApi";
 import { getTipoUsuarioLabel } from "@features/user/model/permissions";
 import { CARGOS_ECLESIASTICOS } from "@shared/data/cargos";
+import { MemberAvatar } from "@shared/ui/member-avatar/MemberAvatar";
 import { isRequestCanceled } from "@shared/utils/http";
 import { maskCPF } from "@shared/utils/masks";
 import "@features/user/pages/HomePage.css";
@@ -32,19 +33,6 @@ function formatLabel(value?: string | number | null): string {
     .split("_")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
-}
-
-function getImageSrc(value?: string | null): string | null {
-  const photo = (value ?? "").trim();
-  if (!photo) return null;
-  if (photo.startsWith("data:image/") || /^https?:\/\//i.test(photo)) return photo;
-  return `data:image/jpeg;base64,${photo}`;
-}
-
-function getInitials(name?: string | null): string {
-  const parts = (name ?? "").trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) return "M";
-  return `${parts[0]?.[0] ?? ""}${parts[parts.length - 1]?.[0] ?? ""}`.toUpperCase();
 }
 
 function getCampoLabel(usuario: UsuarioResponse): string {
@@ -213,20 +201,18 @@ export function MembersPage() {
               </thead>
               <tbody>
                 {members.map((usuario) => {
-                  const foto = getImageSrc(usuario.foto);
                   const situacaoUsuario = getSituacao(usuario);
 
                   return (
                     <tr key={usuario.id}>
                       <td>
                         <div className="members-userCell">
-                          <span className="members-avatar" aria-hidden="true">
-                            {foto ? (
-                              <img src={foto} alt="" />
-                            ) : (
-                              <span>{getInitials(usuario.nome)}</span>
-                            )}
-                          </span>
+                          <MemberAvatar
+                            className="members-avatar"
+                            src={usuario.foto}
+                            fallback={usuario.nome}
+                            size="sm"
+                          />
                           <span className="identity-tableName">{usuario.nome}</span>
                         </div>
                       </td>

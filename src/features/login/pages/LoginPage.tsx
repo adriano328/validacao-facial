@@ -7,6 +7,7 @@ import { useLoginForm } from "@features/login/model/useLoginForm";
 import { useTwoFactor } from "@features/two-factor/model/TwoFactorContext";
 import { TwoFactorConfirm } from "@features/two-factor/ui/TwoFactorConfirm";
 import { QrCodeModal } from "@features/two-factor/ui/QrCodeModal";
+import { PasswordInput } from "@shared/ui/password-input/PasswordInput";
 
 export function LoginPage() {
   const {
@@ -59,9 +60,8 @@ export function LoginPage() {
               />
             </FormField>
             <FormField label="Senha" required error={showError("password")}>
-              <input
-              className="vf-input"
-                type="password"
+              <PasswordInput
+                className="vf-input"
                 value={formLogin.password}
                 onChange={(e) => setFormLogin("password", e.target.value)}
                 onBlur={() => touchField("password")}
