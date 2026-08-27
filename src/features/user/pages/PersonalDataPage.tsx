@@ -36,6 +36,7 @@ type PersonalForm = {
 
 type PersonalErrors = Partial<Record<keyof PersonalForm, string>>;
 type TouchedState = Partial<Record<keyof PersonalForm, boolean>>;
+type OriginalImages = Pick<PersonalForm, "foto" | "fotoDocumento">;
 
 const CAMPOS_ANALISE_LABELS: Record<CampoAnaliseUsuario, string> = {
   FOTO: "Foto do membro",
@@ -129,7 +130,16 @@ function imagemNovaOuIndefinida(value: string, original: string): string | undef
   return atual;
 }
 
-function validarFormulario(form: PersonalForm, podeEditarCadastro: boolean): PersonalErrors {
+function temNovaMidia(value: string, original: string): boolean {
+  return imagemNovaOuIndefinida(value, original) !== undefined;
+}
+
+function validarFormulario(
+  form: PersonalForm,
+  podeEditarCadastro: boolean,
+  camposReprovados: Set<CampoAnaliseUsuario>,
+  originalImages: OriginalImages
+): PersonalErrors {
   const errors: PersonalErrors = {};
 
   if (podeEditarCadastro) {
@@ -151,6 +161,11 @@ function validarFormulario(form: PersonalForm, podeEditarCadastro: boolean): Per
 
     if (!form.fotoDocumento.trim()) {
       errors.fotoDocumento = "Envie a foto ou o PDF do documento.";
+    } else if (
+      camposReprovados.has("FOTO_DOCUMENTO") &&
+      !temNovaMidia(form.fotoDocumento, originalImages.fotoDocumento)
+    ) {
+      errors.fotoDocumento = "Substitua a foto ou o PDF do documento apontado na análise.";
     }
   }
 
@@ -168,6 +183,12 @@ function validarFormulario(form: PersonalForm, podeEditarCadastro: boolean): Per
 
   if (!form.foto.trim()) {
     errors.foto = "Envie a foto do membro.";
+  } else if (
+    podeEditarCadastro &&
+    camposReprovados.has("FOTO") &&
+    !temNovaMidia(form.foto, originalImages.foto)
+  ) {
+    errors.foto = "Tire novamente a foto do membro apontada na análise.";
   }
 
   return errors;
@@ -246,7 +267,9 @@ export function PersonalDataPage() {
     obterMinhaUltimaAnalise(controller.signal)
       .then((analise) => {
         setAnalysisItems(
-          analise?.itens.filter((item) => item.resultado === "REPROVADO") ?? []
+          analise?.itens.filter(
+            (item) => item.resultado === "REPROVADO" || !!item.observacao?.trim()
+          ) ?? []
         );
       })
       .catch(() => {
@@ -273,12 +296,22 @@ export function PersonalDataPage() {
     return apontamentos;
   }, [analysisItems]);
 
+  const camposReprovados = useMemo(
+    () => new Set<CampoAnaliseUsuario>(analysisItems.map((item) => item.campo)),
+    [analysisItems]
+  );
+
   function setField<K extends keyof PersonalForm>(field: K, value: PersonalForm[K]) {
     setForm((current) => {
       const nextForm = { ...current, [field]: value };
 
       if (touched[field] || errors[field]) {
-        const fieldError = validarFormulario(nextForm, precisaCorrigir)[field];
+        const fieldError = validarFormulario(
+          nextForm,
+          precisaCorrigir,
+          camposReprovados,
+          originalImages
+        )[field];
         setErrors((currentErrors) => {
           const nextErrors = { ...currentErrors };
 
@@ -299,7 +332,12 @@ export function PersonalDataPage() {
   function validateField(field: keyof PersonalForm) {
     setTouched((current) => ({ ...current, [field]: true }));
 
-    const fieldError = validarFormulario(form, precisaCorrigir)[field];
+    const fieldError = validarFormulario(
+      form,
+      precisaCorrigir,
+      camposReprovados,
+      originalImages
+    )[field];
 
     setErrors((current) => {
       const next = { ...current };
@@ -326,7 +364,12 @@ export function PersonalDataPage() {
 
   function handleCargoChange(cargo: CargoUsuario) {
     const nextForm = { ...form, cargo };
-    const fieldError = validarFormulario(nextForm, precisaCorrigir).cargo;
+    const fieldError = validarFormulario(
+      nextForm,
+      precisaCorrigir,
+      camposReprovados,
+      originalImages
+    ).cargo;
 
     setForm(nextForm);
     setTouched((current) => ({ ...current, cargo: true }));
@@ -360,7 +403,12 @@ export function PersonalDataPage() {
   async function handleSalvar() {
     if (!usuario || saving || aguardandoAnalise) return;
 
-    const nextErrors = validarFormulario(form, precisaCorrigir);
+    const nextErrors = validarFormulario(
+      form,
+      precisaCorrigir,
+      camposReprovados,
+      originalImages
+    );
     setErrors(nextErrors);
     setTouched({
       nome: true,

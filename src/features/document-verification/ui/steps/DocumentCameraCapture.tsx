@@ -125,8 +125,12 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
     videoRef,
     frameRef,
   });
+  const qualityValidationUnavailable = !!documentQuality.loadError;
   const captureDisabled =
-    !ready || isCapturing || !!error || !documentQuality.quality.valid;
+    !ready ||
+    isCapturing ||
+    !!error ||
+    (!qualityValidationUnavailable && !documentQuality.quality.valid);
 
   useEffect(() => {
     if (!open) return;
@@ -308,6 +312,8 @@ export function DocumentCameraCapture({ open, documentType, onClose, onCapture }
           >
             {isCapturing
               ? "Capturando..."
+              : qualityValidationUnavailable
+                ? "Capturar documento"
               : documentQuality.quality.valid
                 ? "Capturar"
                 : "Aguardando qualidade"}
