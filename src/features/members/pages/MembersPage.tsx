@@ -5,6 +5,10 @@ import {
   type PageResponse,
   type UsuarioResponse,
 } from "@features/user/api/userApi";
+import {
+  ClearFiltersButton,
+  GestaoBackButton,
+} from "@features/admin/ui/GestaoPageActions";
 import { getTipoUsuarioLabel } from "@features/user/model/permissions";
 import { CARGOS_ECLESIASTICOS } from "@shared/data/cargos";
 import { MemberAvatar } from "@shared/ui/member-avatar/MemberAvatar";
@@ -127,9 +131,19 @@ export function MembersPage() {
 
   const totalPages = data?.totalPages ?? 0;
   const members = data?.content ?? [];
+  const hasFilters = Boolean(search.trim() || cargo || situacao);
+
+  function clearFilters() {
+    setSearch("");
+    setCargo("");
+    setSituacao("");
+    setPage(0);
+  }
 
   return (
     <section className="portal-page members-page" aria-labelledby="members-title">
+      <GestaoBackButton />
+
       <header className="portal-pageHeader">
         <h1 id="members-title">Membros</h1>
         <p>Consulte os membros cadastrados na plataforma.</p>
@@ -173,6 +187,12 @@ export function MembersPage() {
             </option>
           ))}
         </select>
+        <div className="gestao-filterActions">
+          <ClearFiltersButton
+            disabled={!hasFilters}
+            onClick={clearFilters}
+          />
+        </div>
       </section>
 
       <section className="identity-tableCard">

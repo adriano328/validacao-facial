@@ -13,6 +13,10 @@ import {
   type UsuarioResponse,
 } from "@features/user/api/userApi";
 import { CARGOS_ECLESIASTICOS } from "@shared/data/cargos";
+import {
+  ClearFiltersButton,
+  GestaoBackButton,
+} from "@features/admin/ui/GestaoPageActions";
 import { alerts } from "@shared/lib/swal";
 import { getDocumentMediaSrc, isPdfDocument } from "@shared/utils/documentMedia";
 import { isRequestCanceled } from "@shared/utils/http";
@@ -285,6 +289,13 @@ export function IdentityConfirmationPage() {
     return () => controller.abort();
   }, [cargo, page, search, status]);
 
+  function clearFilters() {
+    setSearch("");
+    setCargo("");
+    setStatus("");
+    setPage(0);
+  }
+
   async function openDrawer(usuario: UsuarioResponse) {
     setDrawerOpen(true);
     setDrawerLoading(true);
@@ -468,9 +479,12 @@ export function IdentityConfirmationPage() {
   const documentIsPdf =
     isPdfDocument(selectedUser?.fotoDocumento, selectedUser?.fotoDocumentoContentType) ||
     documentImageFailed;
+  const hasFilters = Boolean(search.trim() || cargo || status);
 
   return (
     <section className="portal-page identity-page" aria-labelledby="identity-title">
+      <GestaoBackButton />
+
       <header className="portal-pageHeader">
         <h1 id="identity-title">Confirmação de Identidade</h1>
         <p>
@@ -516,6 +530,12 @@ export function IdentityConfirmationPage() {
             </option>
           ))}
         </select>
+        <div className="gestao-filterActions">
+          <ClearFiltersButton
+            disabled={!hasFilters}
+            onClick={clearFilters}
+          />
+        </div>
       </section>
 
       <section className="identity-tableCard">

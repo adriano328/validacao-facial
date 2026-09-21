@@ -1,7 +1,13 @@
 .privileges-toolbar {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
+}
+
+.privileges-toolbar .gestao-filterActions {
+  flex: 1 1 100%;
 }
 
 .privileges-toolbar input {
@@ -320,7 +326,7 @@
   }
 
   .privileges-toolbar input,
-  .privileges-toolbar button {
+  .privileges-toolbar > button {
     width: 100%;
   }
 }

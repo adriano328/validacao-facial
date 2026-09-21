@@ -12,6 +12,10 @@ import {
   type TipoUsuario,
 } from "@features/user/model/permissions";
 import { alerts } from "@shared/lib/swal";
+import {
+  ClearFiltersButton,
+  GestaoBackButton,
+} from "@features/admin/ui/GestaoPageActions";
 import { DropdownField } from "@shared/ui/dropdown/DropdownField";
 import { MemberAvatar } from "@shared/ui/member-avatar/MemberAvatar";
 import { isRequestCanceled } from "@shared/utils/http";
@@ -169,6 +173,11 @@ export function PrivilegesPage() {
     setSelectedRole(usuario ? normalizeTipoUsuario(usuario.tipoUsuario) : undefined);
   }
 
+  function clearFilters() {
+    setSearch("");
+    setPage(0);
+  }
+
   async function handleSave() {
     if (!selectedUser || !selectedRole || saving) return;
 
@@ -203,9 +212,12 @@ export function PrivilegesPage() {
     selectedRole &&
     selectedRole !== normalizeTipoUsuario(selectedUser.tipoUsuario)
   );
+  const hasFilters = Boolean(search.trim());
 
   return (
     <section className="portal-page privileges-page" aria-labelledby="privileges-title">
+      <GestaoBackButton />
+
       <header className="portal-pageHeader">
         <h1 id="privileges-title">Gestão de Privilégios</h1>
         <p>Gerencie os níveis de acesso administrativo dos membros.</p>
@@ -223,6 +235,12 @@ export function PrivilegesPage() {
         <button type="button" onClick={() => openDialog()}>
           + Gerenciar privilégio
         </button>
+        <div className="gestao-filterActions">
+          <ClearFiltersButton
+            disabled={!hasFilters}
+            onClick={clearFilters}
+          />
+        </div>
       </section>
 
       <section className="privileges-tableCard">

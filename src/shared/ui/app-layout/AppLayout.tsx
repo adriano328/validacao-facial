@@ -52,6 +52,7 @@ function getPageTitle(pathname: string): string {
 function isGestaoPath(pathname: string): boolean {
   return (
     pathname === "/gestao" ||
+    pathname.startsWith("/gestao/") ||
     pathname.startsWith("/cpe/") ||
     pathname === "/membros" ||
     pathname.startsWith("/membros/") ||

@@ -1,0 +1,57 @@
+.gestao-backButton {
+  width: fit-content;
+  min-height: 30px;
+  border: 1px solid var(--gray-300, #d0d5dd);
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--gray-700, #344054);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  padding: 0 12px;
+  cursor: pointer;
+}
+
+.gestao-backButton:hover {
+  border-color: var(--primary-200, #b9d2ff);
+  background: var(--primary-50, #eef4ff);
+  color: var(--primary-800, #062f70);
+}
+
+.gestao-filterActions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 30px;
+}
+
+.gestao-filterActions .gestao-clearFiltersButton,
+.gestao-clearFiltersButton {
+  min-height: 30px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--gray-500, #667085);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 12px;
+  padding: 0 8px;
+  cursor: pointer;
+}
+
+.gestao-filterActions .gestao-clearFiltersButton:hover:not(:disabled),
+.gestao-clearFiltersButton:hover:not(:disabled) {
+  background: var(--gray-50, #f8f9fb);
+  color: var(--primary-800, #062f70);
+}
+
+.gestao-filterActions .gestao-clearFiltersButton:disabled,
+.gestao-clearFiltersButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

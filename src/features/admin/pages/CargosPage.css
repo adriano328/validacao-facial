@@ -5,7 +5,13 @@
 .cargos-toolbar {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
+}
+
+.cargos-toolbar .gestao-filterActions {
+  flex: 1 1 100%;
 }
 
 .cargos-toolbar input {
@@ -343,7 +349,7 @@
   }
 
   .cargos-toolbar input,
-  .cargos-toolbar button {
+  .cargos-toolbar > button {
     width: 100%;
   }
 

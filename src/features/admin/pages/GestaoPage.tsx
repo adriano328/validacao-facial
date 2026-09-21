@@ -7,7 +7,7 @@ import { useUserInfo } from "@features/user/model/UserInfoContext";
 import "@features/user/pages/HomePage.css";
 import "./GestaoPage.css";
 
-type GestaoIcon = "fingerprint" | "users" | "shield" | "briefcase";
+type GestaoIcon = "fingerprint" | "users" | "shield" | "briefcase" | "building";
 
 type GestaoItem = {
   title: string;
@@ -27,6 +27,8 @@ function GestaoCardIcon({ name }: { name: GestaoIcon }) {
       "M12 3 5 6v5c0 4.4 2.8 8.3 7 9.8 4.2-1.5 7-5.4 7-9.8V6l-7-3Zm0 2.2 5 2.1V11c0 3.2-1.9 6.2-5 7.5-3.1-1.3-5-4.3-5-7.5V7.3l5-2.1Zm-1 8.5-2-2-1.4 1.4L11 16.5l5.4-5.4L15 9.7l-4 4Z",
     briefcase:
       "M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1h4a1 1 0 0 1 1 1v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a1 1 0 0 1 1-1h4V5Zm2 1h2V5h-2v1Zm-5 5v7h12v-7h-4v1h-4v-1H6Zm12-2V8H6v1h12Z",
+    building:
+      "M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v12h-7v-4H7v4H4Zm3-6h6v-2H7v2Zm0-4h2V9H7v2Zm4 0h2V9h-2v2Zm-4-4h2V5H7v2Zm4 0h2V5h-2v2Zm5 12h2v-2h-2v2Zm0-4h2v-2h-2v2Zm0-4h2V9h-2v2Z",
   };
 
   return (
@@ -68,6 +70,13 @@ export function GestaoPage() {
       icon: "briefcase",
       to: "/administracao/cargos",
       visible: canAccessGestaoAdmin(tipoUsuario),
+    },
+    {
+      title: "Convenções",
+      description: "Consulte as convenções cadastradas no sistema.",
+      icon: "building",
+      to: "/gestao/convencoes",
+      visible: canAccessGestao(tipoUsuario),
     },
   ];
 

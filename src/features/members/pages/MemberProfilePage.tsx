@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   obterMembroPorId,
   type UsuarioResponse,
 } from "@features/user/api/userApi";
+import { GestaoBackButton } from "@features/admin/ui/GestaoPageActions";
 import { getTipoUsuarioLabel } from "@features/user/model/permissions";
 import { isRequestCanceled } from "@shared/utils/http";
 import { formatarDataToBr } from "@shared/utils/formataData";
@@ -65,7 +66,6 @@ function DetailField({ label, value }: { label: string; value?: string | null })
 
 export function MemberProfilePage() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [usuario, setUsuario] = useState<UsuarioResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -131,13 +131,7 @@ export function MemberProfilePage() {
   return (
     <section className="portal-page member-profile" aria-labelledby="member-profile-title">
       <header className="portal-pageHeader member-profileHeader">
-        <button
-          className="member-backButton"
-          type="button"
-          onClick={() => navigate("/membros")}
-        >
-          Voltar
-        </button>
+        <GestaoBackButton />
         <h1 id="member-profile-title">Membro</h1>
         <p>Consulte as informações cadastrais do membro.</p>
       </header>

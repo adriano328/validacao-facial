@@ -6,6 +6,7 @@ import {
   gestaoAdminRoles,
   gestaoAllowedRoles,
 } from "@features/admin/model/gestaoAccess";
+import { ConvencoesPage } from "@features/admin/pages/ConvencoesPage";
 import { IdentityConfirmationPage } from "@features/identity/pages/IdentityConfirmationPage";
 import { ExternalCpfSearchPage } from "@features/external-query/pages/ExternalCpfSearchPage";
 import { ForgotPasswordPage } from "@features/login/pages/ForgotPasswordPage";
@@ -54,6 +55,7 @@ export function AppRoutes() {
             }
           >
             <Route path="/gestao" element={<GestaoPage />} />
+            <Route path="/gestao/convencoes" element={<ConvencoesPage />} />
             <Route
               path="/cpe/confirmacao-identidade"
               element={<IdentityConfirmationPage />}

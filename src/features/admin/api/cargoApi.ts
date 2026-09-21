@@ -30,12 +30,6 @@ export type TipoCargo = {
   descricao: string;
 };
 
-export type Convencao = {
-  convencaoId: number;
-  nomeConvencao: string;
-  cnpj: string;
-};
-
 export async function listarCargos(
   page: number,
   size: number,
@@ -73,14 +67,6 @@ export async function listarTiposCargo(
   signal?: AbortSignal
 ): Promise<TipoCargo[]> {
   const response = await api.get<TipoCargo[]>("/cargos/tipos", { signal });
-
-  return response.data;
-}
-
-export async function listarConvencoes(
-  signal?: AbortSignal
-): Promise<Convencao[]> {
-  const response = await api.get<Convencao[]>("/convencoes", { signal });
 
   return response.data;
 }

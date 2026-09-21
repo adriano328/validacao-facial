@@ -4,14 +4,20 @@ import {
   cadastrarCargo,
   excluirCargo,
   listarCargos,
-  listarConvencoes,
   listarTiposCargo,
   type CargoPayload,
   type CargoResponse,
-  type Convencao,
   type PageResponse,
   type TipoCargo,
 } from "@features/admin/api/cargoApi";
+import {
+  listarConvencoes,
+  type Convencao,
+} from "@features/admin/api/convencaoApi";
+import {
+  ClearFiltersButton,
+  GestaoBackButton,
+} from "@features/admin/ui/GestaoPageActions";
 import { alerts } from "@shared/lib/swal";
 import { DropdownField } from "@shared/ui/dropdown/DropdownField";
 import { FormField } from "@shared/ui/form/FormField";
@@ -254,6 +260,12 @@ export function CargosPage() {
     setFormTouched({});
   }
 
+  function clearFilters() {
+    setSearch("");
+    setDebouncedSearch("");
+    setPage(0);
+  }
+
   function updateForm<K extends keyof CargoForm>(field: K, value: CargoForm[K]) {
     setForm((current) => {
       const next = { ...current, [field]: value };
@@ -352,9 +364,12 @@ export function CargosPage() {
   const dialogTitle = editingCargoId ? "Editar cargo" : "Cadastrar cargo";
   const saveText = editingCargoId ? "Salvar alterações" : "Salvar cargo";
   const loadingSelects = supportLoading;
+  const hasFilters = Boolean(search.trim());
 
   return (
     <section className="portal-page cargos-page" aria-labelledby="cargos-title">
+      <GestaoBackButton />
+
       <header className="portal-pageHeader">
         <h1 id="cargos-title">Gestão de Cargos</h1>
         <p>Gerencie os cargos disponíveis nas convenções.</p>
@@ -373,6 +388,12 @@ export function CargosPage() {
         >
           + Novo cargo
         </button>
+        <div className="gestao-filterActions">
+          <ClearFiltersButton
+            disabled={!hasFilters}
+            onClick={clearFilters}
+          />
+        </div>
       </section>
 
       {supportError ? (
