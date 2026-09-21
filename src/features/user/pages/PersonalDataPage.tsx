@@ -665,7 +665,7 @@ export function PersonalDataPage() {
             onClick={handleSalvar}
             disabled={readonly}
           >
-            {saving ? "Salvando..." : "Salvar alteracoes"}
+            {saving ? "Salvando..." : "Salvar alterações"}
           </button>
         </footer>
       </section>
