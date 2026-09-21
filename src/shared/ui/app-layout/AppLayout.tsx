@@ -1,12 +1,9 @@
 import { useMemo, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuthToken } from "@features/auth/model/AuthTokenContext";
+import { canAccessGestao } from "@features/admin/model/gestaoAccess";
 import { useUserInfo } from "@features/user/model/UserInfoContext";
-import {
-  canAccessIdentity,
-  canManagePrivileges,
-  getTipoUsuarioLabel,
-} from "@features/user/model/permissions";
+import { getTipoUsuarioLabel } from "@features/user/model/permissions";
 import logoUrl from "@shared/assets/comademat-logo.png";
 import { MemberAvatar } from "@shared/ui/member-avatar/MemberAvatar";
 import "./AppLayout.css";
@@ -14,7 +11,7 @@ import "./AppLayout.css";
 type NavItem = {
   label: string;
   to: string;
-  icon: "home" | "vote" | "user" | "fingerprint" | "shield" | "key" | "briefcase";
+  icon: "home" | "vote" | "user" | "fingerprint" | "shield" | "key" | "briefcase" | "settings";
   visible?: boolean;
 };
 
@@ -32,6 +29,7 @@ function Icon({ name }: { name: NavItem["icon"] }) {
     shield: "M12 3 5 6v5c0 4.4 2.8 8.3 7 9.8 4.2-1.5 7-5.4 7-9.8V6l-7-3Zm0 2.2 5 2.1V11c0 3.2-1.9 6.2-5 7.5-3.1-1.3-5-4.3-5-7.5V7.3l5-2.1Zm-1 8.5-2-2-1.4 1.4L11 16.5l5.4-5.4L15 9.7l-4 4Z",
     key: "M7.5 14A4.5 4.5 0 1 1 12 9.5c0 .6-.1 1.2-.3 1.7L20 19.5 18.5 21l-1.7-1.7-1.6 1.6-1.4-1.4 1.6-1.6-1.7-1.7-1.6 1.6-1.4-1.4 1.6-1.6-1.8-1.8c-.7.4-1.6.6-2.6.6ZM7.5 7A2.5 2.5 0 1 0 10 9.5 2.5 2.5 0 0 0 7.5 7Z",
     briefcase: "M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1h4a1 1 0 0 1 1 1v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a1 1 0 0 1 1-1h4V5Zm2 1h2V5h-2v1Zm-5 5v7h12v-7h-4v1h-4v-1H6Zm12-2V8H6v1h12Z",
+    settings: "M5 9.5A7.8 7.8 0 0 1 6.4 7L5.3 4.9 7.1 3l2.1 1.1c.8-.4 1.7-.6 2.8-.6s2 .2 2.8.6L16.9 3l1.8 1.9L17.6 7A7.8 7.8 0 0 1 19 9.5l2 .9v3.2l-2 .9a7.8 7.8 0 0 1-1.4 2.5l1.1 2.1-1.8 1.9-2.1-1.1c-.8.4-1.7.6-2.8.6s-2-.2-2.8-.6L7.1 21l-1.8-1.9L6.4 17A7.8 7.8 0 0 1 5 14.5l-2-.9v-3.2l2-.9Zm7 6.5a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0-2a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z",
   };
 
   return (
@@ -42,12 +40,23 @@ function Icon({ name }: { name: NavItem["icon"] }) {
 }
 
 function getPageTitle(pathname: string): string {
+  if (pathname.includes("/gestao")) return "Gestão";
   if (pathname.includes("/votacao")) return "Cabine de Votação";
   if (pathname.includes("/minha-conta")) return "Minha Conta";
   if (pathname.includes("/membros")) return "Membros";
   if (pathname.includes("/cpe")) return "CPE";
   if (pathname.includes("/administracao")) return "Administração";
   return "Início";
+}
+
+function isGestaoPath(pathname: string): boolean {
+  return (
+    pathname === "/gestao" ||
+    pathname.startsWith("/cpe/") ||
+    pathname === "/membros" ||
+    pathname.startsWith("/membros/") ||
+    pathname.startsWith("/administracao/")
+  );
 }
 
 export function AppLayout() {
@@ -86,36 +95,13 @@ export function AppLayout() {
         ],
       },
       {
-        label: "CPE",
+        label: "Gestão",
         items: [
           {
-            label: "Confirmação de Identidade",
-            to: "/cpe/confirmacao-identidade",
-            icon: "fingerprint",
-            visible: canAccessIdentity(tipoUsuario),
-          },
-          {
-            label: "Membros",
-            to: "/membros",
-            icon: "user",
-            visible: canAccessIdentity(tipoUsuario),
-          },
-        ],
-      },
-      {
-        label: "Administração",
-        items: [
-          {
-            label: "Gestão de Privilégios",
-            to: "/administracao/privilegios",
-            icon: "shield",
-            visible: canManagePrivileges(tipoUsuario),
-          },
-          {
-            label: "Gestão de Cargos",
-            to: "/administracao/cargos",
-            icon: "briefcase",
-            visible: canManagePrivileges(tipoUsuario),
+            label: "Gestão",
+            to: "/gestao",
+            icon: "settings",
+            visible: canAccessGestao(tipoUsuario),
           },
         ],
       },
@@ -155,9 +141,11 @@ export function AppLayout() {
                 <span className="appLayout-navGroupLabel">{group.label}</span>
                 {items.map((item) => (
                   <NavLink
-                    className={({ isActive }) =>
-                      `appLayout-navLink ${isActive ? "is-active" : ""}`
-                    }
+                    className={({ isActive }) => {
+                      const active =
+                        isActive || (item.to === "/gestao" && isGestaoPath(location.pathname));
+                      return `appLayout-navLink ${active ? "is-active" : ""}`;
+                    }}
                     key={item.to}
                     to={item.to}
                     onClick={() => setSidebarOpen(false)}

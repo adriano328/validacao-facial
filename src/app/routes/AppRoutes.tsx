@@ -2,6 +2,10 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 import { ProtectedRoute } from "@features/auth/ui/ProtectedRoute";
 import { RoleProtectedRoute } from "@features/auth/ui/RoleProtectedRoute";
+import {
+  gestaoAdminRoles,
+  gestaoAllowedRoles,
+} from "@features/admin/model/gestaoAccess";
 import { IdentityConfirmationPage } from "@features/identity/pages/IdentityConfirmationPage";
 import { ExternalCpfSearchPage } from "@features/external-query/pages/ExternalCpfSearchPage";
 import { ForgotPasswordPage } from "@features/login/pages/ForgotPasswordPage";
@@ -9,6 +13,7 @@ import { LoginPage } from "@features/login/pages/LoginPage";
 import { MemberProfilePage } from "@features/members/pages/MemberProfilePage";
 import { MembersPage } from "@features/members/pages/MembersPage";
 import { CargosPage } from "@features/admin/pages/CargosPage";
+import { GestaoPage } from "@features/admin/pages/GestaoPage";
 import { PrivilegesPage } from "@features/admin/pages/PrivilegesPage";
 import { ResetPasswordPage } from "@features/login/pages/ResetPasswordPage";
 import { CadastroPage } from "@features/registration/pages/CadastroPage";
@@ -45,9 +50,10 @@ export function AppRoutes() {
 
           <Route
             element={
-              <RoleProtectedRoute allowedRoles={["MEMBRO_CPE", "ADMIN_CPE"]} />
+              <RoleProtectedRoute allowedRoles={gestaoAllowedRoles} />
             }
           >
+            <Route path="/gestao" element={<GestaoPage />} />
             <Route
               path="/cpe/confirmacao-identidade"
               element={<IdentityConfirmationPage />}
@@ -57,7 +63,7 @@ export function AppRoutes() {
           </Route>
 
           <Route
-            element={<RoleProtectedRoute allowedRoles={["ADMIN_CPE"]} />}
+            element={<RoleProtectedRoute allowedRoles={gestaoAdminRoles} />}
           >
             <Route
               path="/administracao/privilegios"

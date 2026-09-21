@@ -1,0 +1,9 @@
+.gestao-card {
+  text-decoration: none;
+}
+
+.gestao-card:focus-visible {
+  border-color: var(--primary-500, #1556b8);
+  outline: 3px solid rgba(21, 86, 184, 0.14);
+  outline-offset: 2px;
+}
