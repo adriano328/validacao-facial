@@ -88,8 +88,6 @@ export function GestaoPage() {
       </header>
 
       <section className="home-quick" aria-labelledby="gestao-recursos-title">
-        <h2 id="gestao-recursos-title">Recursos de gestão</h2>
-
         <div className="home-quickGrid">
           {gestaoItems
             .filter((item) => item.visible)
