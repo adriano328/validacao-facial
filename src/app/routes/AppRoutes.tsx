@@ -8,6 +8,7 @@ import { ForgotPasswordPage } from "@features/login/pages/ForgotPasswordPage";
 import { LoginPage } from "@features/login/pages/LoginPage";
 import { MemberProfilePage } from "@features/members/pages/MemberProfilePage";
 import { MembersPage } from "@features/members/pages/MembersPage";
+import { CargosPage } from "@features/admin/pages/CargosPage";
 import { PrivilegesPage } from "@features/admin/pages/PrivilegesPage";
 import { ResetPasswordPage } from "@features/login/pages/ResetPasswordPage";
 import { CadastroPage } from "@features/registration/pages/CadastroPage";
@@ -61,6 +62,10 @@ export function AppRoutes() {
             <Route
               path="/administracao/privilegios"
               element={<PrivilegesPage />}
+            />
+            <Route
+              path="/administracao/cargos"
+              element={<CargosPage />}
             />
           </Route>
         </Route>

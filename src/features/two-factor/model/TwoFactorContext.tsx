@@ -27,6 +27,7 @@ export function TwoFactorProvider({ children }: TwoFactorProviderProps) {
 
   function setSecret(secret: string | null) {
     setSecretState(secret);
+    if (secret) setStatus("inactive");
   }
 
   function clearSecret() {

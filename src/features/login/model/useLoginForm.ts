@@ -27,7 +27,7 @@ export function useLoginForm() {
   const abortRef = useRef<AbortController | null>(null);
 
   const { setEmail, clearAuthFlow } = useAuthFlow();
-  const { setSecret, clearSecret, setActive, resetTwoFactor } = useTwoFactor();
+  const { setSecret, setActive, resetTwoFactor } = useTwoFactor();
 
   useEffect(() => {
     return () => abortRef.current?.abort();
@@ -96,7 +96,7 @@ export function useLoginForm() {
   function closeTwoFactorFlow() {
     setQrCodeData(null);
     setTwoFactorStep("none");
-    clearSecret();
+    resetTwoFactor();
   }
 
   async function handleLogin() {
@@ -126,6 +126,7 @@ export function useLoginForm() {
 
       if (!ativado) {
         const twoFactor = await ativarTwoFactor(email, controller.signal);
+        resetTwoFactor();
         setSecret(twoFactor.secret);
         setQrCodeData(twoFactor);
         setTwoFactorStep("qr");
@@ -139,7 +140,7 @@ export function useLoginForm() {
       const message = handleAxiosError(err);
       alerts.error({ text: message });
       clearAuthFlow();
-      clearSecret();
+      resetTwoFactor();
     } finally {
       setIsSubmitting(false);
     }

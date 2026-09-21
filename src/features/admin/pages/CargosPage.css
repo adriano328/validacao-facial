@@ -1,0 +1,353 @@
+.cargos-page {
+  position: relative;
+}
+
+.cargos-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cargos-toolbar input {
+  width: min(360px, 100%);
+  height: 36px;
+  border: 1px solid var(--gray-300, #d0d5dd);
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--gray-800, #1d2939);
+  font-size: 13px;
+  padding: 0 11px;
+  outline: none;
+}
+
+.cargos-toolbar input:focus {
+  border-color: var(--primary-500, #1556b8);
+  box-shadow: 0 0 0 3px rgba(21, 86, 184, 0.1);
+}
+
+.cargos-toolbar button,
+.cargos-saveButton {
+  min-height: 36px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--primary-800, #062f70);
+  color: #ffffff;
+  font-size: 12px;
+  padding: 0 14px;
+  cursor: pointer;
+}
+
+.cargos-toolbar button:disabled,
+.cargos-saveButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.cargos-tableCard {
+  border: 1px solid var(--gray-200, #e4e7ec);
+  border-radius: 8px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.cargos-tableWrap {
+  overflow-x: auto;
+}
+
+.cargos-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+}
+
+.cargos-table th {
+  height: 36px;
+  padding: 0 12px;
+  background: var(--gray-50, #f8f9fb);
+  color: var(--gray-500, #667085);
+  font-size: 11px;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cargos-table td {
+  border-top: 1px solid var(--gray-200, #e4e7ec);
+  padding: 11px 12px;
+  color: var(--gray-700, #344054);
+  font-size: 12px;
+  vertical-align: middle;
+}
+
+.cargos-name {
+  color: var(--gray-900, #101828);
+}
+
+.cargos-type {
+  min-height: 22px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 5px;
+  padding: 0 8px;
+  font-size: 10px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.cargos-type.is-mesa-diretora {
+  background: #fee4e2;
+  color: #b42318;
+}
+
+.cargos-type.is-ministerial {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.cargos-type.is-administrativo {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+.cargos-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cargos-actions button {
+  width: 30px;
+  height: 30px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--gray-600, #475467);
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.cargos-actions svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.cargos-actions button:hover:not(:disabled) {
+  border-color: var(--primary-200, #b9d2ff);
+  background: var(--primary-50, #eef4ff);
+  color: var(--primary-800, #062f70);
+}
+
+.cargos-actions button:last-child:hover:not(:disabled) {
+  border-color: #fecaca;
+  background: var(--danger-50, #fef3f2);
+  color: var(--danger-700, #b42318);
+}
+
+.cargos-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.cargos-empty {
+  min-height: 150px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  padding: 18px;
+  color: var(--gray-600, #475467);
+  text-align: center;
+}
+
+.cargos-empty strong {
+  color: var(--gray-900, #101828);
+  font-size: 15px;
+}
+
+.cargos-empty span {
+  font-size: 13px;
+}
+
+.cargos-pagination {
+  min-height: 42px;
+  border-top: 1px solid var(--gray-200, #e4e7ec);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 14px;
+  color: var(--gray-600, #475467);
+  font-size: 12px;
+}
+
+.cargos-pagination div {
+  display: flex;
+  gap: 8px;
+}
+
+.cargos-pagination button,
+.cargos-dialog footer button {
+  min-height: 30px;
+  border: 1px solid var(--gray-300, #d0d5dd);
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--gray-700, #344054);
+  padding: 0 12px;
+  cursor: pointer;
+}
+
+.cargos-pagination button:disabled,
+.cargos-dialog footer button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.cargos-dialogLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 35;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.cargos-dialogBackdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(16, 24, 40, 0.42);
+}
+
+.cargos-dialog {
+  width: min(calc(100vw - 32px), 500px);
+  position: relative;
+  z-index: 1;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 24px 64px rgba(16, 24, 40, 0.22);
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+}
+
+.cargos-dialog header,
+.cargos-dialog footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cargos-dialog h2 {
+  margin: 0;
+  color: var(--gray-900, #101828);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.cargos-dialog header button {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--gray-500, #667085);
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.cargos-form {
+  display: grid;
+  gap: 2px;
+}
+
+.cargos-formRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 110px;
+  align-items: start;
+  gap: 12px;
+}
+
+.cargos-statusField {
+  display: grid;
+  gap: 9px;
+}
+
+.cargos-statusField > span {
+  color: #5a5a5a;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.cargos-switch {
+  min-height: var(--vf-input-height);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gray-800, #1d2939);
+  font-size: 13px;
+}
+
+.cargos-switch input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cargos-switch span {
+  width: 38px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--gray-300, #d0d5dd);
+  position: relative;
+  transition: background var(--vf-transition-fast, 160ms ease);
+}
+
+.cargos-switch span::after {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #ffffff;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.25);
+  transition: transform var(--vf-transition-fast, 160ms ease);
+}
+
+.cargos-switch input:checked + span {
+  background: var(--primary-800, #062f70);
+}
+
+.cargos-switch input:checked + span::after {
+  transform: translateX(18px);
+}
+
+.cargos-switch em {
+  color: var(--gray-800, #1d2939);
+  font-style: normal;
+}
+
+.cargos-saveButton {
+  min-height: 32px !important;
+}
+
+@media (max-width: 720px) {
+  .cargos-toolbar,
+  .cargos-pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cargos-toolbar input,
+  .cargos-toolbar button {
+    width: 100%;
+  }
+
+  .cargos-formRow {
+    grid-template-columns: 1fr;
+  }
+}
