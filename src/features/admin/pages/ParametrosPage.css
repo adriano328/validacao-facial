@@ -1,0 +1,272 @@
+.parametros-filterCard,
+.parametros-tableCard {
+  border: 1px solid var(--gray-200, #e4e7ec);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.parametros-filterCard {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 16px;
+}
+
+.parametros-filterCard .ff-container {
+  gap: 7px;
+}
+
+.parametros-filterCard .ff-label {
+  color: var(--gray-700, #344054);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.parametros-filterCard .gestao-filterActions {
+  grid-column: 1 / -1;
+}
+
+.parametros-tableCard {
+  overflow: hidden;
+}
+
+.parametros-tableWrap {
+  overflow-x: auto;
+}
+
+.parametros-table {
+  width: 100%;
+  min-width: 780px;
+  border-collapse: collapse;
+}
+
+.parametros-table th {
+  height: 36px;
+  padding: 0 14px;
+  background: var(--gray-50, #f8f9fb);
+  color: var(--gray-500, #667085);
+  font-size: 11px;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.parametros-table td {
+  border-top: 1px solid var(--gray-200, #e4e7ec);
+  padding: 13px 14px;
+  color: var(--gray-800, #1d2939);
+  font-size: 12px;
+  vertical-align: middle;
+}
+
+.parametros-name {
+  color: var(--gray-900, #101828);
+}
+
+.parametros-actions button {
+  width: 30px;
+  height: 30px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--gray-600, #475467);
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.parametros-actions svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.parametros-actions button:hover:not(:disabled) {
+  border-color: var(--primary-200, #b9d2ff);
+  background: var(--primary-50, #eef4ff);
+  color: var(--primary-800, #062f70);
+}
+
+.parametros-empty {
+  min-height: 150px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  padding: 18px;
+  color: var(--gray-600, #475467);
+  text-align: center;
+}
+
+.parametros-empty strong {
+  color: var(--gray-900, #101828);
+  font-size: 15px;
+}
+
+.parametros-empty span {
+  font-size: 13px;
+}
+
+.parametros-footer {
+  min-height: 42px;
+  border-top: 1px solid var(--gray-200, #e4e7ec);
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  color: var(--gray-600, #475467);
+  font-size: 12px;
+}
+
+.parametros-dialogLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 35;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.parametros-dialogBackdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(16, 24, 40, 0.42);
+}
+
+.parametros-dialog {
+  width: min(calc(100vw - 32px), 500px);
+  position: relative;
+  z-index: 1;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 24px 64px rgba(16, 24, 40, 0.22);
+  display: grid;
+}
+
+.parametros-dialogHeader {
+  border-bottom: 1px solid var(--gray-100, #f2f4f7);
+  padding: 18px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.parametros-dialogTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.parametros-dialogLogo {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  object-fit: contain;
+}
+
+.parametros-dialog h2 {
+  margin: 0;
+  color: var(--gray-900, #101828);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.parametros-dialog p {
+  margin: 4px 0 0;
+  color: var(--gray-500, #667085);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.parametros-dialogHeader > button {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--gray-500, #667085);
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.parametros-form {
+  padding: 16px 18px;
+  display: grid;
+  gap: 2px;
+}
+
+.parametros-helpText {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--gray-500, #667085);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.parametros-helpText span {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--primary-50, #eef4ff);
+  color: var(--primary-800, #062f70);
+  display: inline-grid;
+  place-items: center;
+  font-size: 10px;
+}
+
+.parametros-dialog footer {
+  border-top: 1px solid var(--gray-100, #f2f4f7);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.parametros-dialog footer button {
+  min-height: 32px;
+  border: 1px solid var(--gray-300, #d0d5dd);
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--gray-700, #344054);
+  padding: 0 12px;
+  cursor: pointer;
+}
+
+.parametros-dialog footer button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.parametros-saveButton {
+  border-color: var(--primary-800, #062f70) !important;
+  background: var(--primary-800, #062f70) !important;
+  color: #ffffff !important;
+}
+
+.parametros-saveButton:disabled {
+  border-color: var(--gray-300, #d0d5dd) !important;
+  background: var(--gray-300, #d0d5dd) !important;
+}
+
+@media (max-width: 720px) {
+  .parametros-filterCard {
+    grid-template-columns: 1fr;
+  }
+
+  .parametros-filterCard .gestao-filterActions {
+    justify-self: stretch;
+  }
+
+  .parametros-dialog footer {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .parametros-dialog footer button {
+    width: 100%;
+  }
+}

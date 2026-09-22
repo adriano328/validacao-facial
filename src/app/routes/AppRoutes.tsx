@@ -15,6 +15,7 @@ import { MemberProfilePage } from "@features/members/pages/MemberProfilePage";
 import { MembersPage } from "@features/members/pages/MembersPage";
 import { CargosPage } from "@features/admin/pages/CargosPage";
 import { GestaoPage } from "@features/admin/pages/GestaoPage";
+import { ParametrosPage } from "@features/admin/pages/ParametrosPage";
 import { PrivilegesPage } from "@features/admin/pages/PrivilegesPage";
 import { ResetPasswordPage } from "@features/login/pages/ResetPasswordPage";
 import { CadastroPage } from "@features/registration/pages/CadastroPage";
@@ -74,6 +75,10 @@ export function AppRoutes() {
             <Route
               path="/administracao/cargos"
               element={<CargosPage />}
+            />
+            <Route
+              path="/gestao/parametros"
+              element={<ParametrosPage />}
             />
           </Route>
         </Route>

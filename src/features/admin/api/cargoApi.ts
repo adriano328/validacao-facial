@@ -30,17 +30,27 @@ export type TipoCargo = {
   descricao: string;
 };
 
+export type CargoListFilters = {
+  convencaoId?: number;
+  statusAtivo?: boolean;
+  tipoCargo?: number;
+};
+
 export async function listarCargos(
   page: number,
   size: number,
   nomeCargo?: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  filters: CargoListFilters = {}
 ): Promise<PageResponse<CargoResponse>> {
   const response = await api.get<PageResponse<CargoResponse>>("/cargos", {
     params: {
       page,
       size,
       nomeCargo: nomeCargo || undefined,
+      convencaoId: filters.convencaoId,
+      statusAtivo: filters.statusAtivo,
+      tipoCargo: filters.tipoCargo,
     },
     signal,
   });

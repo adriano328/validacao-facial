@@ -7,7 +7,13 @@ import { useUserInfo } from "@features/user/model/UserInfoContext";
 import "@features/user/pages/HomePage.css";
 import "./GestaoPage.css";
 
-type GestaoIcon = "fingerprint" | "users" | "shield" | "briefcase" | "building";
+type GestaoIcon =
+  | "fingerprint"
+  | "users"
+  | "shield"
+  | "briefcase"
+  | "building"
+  | "sliders";
 
 type GestaoItem = {
   title: string;
@@ -29,6 +35,8 @@ function GestaoCardIcon({ name }: { name: GestaoIcon }) {
       "M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1h4a1 1 0 0 1 1 1v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a1 1 0 0 1 1-1h4V5Zm2 1h2V5h-2v1Zm-5 5v7h12v-7h-4v1h-4v-1H6Zm12-2V8H6v1h12Z",
     building:
       "M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v12h-7v-4H7v4H4Zm3-6h6v-2H7v2Zm0-4h2V9H7v2Zm4 0h2V9h-2v2Zm-4-4h2V5H7v2Zm4 0h2V5h-2v2Zm5 12h2v-2h-2v2Zm0-4h2v-2h-2v2Zm0-4h2V9h-2v2Z",
+    sliders:
+      "M5 4h2v10H5V4Zm0 12h2v4H5v-4Zm6-12h2v4h-2V4Zm0 6h2v10h-2V10Zm6-6h2v12h-2V4Zm0 14h2v2h-2v-2ZM3 13h6v2H3v-2Zm6-6h6v2H9V7Zm6 9h6v2h-6v-2Z",
   };
 
   return (
@@ -77,6 +85,13 @@ export function GestaoPage() {
       icon: "building",
       to: "/gestao/convencoes",
       visible: canAccessGestao(tipoUsuario),
+    },
+    {
+      title: "Parâmetros",
+      description: "Configure os cargos vinculados às funções da CPE por convenção.",
+      icon: "sliders",
+      to: "/gestao/parametros",
+      visible: canAccessGestaoAdmin(tipoUsuario),
     },
   ];
 
