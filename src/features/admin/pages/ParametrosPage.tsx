@@ -30,7 +30,6 @@ import "@features/user/pages/HomePage.css";
 import "./ParametrosPage.css";
 
 const cargosPageSize = 500;
-const genericCargoFilterSupported = false;
 
 type ParametroForm = Partial<ParametroUpdateRequest>;
 type ParametroFormErrors = Partial<Record<keyof ParametroUpdateRequest, string>>;
@@ -128,6 +127,7 @@ export function ParametrosPage() {
       const response = await listarParametros(
         {
           convencaoId: filterConvencaoId,
+          cargoId: filterCargoId,
         },
         signal
       );
@@ -207,7 +207,7 @@ export function ParametrosPage() {
     const controller = new AbortController();
     void loadParametros(controller.signal);
     return () => controller.abort();
-  }, [filterConvencaoId]);
+  }, [filterConvencaoId, filterCargoId]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -375,7 +375,7 @@ export function ParametrosPage() {
             emptyText={
               filterCargosLoading ? "Carregando cargos..." : "Nenhum cargo encontrado"
             }
-            disabled={!genericCargoFilterSupported || filterCargosLoading}
+            disabled={filterCargosLoading}
             onChange={setFilterCargoId}
           />
         </FormField>

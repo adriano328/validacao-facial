@@ -14,6 +14,7 @@ export type Parametro = {
 
 export type ParametroFilters = {
   convencaoId?: number;
+  cargoId?: number;
 };
 
 export type ParametroUpdateRequest = {
@@ -30,6 +31,7 @@ export async function listarParametros(
   const response = await api.get<Parametro[]>("/parametros", {
     params: {
       convencaoId: filters.convencaoId,
+      cargoId: filters.cargoId,
     },
     signal,
   });
