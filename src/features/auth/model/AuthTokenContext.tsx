@@ -2,6 +2,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -34,7 +35,7 @@ export function AuthTokenProvider({ children }: AuthTokenProviderProps) {
     return localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
   });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setAuthToken(token);
   }, [token]);
 

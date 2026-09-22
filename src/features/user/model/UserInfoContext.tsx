@@ -35,7 +35,7 @@ export function UserInfoProvider({ children }: UserInfoProviderProps) {
 
   const [usuario, setUsuario] =
     useState<ObterInformacaoUsuarioResponse | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(() => Boolean(token));
   const [error, setError] = useState<string | null>(null);
   const recarregarPromiseRef = useRef<Promise<void> | null>(null);
 
