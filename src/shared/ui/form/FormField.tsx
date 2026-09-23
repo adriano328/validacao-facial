@@ -5,10 +5,17 @@ type FormFieldProps = {
   label: string;
   required?: boolean;
   error?: string;
+  helperText?: React.ReactNode;
   children: React.ReactNode;
 };
 
-export function FormField({ label, required, error, children }: FormFieldProps) {
+export function FormField({
+  label,
+  required,
+  error,
+  helperText,
+  children,
+}: FormFieldProps) {
   return (
     <div className="ff-container">
       <label className="ff-label">
@@ -16,6 +23,8 @@ export function FormField({ label, required, error, children }: FormFieldProps) 
       </label>
 
       {children}
+
+      {helperText ? <span className="ff-helperText">{helperText}</span> : null}
 
       {error ? <span className="ff-errorText">{error}</span> : null}
     </div>

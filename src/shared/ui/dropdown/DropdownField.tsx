@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { FocusEvent } from "react";
+import { createPortal } from "react-dom";
 import "./dropdownField.css";
 
 export type DropdownOption<T extends string | number = string> = {
@@ -20,6 +21,14 @@ type DropdownFieldProps<T extends string | number = string> = {
   searchPlaceholder?: string;
   emptyText?: string;
   onSearchChange?: (query: string) => void;
+};
+
+type MenuPosition = {
+  left: number;
+  maxHeight: number;
+  placement: "bottom" | "top";
+  top: number;
+  width: number;
 };
 
 const normalize = (s: string) =>
@@ -43,8 +52,11 @@ export function DropdownField<T extends string | number = string>({
   onSearchChange,
 }: DropdownFieldProps<T>) {
   const [open, setOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState<MenuPosition | null>(null);
   const [query, setQuery] = useState("");
+  const fieldRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   const selected = useMemo(
     () => options.find((option) => option.value === value),
@@ -63,8 +75,83 @@ export function DropdownField<T extends string | number = string>({
   useEffect(() => {
     if (!open) {
       setQuery(selected?.label ?? "");
+      setMenuPosition(null);
     }
   }, [open, selected?.label]);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+
+    updateMenuPosition();
+
+    window.addEventListener("resize", updateMenuPosition);
+    window.addEventListener("scroll", updateMenuPosition, true);
+
+    return () => {
+      window.removeEventListener("resize", updateMenuPosition);
+      window.removeEventListener("scroll", updateMenuPosition, true);
+    };
+  }, [open, filteredOptions.length]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    function handleDocumentPointerDown(event: PointerEvent) {
+      const target = event.target as Node | null;
+      if (!target) return;
+
+      if (
+        fieldRef.current?.contains(target) ||
+        menuRef.current?.contains(target)
+      ) {
+        return;
+      }
+
+      closeSelect();
+    }
+
+    document.addEventListener("pointerdown", handleDocumentPointerDown, true);
+
+    return () => {
+      document.removeEventListener(
+        "pointerdown",
+        handleDocumentPointerDown,
+        true
+      );
+    };
+  }, [open, onBlur]);
+
+  function updateMenuPosition() {
+    const rect = fieldRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = document.documentElement.clientWidth;
+    const margin = 6;
+    const viewportPadding = 8;
+    const preferredMaxHeight = 260;
+    const spaceBelow = viewportHeight - rect.bottom - margin - viewportPadding;
+    const spaceAbove = rect.top - margin - viewportPadding;
+    const placement =
+      spaceBelow < 180 && spaceAbove > spaceBelow ? "top" : "bottom";
+    const availableSpace = placement === "top" ? spaceAbove : spaceBelow;
+    const maxHeight = Math.max(
+      120,
+      Math.min(preferredMaxHeight, availableSpace)
+    );
+    const left = Math.min(
+      Math.max(rect.left, viewportPadding),
+      Math.max(viewportPadding, viewportWidth - rect.width - viewportPadding)
+    );
+
+    setMenuPosition({
+      left,
+      maxHeight,
+      placement,
+      top: placement === "top" ? rect.top - margin : rect.bottom + margin,
+      width: rect.width,
+    });
+  }
 
   function openSelect() {
     if (disabled) return;
@@ -75,7 +162,10 @@ export function DropdownField<T extends string | number = string>({
       onSearchChange?.("");
     }
 
-    requestAnimationFrame(() => inputRef.current?.focus());
+    requestAnimationFrame(() => {
+      updateMenuPosition();
+      inputRef.current?.focus();
+    });
   }
 
   function closeSelect() {
@@ -84,7 +174,10 @@ export function DropdownField<T extends string | number = string>({
   }
 
   function handleWrapperBlur(event: FocusEvent<HTMLDivElement>) {
-    if (event.currentTarget.contains(event.relatedTarget)) {
+    if (
+      event.currentTarget.contains(event.relatedTarget) ||
+      (event.relatedTarget && menuRef.current?.contains(event.relatedTarget))
+    ) {
       return;
     }
 
@@ -100,8 +193,58 @@ export function DropdownField<T extends string | number = string>({
     onBlur?.();
   }
 
+  const menu =
+    open && menuPosition && typeof document !== "undefined"
+      ? createPortal(
+          <div
+            ref={menuRef}
+            className={[
+              "df-menu",
+              "df-menu--portal",
+              `df-menu--${menuPosition.placement}`,
+            ].join(" ")}
+            role="listbox"
+            style={{
+              left: menuPosition.left,
+              maxHeight: menuPosition.maxHeight,
+              top: menuPosition.top,
+              width: menuPosition.width,
+            }}
+          >
+            {filteredOptions.length === 0 ? (
+              <div className="df-emptyText">{emptyText}</div>
+            ) : (
+              filteredOptions.map((option) => {
+                const isSelected = option.value === value;
+
+                return (
+                  <button
+                    key={String(option.value)}
+                    type="button"
+                    className={[
+                      "df-option",
+                      isSelected ? "df-option--selected" : "",
+                      option.disabled ? "df-option--disabled" : "",
+                    ].join(" ")}
+                    disabled={option.disabled}
+                    onPointerDown={(event) => event.preventDefault()}
+                    onClick={() => selectValue(option)}
+                    role="option"
+                    aria-selected={isSelected}
+                  >
+                    <span>{option.label}</span>
+                    {isSelected ? <span className="df-check">✓</span> : null}
+                  </button>
+                );
+              })
+            )}
+          </div>,
+          document.body
+        )
+      : null;
+
   return (
-    <div className="df-field" onBlur={handleWrapperBlur}>
+    <div ref={fieldRef} className="df-field" onBlur={handleWrapperBlur}>
       <div
         className={[
           "df-control",
@@ -137,7 +280,7 @@ export function DropdownField<T extends string | number = string>({
           className="df-toggle"
           type="button"
           disabled={disabled}
-          onMouseDown={(event) => event.preventDefault()}
+          onPointerDown={(event) => event.preventDefault()}
           onClick={() => {
             if (open) closeSelect();
             else openSelect();
@@ -148,37 +291,7 @@ export function DropdownField<T extends string | number = string>({
         </button>
       </div>
 
-      {open ? (
-        <div className="df-menu" role="listbox">
-          {filteredOptions.length === 0 ? (
-            <div className="df-emptyText">{emptyText}</div>
-          ) : (
-            filteredOptions.map((option) => {
-              const isSelected = option.value === value;
-
-              return (
-                <button
-                  key={String(option.value)}
-                  type="button"
-                  className={[
-                    "df-option",
-                    isSelected ? "df-option--selected" : "",
-                    option.disabled ? "df-option--disabled" : "",
-                  ].join(" ")}
-                  disabled={option.disabled}
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => selectValue(option)}
-                  role="option"
-                  aria-selected={isSelected}
-                >
-                  <span>{option.label}</span>
-                  {isSelected ? <span className="df-check">✓</span> : null}
-                </button>
-              );
-            })
-          )}
-        </div>
-      ) : null}
+      {menu}
     </div>
   );
 }

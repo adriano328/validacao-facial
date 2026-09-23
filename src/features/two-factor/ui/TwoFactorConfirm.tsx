@@ -108,10 +108,7 @@ export function TwoFactorConfirm({ open, password, onBack, onDone }: TwoFactorCo
 
 
         <footer className="twofaFooter">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 2 5 5v6c0 4.4 2.8 8.4 7 10 4.2-1.6 7-5.6 7-10V5l-7-3Zm-1 13.2-3-3 1.4-1.4 1.6 1.6 3.8-3.8 1.4 1.4-5.2 5.2Z" />
-          </svg>
-          Conexão segura
+          
         </footer>
       </form>
     </div>

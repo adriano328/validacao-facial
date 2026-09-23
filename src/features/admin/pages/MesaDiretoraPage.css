@@ -12,13 +12,6 @@
   min-width: 860px;
 }
 
-.mesa-helperText {
-  margin: -2px 0 8px;
-  color: var(--gray-500, #667085);
-  font-size: 11px;
-  line-height: 1.35;
-}
-
 @media (max-width: 900px) {
   .mesa-filterCard {
     grid-template-columns: 1fr;

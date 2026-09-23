@@ -786,6 +786,7 @@ export function MesaDiretoraPage() {
               <FormField
                 label="Cargo"
                 required
+                helperText="Os cargos disponíveis correspondem à Convenção selecionada."
                 error={
                   formTouched.cargoIdAdministrativo
                     ? formErrors.cargoIdAdministrativo
@@ -811,10 +812,6 @@ export function MesaDiretoraPage() {
                   }
                 />
               </FormField>
-
-              <p className="mesa-helperText">
-                Os cargos disponíveis correspondem à Convenção selecionada.
-              </p>
 
               {dialogCargoError ? (
                 <div className="portal-state portal-state--error">{dialogCargoError}</div>

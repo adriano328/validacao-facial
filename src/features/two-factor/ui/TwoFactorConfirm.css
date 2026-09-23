@@ -199,12 +199,7 @@
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-}
-
-.twofaFooter svg {
-  width: 16px;
-  height: 16px;
-  fill: #198754;
+  margin-top: 18px;
 }
 
 @keyframes twofa-spin {
