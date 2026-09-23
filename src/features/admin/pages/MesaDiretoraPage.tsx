@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  atualizarComissaoCpe,
-  cadastrarComissaoCpe,
-  excluirComissaoCpe,
-  listarComissoesCpe,
-  type ComissaoCpe,
-  type ComissaoCpePayload,
-} from "@features/admin/api/comissaoCpeApi";
+  atualizarMesaDiretora,
+  cadastrarMesaDiretora,
+  excluirMesaDiretora,
+  listarMesasDiretoras,
+  type MesaDiretora,
+  type MesaDiretoraPayload,
+} from "@features/admin/api/mesaDiretoraApi";
 import {
   listarCargos,
   type CargoResponse,
@@ -36,30 +36,26 @@ import { handleAxiosError } from "@shared/utils/messageErro";
 import logoComademat from "@shared/assets/comademat-logo.png";
 import "@features/user/pages/HomePage.css";
 import "@features/identity/pages/IdentityConfirmationPage.css";
-import "./ComissaoCpePage.css";
+import "./MesaDiretoraPage.css";
 
 const pageSize = 8;
 const supportPageSize = 500;
 const memberPageSize = 12;
 const searchDelayMs = 350;
 
-type StatusFilter = "" | "true" | "false";
-
-type ComissaoCpeForm = {
+type MesaDiretoraForm = {
   convencaoId?: number;
   usuarioId?: number;
   cargoIdAdministrativo?: number;
   dataInicial: string;
   dataFinal: string;
-  statusAtivo: boolean;
 };
 
-type ComissaoCpeFormErrors = Partial<Record<keyof ComissaoCpeForm, string>>;
+type MesaDiretoraFormErrors = Partial<Record<keyof MesaDiretoraForm, string>>;
 
-const initialForm: ComissaoCpeForm = {
+const initialForm: MesaDiretoraForm = {
   dataInicial: "",
   dataFinal: "",
-  statusAtivo: true,
 };
 
 function EditIcon() {
@@ -101,7 +97,7 @@ function toMembroOptions(membros: UsuarioResponse[]): DropdownOption<number>[] {
 
 function mergeSelectedMembroOption(
   options: DropdownOption<number>[],
-  selected?: ComissaoCpe | null
+  selected?: MesaDiretora | null
 ): DropdownOption<number>[] {
   if (!selected) return options;
   if (options.some((option) => option.value === selected.usuarioId)) return options;
@@ -115,18 +111,12 @@ function mergeSelectedMembroOption(
   ];
 }
 
-function statusToFilter(value: StatusFilter): boolean | undefined {
-  if (value === "true") return true;
-  if (value === "false") return false;
-  return undefined;
-}
-
 function formatDate(value?: string | null) {
   return value ? formatarDataToBr(value) : "—";
 }
 
-function validateForm(form: ComissaoCpeForm): ComissaoCpeFormErrors {
-  const errors: ComissaoCpeFormErrors = {};
+function validateForm(form: MesaDiretoraForm): MesaDiretoraFormErrors {
+  const errors: MesaDiretoraFormErrors = {};
 
   if (!form.convencaoId) {
     errors.convencaoId = "A convenção é obrigatória.";
@@ -137,7 +127,7 @@ function validateForm(form: ComissaoCpeForm): ComissaoCpeFormErrors {
   }
 
   if (!form.cargoIdAdministrativo) {
-    errors.cargoIdAdministrativo = "O cargo administrativo é obrigatório.";
+    errors.cargoIdAdministrativo = "O cargo é obrigatório.";
   }
 
   if (!form.dataInicial) {
@@ -148,31 +138,26 @@ function validateForm(form: ComissaoCpeForm): ComissaoCpeFormErrors {
     errors.dataFinal = "A data final não pode ser anterior à data inicial.";
   }
 
-  if (typeof form.statusAtivo !== "boolean") {
-    errors.statusAtivo = "O status é obrigatório.";
-  }
-
   return errors;
 }
 
-function hasErrors(errors: ComissaoCpeFormErrors) {
+function hasErrors(errors: MesaDiretoraFormErrors) {
   return Object.values(errors).some(Boolean);
 }
 
-function toPayload(form: ComissaoCpeForm): ComissaoCpePayload {
+function toPayload(form: MesaDiretoraForm): MesaDiretoraPayload {
   return {
     convencaoId: form.convencaoId!,
     usuarioId: form.usuarioId!,
     cargoIdAdministrativo: form.cargoIdAdministrativo!,
     dataInicial: form.dataInicial,
     dataFinal: form.dataFinal || null,
-    statusAtivo: form.statusAtivo,
   };
 }
 
-export function ComissaoCpePage() {
+export function MesaDiretoraPage() {
   const [page, setPage] = useState(0);
-  const [data, setData] = useState<PageResponse<ComissaoCpe> | null>(null);
+  const [data, setData] = useState<PageResponse<MesaDiretora> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [convencoes, setConvencoes] = useState<Convencao[]>([]);
@@ -180,13 +165,12 @@ export function ComissaoCpePage() {
   const [filterMembro, setFilterMembro] = useState("");
   const [debouncedFilterMembro, setDebouncedFilterMembro] = useState("");
   const [filterCargoId, setFilterCargoId] = useState<number | undefined>();
-  const [filterStatus, setFilterStatus] = useState<StatusFilter>("");
   const [filterCargos, setFilterCargos] = useState<CargoResponse[]>([]);
   const [filterCargosLoading, setFilterCargosLoading] = useState(false);
   const [supportLoading, setSupportLoading] = useState(true);
   const [supportError, setSupportError] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedComissao, setSelectedComissao] = useState<ComissaoCpe | null>(null);
+  const [selectedMesa, setSelectedMesa] = useState<MesaDiretora | null>(null);
   const [dialogCargos, setDialogCargos] = useState<CargoResponse[]>([]);
   const [dialogCargosLoading, setDialogCargosLoading] = useState(false);
   const [dialogCargoError, setDialogCargoError] = useState<string | null>(null);
@@ -194,10 +178,10 @@ export function ComissaoCpePage() {
   const [memberSearch, setMemberSearch] = useState("");
   const [debouncedMemberSearch, setDebouncedMemberSearch] = useState("");
   const [membersLoading, setMembersLoading] = useState(false);
-  const [form, setForm] = useState<ComissaoCpeForm>(initialForm);
-  const [formErrors, setFormErrors] = useState<ComissaoCpeFormErrors>({});
+  const [form, setForm] = useState<MesaDiretoraForm>(initialForm);
+  const [formErrors, setFormErrors] = useState<MesaDiretoraFormErrors>({});
   const [formTouched, setFormTouched] = useState<
-    Partial<Record<keyof ComissaoCpeForm, boolean>>
+    Partial<Record<keyof MesaDiretoraForm, boolean>>
   >({});
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -216,28 +200,24 @@ export function ComissaoCpePage() {
     [dialogCargos]
   );
   const membroOptions = useMemo(
-    () => mergeSelectedMembroOption(toMembroOptions(membros), selectedComissao),
-    [membros, selectedComissao]
+    () => mergeSelectedMembroOption(toMembroOptions(membros), selectedMesa),
+    [membros, selectedMesa]
   );
   const hasFilters = Boolean(
-    filterConvencaoId ||
-      filterMembro.trim() ||
-      filterCargoId ||
-      filterStatus
+    filterConvencaoId || filterMembro.trim() || filterCargoId
   );
 
-  async function loadComissoes(nextPage = page, signal?: AbortSignal) {
+  async function loadMesas(nextPage = page, signal?: AbortSignal) {
     try {
       setLoading(true);
       setError(null);
-      const response = await listarComissoesCpe(
+      const response = await listarMesasDiretoras(
         nextPage,
         pageSize,
         {
           convencaoId: filterConvencaoId,
-          membro: debouncedFilterMembro,
+          nomeMembro: debouncedFilterMembro,
           cargoIdAdministrativo: filterCargoId,
-          statusAtivo: statusToFilter(filterStatus),
         },
         signal
       );
@@ -248,7 +228,7 @@ export function ComissaoCpePage() {
       if (isRequestCanceled(requestError)) return;
 
       setData(null);
-      setError("Não foi possível carregar os membros da Comissão CPE.");
+      setError("Não foi possível carregar os membros da Mesa Diretora.");
     } finally {
       if (!signal?.aborted) {
         setLoading(false);
@@ -282,7 +262,7 @@ export function ComissaoCpePage() {
 
       if (dialogCargoRequestRef.current === requestId) {
         setDialogCargos([]);
-        setDialogCargoError("Não foi possível carregar os cargos administrativos.");
+        setDialogCargoError("Não foi possível carregar os cargos.");
       }
     } finally {
       if (!signal?.aborted && dialogCargoRequestRef.current === requestId) {
@@ -336,15 +316,9 @@ export function ComissaoCpePage() {
 
   useEffect(() => {
     const controller = new AbortController();
-    void loadComissoes(page, controller.signal);
+    void loadMesas(page, controller.signal);
     return () => controller.abort();
-  }, [
-    debouncedFilterMembro,
-    filterCargoId,
-    filterConvencaoId,
-    filterStatus,
-    page,
-  ]);
+  }, [debouncedFilterMembro, filterCargoId, filterConvencaoId, page]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -419,14 +393,13 @@ export function ComissaoCpePage() {
     setFilterMembro("");
     setDebouncedFilterMembro("");
     setFilterCargoId(undefined);
-    setFilterStatus("");
     setPage(0);
   }
 
   function resetDialog() {
     dialogCargoRequestRef.current += 1;
     setDialogOpen(false);
-    setSelectedComissao(null);
+    setSelectedMesa(null);
     setDialogCargos([]);
     setDialogCargoError(null);
     setMembros([]);
@@ -439,7 +412,7 @@ export function ComissaoCpePage() {
   }
 
   function openCreateDialog() {
-    setSelectedComissao(null);
+    setSelectedMesa(null);
     setForm(initialForm);
     setFormErrors({});
     setFormTouched({});
@@ -450,27 +423,26 @@ export function ComissaoCpePage() {
     setDialogOpen(true);
   }
 
-  function openEditDialog(comissao: ComissaoCpe) {
-    setSelectedComissao(comissao);
+  function openEditDialog(mesa: MesaDiretora) {
+    setSelectedMesa(mesa);
     setForm({
-      convencaoId: comissao.convencaoId,
-      usuarioId: comissao.usuarioId,
-      cargoIdAdministrativo: comissao.cargoIdAdministrativo,
-      dataInicial: comissao.dataInicial,
-      dataFinal: comissao.dataFinal ?? "",
-      statusAtivo: Boolean(comissao.statusAtivo),
+      convencaoId: mesa.convencaoId,
+      usuarioId: mesa.usuarioId,
+      cargoIdAdministrativo: mesa.cargoIdAdministrativo,
+      dataInicial: mesa.dataInicial,
+      dataFinal: mesa.dataFinal ?? "",
     });
     setFormErrors({});
     setFormTouched({});
-    setMemberSearch(comissao.nomeUsuario);
-    setDebouncedMemberSearch(comissao.nomeUsuario);
+    setMemberSearch(mesa.nomeUsuario);
+    setDebouncedMemberSearch(mesa.nomeUsuario);
     setDialogOpen(true);
-    void loadDialogCargos(comissao.convencaoId);
+    void loadDialogCargos(mesa.convencaoId);
   }
 
-  function updateForm<K extends keyof ComissaoCpeForm>(
+  function updateForm<K extends keyof MesaDiretoraForm>(
     field: K,
-    value: ComissaoCpeForm[K]
+    value: MesaDiretoraForm[K]
   ) {
     setForm((current) => {
       const next = { ...current, [field]: value };
@@ -483,7 +455,7 @@ export function ComissaoCpePage() {
     });
   }
 
-  function touchField(field: keyof ComissaoCpeForm) {
+  function touchField(field: keyof MesaDiretoraForm) {
     setFormTouched((current) => ({ ...current, [field]: true }));
     setFormErrors(validateForm(form));
   }
@@ -510,7 +482,6 @@ export function ComissaoCpePage() {
       cargoIdAdministrativo: true,
       dataInicial: true,
       dataFinal: true,
-      statusAtivo: true,
     });
 
     if (hasErrors(errors)) {
@@ -521,30 +492,25 @@ export function ComissaoCpePage() {
     try {
       setSaving(true);
       alerts.loading({
-        title: selectedComissao
-          ? "Salvando alterações..."
-          : "Adicionando membro...",
+        title: selectedMesa ? "Salvando alterações..." : "Adicionando membro...",
       });
 
-      if (selectedComissao) {
-        await atualizarComissaoCpe(
-          selectedComissao.comissaoCpeId,
-          toPayload(form)
-        );
+      if (selectedMesa) {
+        await atualizarMesaDiretora(selectedMesa.mesaDiretoraId, toPayload(form));
       } else {
-        await cadastrarComissaoCpe(toPayload(form));
+        await cadastrarMesaDiretora(toPayload(form));
       }
 
       alerts.close();
       await alerts.success({
-        text: selectedComissao
-          ? "Membro da Comissão CPE atualizado com sucesso."
-          : "Membro adicionado à Comissão CPE com sucesso.",
+        text: selectedMesa
+          ? "Membro da Mesa Diretora atualizado com sucesso."
+          : "Membro adicionado à Mesa Diretora com sucesso.",
       });
 
-      const nextPage = selectedComissao ? page : 0;
+      const nextPage = selectedMesa ? page : 0;
       resetDialog();
-      await loadComissoes(nextPage);
+      await loadMesas(nextPage);
     } catch (requestError) {
       alerts.close();
       await alerts.error({ text: handleAxiosError(requestError) });
@@ -553,12 +519,12 @@ export function ComissaoCpePage() {
     }
   }
 
-  async function handleDelete(comissao: ComissaoCpe) {
+  async function handleDelete(mesa: MesaDiretora) {
     if (deletingId) return;
 
     const confirmed = await alerts.confirm({
       title: "Excluir membro",
-      text: "Deseja realmente excluir este membro da Comissão CPE?",
+      text: "Deseja realmente excluir este membro da Mesa Diretora?",
       confirmButtonText: "Excluir",
       cancelButtonText: "Cancelar",
     });
@@ -566,15 +532,15 @@ export function ComissaoCpePage() {
     if (!confirmed) return;
 
     try {
-      setDeletingId(comissao.comissaoCpeId);
+      setDeletingId(mesa.mesaDiretoraId);
       alerts.loading({ title: "Excluindo membro..." });
-      await excluirComissaoCpe(comissao.comissaoCpeId);
+      await excluirMesaDiretora(mesa.mesaDiretoraId);
       alerts.close();
-      await alerts.success({ text: "Membro excluído da Comissão CPE." });
+      await alerts.success({ text: "Membro excluído da Mesa Diretora." });
 
       const currentItems = data?.content.length ?? 0;
       const nextPage = currentItems === 1 && page > 0 ? page - 1 : page;
-      await loadComissoes(nextPage);
+      await loadMesas(nextPage);
     } catch (requestError) {
       alerts.close();
       await alerts.error({ text: handleAxiosError(requestError) });
@@ -583,14 +549,17 @@ export function ComissaoCpePage() {
     }
   }
 
-  const comissoes = data?.content ?? [];
+  const mesas = data?.content ?? [];
   const totalPages = data?.totalPages ?? 0;
-  const dialogTitle = selectedComissao
-    ? "Editar membro da Comissão CPE"
-    : "Adicionar membro à Comissão CPE";
+  const dialogTitle = selectedMesa
+    ? "Editar membro da Mesa Diretora"
+    : "Adicionar membro à Mesa Diretora";
+  const dialogSubtitle = selectedMesa
+    ? "Atualize o membro, cargo e período de participação na Mesa Diretora."
+    : "Defina o membro, cargo e período de participação na Mesa Diretora.";
 
   return (
-    <section className="portal-page comissao-page" aria-labelledby="comissao-title">
+    <section className="portal-page comissao-page mesa-page" aria-labelledby="mesa-title">
       <div className="comissao-headerRow">
         <GestaoBackButton />
         <button
@@ -604,11 +573,20 @@ export function ComissaoCpePage() {
       </div>
 
       <header className="portal-pageHeader">
-        <h1 id="comissao-title">Comissão CPE</h1>
-        <p>Gerencie os membros e cargos administrativos da Comissão CPE.</p>
+        <h1 id="mesa-title">Mesa Diretora</h1>
+        <p>Gerencie os membros e cargos da Mesa Diretora.</p>
       </header>
 
-      <section className="comissao-filterCard" aria-label="Filtros da Comissão CPE">
+      <section className="comissao-filterCard mesa-filterCard" aria-label="Filtros da Mesa Diretora">
+        <FormField label="Membro">
+          <input
+            className="vf-input"
+            value={filterMembro}
+            onChange={(event) => setFilterMembro(event.target.value)}
+            placeholder="Buscar membro por nome..."
+          />
+        </FormField>
+
         <FormField label="Convenção">
           <DropdownField<number>
             value={filterConvencaoId}
@@ -623,16 +601,7 @@ export function ComissaoCpePage() {
           />
         </FormField>
 
-        <FormField label="Membro">
-          <input
-            className="vf-input"
-            value={filterMembro}
-            onChange={(event) => setFilterMembro(event.target.value)}
-            placeholder="Buscar por nome..."
-          />
-        </FormField>
-
-        <FormField label="Cargo administrativo">
+        <FormField label="Cargo">
           <DropdownField<number>
             value={filterCargoId}
             options={filterCargoOptions}
@@ -649,21 +618,6 @@ export function ComissaoCpePage() {
           />
         </FormField>
 
-        <FormField label="Status">
-          <select
-            className="vf-input"
-            value={filterStatus}
-            onChange={(event) => {
-              setFilterStatus(event.target.value as StatusFilter);
-              setPage(0);
-            }}
-          >
-            <option value="">Todos</option>
-            <option value="true">Ativo</option>
-            <option value="false">Inativo</option>
-          </select>
-        </FormField>
-
         <div className="gestao-filterActions">
           <ClearFiltersButton disabled={!hasFilters} onClick={clearFilters} />
         </div>
@@ -675,63 +629,53 @@ export function ComissaoCpePage() {
 
       <section className="identity-tableCard">
         {loading ? (
-          <div className="portal-state">Carregando Comissão CPE...</div>
+          <div className="portal-state">Carregando Mesa Diretora...</div>
         ) : error ? (
           <div className="portal-state portal-state--error">{error}</div>
-        ) : comissoes.length === 0 ? (
+        ) : mesas.length === 0 ? (
           <div className="identity-empty">
-            <strong>Nenhum membro da Comissão CPE encontrado</strong>
-            <span>Nenhum membro da Comissão CPE encontrado para os filtros informados.</span>
+            <strong>Nenhum membro da Mesa Diretora encontrado</strong>
+            <span>Nenhum membro da Mesa Diretora encontrado para os filtros informados.</span>
           </div>
         ) : (
           <div className="identity-tableWrap">
-            <table className="identity-table comissao-table">
+            <table className="identity-table comissao-table mesa-table">
               <thead>
                 <tr>
                   <th>Convenção</th>
                   <th>Membro</th>
-                  <th>Cargo administrativo</th>
+                  <th>Cargo</th>
                   <th>Data inicial</th>
                   <th>Data final</th>
-                  <th>Status</th>
                   <th>Ações</th>
                 </tr>
               </thead>
               <tbody>
-                {comissoes.map((comissao) => (
-                  <tr key={comissao.comissaoCpeId}>
+                {mesas.map((mesa) => (
+                  <tr key={mesa.mesaDiretoraId}>
                     <td>
-                      <span className="comissao-convencao">{comissao.nomeConvencao}</span>
+                      <span className="comissao-convencao">{mesa.nomeConvencao}</span>
                     </td>
-                    <td>{comissao.nomeUsuario}</td>
-                    <td>{comissao.nomeCargoAdministrativo}</td>
-                    <td>{formatDate(comissao.dataInicial)}</td>
-                    <td>{formatDate(comissao.dataFinal)}</td>
-                    <td>
-                      <span
-                        className={`portal-badge portal-badge--${
-                          comissao.statusAtivo ? "ativo" : "inativo"
-                        }`}
-                      >
-                        {comissao.statusAtivo ? "Ativo" : "Inativo"}
-                      </span>
-                    </td>
+                    <td>{mesa.nomeUsuario}</td>
+                    <td>{mesa.nomeCargoAdministrativo}</td>
+                    <td>{formatDate(mesa.dataInicial)}</td>
+                    <td>{formatDate(mesa.dataFinal)}</td>
                     <td>
                       <div className="comissao-actions">
                         <button
                           type="button"
                           title="Editar membro"
-                          aria-label={`Editar ${comissao.nomeUsuario}`}
-                          onClick={() => openEditDialog(comissao)}
+                          aria-label={`Editar ${mesa.nomeUsuario}`}
+                          onClick={() => openEditDialog(mesa)}
                         >
                           <EditIcon />
                         </button>
                         <button
                           type="button"
                           title="Excluir membro"
-                          aria-label={`Excluir ${comissao.nomeUsuario}`}
-                          disabled={deletingId === comissao.comissaoCpeId}
-                          onClick={() => void handleDelete(comissao)}
+                          aria-label={`Excluir ${mesa.nomeUsuario}`}
+                          disabled={deletingId === mesa.mesaDiretoraId}
+                          onClick={() => void handleDelete(mesa)}
                         >
                           <TrashIcon />
                         </button>
@@ -768,7 +712,7 @@ export function ComissaoCpePage() {
           className="comissao-dialogLayer"
           role="dialog"
           aria-modal="true"
-          aria-labelledby="comissao-dialog-title"
+          aria-labelledby="mesa-dialog-title"
         >
           <button
             className="comissao-dialogBackdrop"
@@ -786,8 +730,8 @@ export function ComissaoCpePage() {
                   aria-hidden="true"
                 />
                 <div>
-                  <h2 id="comissao-dialog-title">{dialogTitle}</h2>
-                  <p>Defina o membro, cargo e período de participação na Comissão CPE.</p>
+                  <h2 id="mesa-dialog-title">{dialogTitle}</h2>
+                  <p>{dialogSubtitle}</p>
                 </div>
               </div>
               <button type="button" aria-label="Fechar" onClick={resetDialog}>
@@ -840,7 +784,7 @@ export function ComissaoCpePage() {
               </FormField>
 
               <FormField
-                label="Cargo administrativo"
+                label="Cargo"
                 required
                 error={
                   formTouched.cargoIdAdministrativo
@@ -867,6 +811,10 @@ export function ComissaoCpePage() {
                   }
                 />
               </FormField>
+
+              <p className="mesa-helperText">
+                Os cargos disponíveis correspondem à Convenção selecionada.
+              </p>
 
               {dialogCargoError ? (
                 <div className="portal-state portal-state--error">{dialogCargoError}</div>
@@ -905,25 +853,6 @@ export function ComissaoCpePage() {
                   />
                 </FormField>
               </div>
-
-              <div className="comissao-statusField">
-                <div>
-                  <strong>Status do membro <span>*</span></strong>
-                  <small>Habilita atuação e emissão de atas</small>
-                </div>
-                <label className="comissao-switch">
-                  <em>{form.statusAtivo ? "Ativo" : "Inativo"}</em>
-                  <input
-                    type="checkbox"
-                    checked={form.statusAtivo}
-                    onChange={(event) =>
-                      updateForm("statusAtivo", event.target.checked)
-                    }
-                    disabled={saving}
-                  />
-                  <span aria-hidden />
-                </label>
-              </div>
             </div>
 
             <footer>
@@ -936,7 +865,7 @@ export function ComissaoCpePage() {
                 disabled={saving || dialogCargosLoading}
                 onClick={() => void handleSave()}
               >
-                {saving ? "Salvando..." : selectedComissao ? "Salvar alterações" : "Salvar"}
+                {saving ? "Salvando..." : selectedMesa ? "Salvar alterações" : "Salvar"}
               </button>
             </footer>
           </section>

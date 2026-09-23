@@ -16,6 +16,7 @@ import { MembersPage } from "@features/members/pages/MembersPage";
 import { CargosPage } from "@features/admin/pages/CargosPage";
 import { ComissaoCpePage } from "@features/admin/pages/ComissaoCpePage";
 import { GestaoPage } from "@features/admin/pages/GestaoPage";
+import { MesaDiretoraPage } from "@features/admin/pages/MesaDiretoraPage";
 import { ParametrosPage } from "@features/admin/pages/ParametrosPage";
 import { PrivilegesPage } from "@features/admin/pages/PrivilegesPage";
 import { ResetPasswordPage } from "@features/login/pages/ResetPasswordPage";
@@ -84,6 +85,10 @@ export function AppRoutes() {
             <Route
               path="/gestao/comissao-cpe"
               element={<ComissaoCpePage />}
+            />
+            <Route
+              path="/gestao/mesa-diretora"
+              element={<MesaDiretoraPage />}
             />
           </Route>
         </Route>

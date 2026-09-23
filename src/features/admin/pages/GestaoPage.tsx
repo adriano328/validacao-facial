@@ -14,7 +14,8 @@ type GestaoIcon =
   | "briefcase"
   | "building"
   | "sliders"
-  | "committee";
+  | "committee"
+  | "board";
 
 type GestaoItem = {
   title: string;
@@ -40,6 +41,8 @@ function GestaoCardIcon({ name }: { name: GestaoIcon }) {
       "M5 4h2v10H5V4Zm0 12h2v4H5v-4Zm6-12h2v4h-2V4Zm0 6h2v10h-2V10Zm6-6h2v12h-2V4Zm0 14h2v2h-2v-2ZM3 13h6v2H3v-2Zm6-6h6v2H9V7Zm6 9h6v2h-6v-2Z",
     committee:
       "M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm6.5 0a2.8 2.8 0 1 0 0-5.6 2.8 2.8 0 0 0 0 5.6ZM9 13c-3.8 0-6 1.9-6 4.1V19h12v-1.9C15 14.9 12.8 13 9 13Zm6.4.1c.9.9 1.6 2.2 1.6 4V19h4v-1.6c0-2-2-3.8-5.6-4.3Z",
+    board:
+      "M4 4h16v3H4V4Zm1 5h14v11H5V9Zm2 2v7h10v-7H7Zm2 1h2v2H9v-2Zm4 0h2v2h-2v-2Zm-4 3h2v2H9v-2Zm4 0h2v2h-2v-2Z",
   };
 
   return (
@@ -101,6 +104,13 @@ export function GestaoPage() {
       description: "Gerencie os membros e cargos administrativos da Comissão CPE.",
       icon: "committee",
       to: "/gestao/comissao-cpe",
+      visible: canAccessGestaoAdmin(tipoUsuario),
+    },
+    {
+      title: "Mesa Diretora",
+      description: "Gerencie os membros e cargos da Mesa Diretora.",
+      icon: "board",
+      to: "/gestao/mesa-diretora",
       visible: canAccessGestaoAdmin(tipoUsuario),
     },
   ];
