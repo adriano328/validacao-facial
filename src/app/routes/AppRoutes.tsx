@@ -14,6 +14,7 @@ import { LoginPage } from "@features/login/pages/LoginPage";
 import { MemberProfilePage } from "@features/members/pages/MemberProfilePage";
 import { MembersPage } from "@features/members/pages/MembersPage";
 import { CargosPage } from "@features/admin/pages/CargosPage";
+import { ComissaoCpePage } from "@features/admin/pages/ComissaoCpePage";
 import { GestaoPage } from "@features/admin/pages/GestaoPage";
 import { ParametrosPage } from "@features/admin/pages/ParametrosPage";
 import { PrivilegesPage } from "@features/admin/pages/PrivilegesPage";
@@ -79,6 +80,10 @@ export function AppRoutes() {
             <Route
               path="/gestao/parametros"
               element={<ParametrosPage />}
+            />
+            <Route
+              path="/gestao/comissao-cpe"
+              element={<ComissaoCpePage />}
             />
           </Route>
         </Route>

@@ -13,7 +13,8 @@ type GestaoIcon =
   | "shield"
   | "briefcase"
   | "building"
-  | "sliders";
+  | "sliders"
+  | "committee";
 
 type GestaoItem = {
   title: string;
@@ -37,6 +38,8 @@ function GestaoCardIcon({ name }: { name: GestaoIcon }) {
       "M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v12h-7v-4H7v4H4Zm3-6h6v-2H7v2Zm0-4h2V9H7v2Zm4 0h2V9h-2v2Zm-4-4h2V5H7v2Zm4 0h2V5h-2v2Zm5 12h2v-2h-2v2Zm0-4h2v-2h-2v2Zm0-4h2V9h-2v2Z",
     sliders:
       "M5 4h2v10H5V4Zm0 12h2v4H5v-4Zm6-12h2v4h-2V4Zm0 6h2v10h-2V10Zm6-6h2v12h-2V4Zm0 14h2v2h-2v-2ZM3 13h6v2H3v-2Zm6-6h6v2H9V7Zm6 9h6v2h-6v-2Z",
+    committee:
+      "M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm6.5 0a2.8 2.8 0 1 0 0-5.6 2.8 2.8 0 0 0 0 5.6ZM9 13c-3.8 0-6 1.9-6 4.1V19h12v-1.9C15 14.9 12.8 13 9 13Zm6.4.1c.9.9 1.6 2.2 1.6 4V19h4v-1.6c0-2-2-3.8-5.6-4.3Z",
   };
 
   return (
@@ -91,6 +94,13 @@ export function GestaoPage() {
       description: "Configure os cargos vinculados às funções da CPE por convenção.",
       icon: "sliders",
       to: "/gestao/parametros",
+      visible: canAccessGestaoAdmin(tipoUsuario),
+    },
+    {
+      title: "Comissão CPE",
+      description: "Gerencie os membros e cargos administrativos da Comissão CPE.",
+      icon: "committee",
+      to: "/gestao/comissao-cpe",
       visible: canAccessGestaoAdmin(tipoUsuario),
     },
   ];
