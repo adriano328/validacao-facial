@@ -127,7 +127,7 @@
 
 .comissao-dialog {
   width: min(calc(100vw - 32px), 520px);
-  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
   position: relative;
   z-index: 1;
   border-radius: 10px;
@@ -185,7 +185,7 @@
 }
 
 .comissao-form {
-  max-height: calc(100vh - 184px);
+  max-height: calc(100dvh - 184px);
   overflow-y: auto;
   padding: 16px 18px;
   display: grid;
@@ -310,6 +310,12 @@
 }
 
 @media (max-width: 760px) {
+  .comissao-dialogLayer {
+    place-items: start center;
+    overflow-y: auto;
+    padding: 12px;
+  }
+
   .comissao-headerRow,
   .comissao-dialog footer {
     align-items: stretch;

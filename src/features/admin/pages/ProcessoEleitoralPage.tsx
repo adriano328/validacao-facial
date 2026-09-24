@@ -18,7 +18,7 @@ export function ProcessoEleitoralPage() {
       aria-labelledby="processo-eleitoral-title"
     >
       <header className="portal-pageHeader">
-        <h1 id="processo-eleitoral-title">Eventos e Processo Eleitoral</h1>
+        <h1 id="processo-eleitoral-title">Eventos e Eleições</h1>
         <p>Gerencie os eventos e processos eleitorais das convenções.</p>
       </header>
 

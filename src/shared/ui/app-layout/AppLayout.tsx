@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuthToken } from "@features/auth/model/AuthTokenContext";
 import { canAccessGestao } from "@features/admin/model/gestaoAccess";
@@ -50,7 +50,7 @@ function Icon({ name }: { name: NavItem["icon"] }) {
 }
 
 function getPageTitle(pathname: string): string {
-  if (pathname.includes("/processo-eleitoral")) return "Eventos e Processo Eleitoral";
+  if (pathname.includes("/processo-eleitoral")) return "Eventos e Eleições";
   if (pathname.includes("/gestao")) return "Gestão";
   if (pathname.includes("/votacao")) return "Cabine de Votação";
   if (pathname.includes("/minha-conta")) return "Minha Conta";
@@ -155,6 +155,20 @@ export function AppLayout() {
   ]
     .filter(Boolean)
     .join(" ");
+
+  useEffect(() => {
+    if (!sidebarOpen) return;
+
+    const mediaQuery = window.matchMedia("(max-width: 768px)");
+    if (!mediaQuery.matches) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [sidebarOpen]);
 
   return (
     <div className="appLayout">

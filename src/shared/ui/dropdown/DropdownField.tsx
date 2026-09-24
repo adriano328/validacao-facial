@@ -135,13 +135,17 @@ export function DropdownField<T extends string | number = string>({
     const placement =
       spaceBelow < 180 && spaceAbove > spaceBelow ? "top" : "bottom";
     const availableSpace = placement === "top" ? spaceAbove : spaceBelow;
+    const menuWidth = Math.min(
+      rect.width,
+      Math.max(160, viewportWidth - viewportPadding * 2)
+    );
     const maxHeight = Math.max(
       120,
       Math.min(preferredMaxHeight, availableSpace)
     );
     const left = Math.min(
       Math.max(rect.left, viewportPadding),
-      Math.max(viewportPadding, viewportWidth - rect.width - viewportPadding)
+      Math.max(viewportPadding, viewportWidth - menuWidth - viewportPadding)
     );
 
     setMenuPosition({
@@ -149,7 +153,7 @@ export function DropdownField<T extends string | number = string>({
       maxHeight,
       placement,
       top: placement === "top" ? rect.top - margin : rect.bottom + margin,
-      width: rect.width,
+      width: menuWidth,
     });
   }
 
