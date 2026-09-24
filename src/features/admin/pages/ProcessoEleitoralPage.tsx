@@ -4,10 +4,6 @@ import "./GestaoPage.css";
 import "./ProcessoEleitoralPage.css";
 
 export function ProcessoEleitoralPage() {
-  function handleEventosClick() {
-    // navigate("/processo-eleitoral/eventos");
-  }
-
   function handleEleicoesClick() {
     // navigate("/processo-eleitoral/eleicoes");
   }
@@ -28,7 +24,7 @@ export function ProcessoEleitoralPage() {
             description="Gerencie os eventos vinculados às convenções e seus períodos de realização."
             icon="calendar"
             title="Eventos"
-            onClick={handleEventosClick}
+            to="/processo-eleitoral/eventos"
           />
 
           <GestaoHubCard
