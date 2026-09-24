@@ -18,6 +18,7 @@ import { ComissaoCpePage } from "@features/admin/pages/ComissaoCpePage";
 import { GestaoPage } from "@features/admin/pages/GestaoPage";
 import { MesaDiretoraPage } from "@features/admin/pages/MesaDiretoraPage";
 import { ParametrosPage } from "@features/admin/pages/ParametrosPage";
+import { ProcessoEleitoralPage } from "@features/admin/pages/ProcessoEleitoralPage";
 import { PrivilegesPage } from "@features/admin/pages/PrivilegesPage";
 import { ResetPasswordPage } from "@features/login/pages/ResetPasswordPage";
 import { CadastroPage } from "@features/registration/pages/CadastroPage";
@@ -58,6 +59,10 @@ export function AppRoutes() {
             }
           >
             <Route path="/gestao" element={<GestaoPage />} />
+            <Route
+              path="/processo-eleitoral"
+              element={<ProcessoEleitoralPage />}
+            />
             <Route path="/gestao/convencoes" element={<ConvencoesPage />} />
             <Route
               path="/cpe/confirmacao-identidade"

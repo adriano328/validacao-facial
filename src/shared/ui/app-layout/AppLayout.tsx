@@ -11,7 +11,16 @@ import "./AppLayout.css";
 type NavItem = {
   label: string;
   to: string;
-  icon: "home" | "vote" | "user" | "fingerprint" | "shield" | "key" | "briefcase" | "settings";
+  icon:
+    | "home"
+    | "vote"
+    | "user"
+    | "fingerprint"
+    | "shield"
+    | "key"
+    | "briefcase"
+    | "settings"
+    | "calendar";
   visible?: boolean;
 };
 
@@ -30,6 +39,7 @@ function Icon({ name }: { name: NavItem["icon"] }) {
     key: "M7.5 14A4.5 4.5 0 1 1 12 9.5c0 .6-.1 1.2-.3 1.7L20 19.5 18.5 21l-1.7-1.7-1.6 1.6-1.4-1.4 1.6-1.6-1.7-1.7-1.6 1.6-1.4-1.4 1.6-1.6-1.8-1.8c-.7.4-1.6.6-2.6.6ZM7.5 7A2.5 2.5 0 1 0 10 9.5 2.5 2.5 0 0 0 7.5 7Z",
     briefcase: "M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1h4a1 1 0 0 1 1 1v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a1 1 0 0 1 1-1h4V5Zm2 1h2V5h-2v1Zm-5 5v7h12v-7h-4v1h-4v-1H6Zm12-2V8H6v1h12Z",
     settings: "M5 9.5A7.8 7.8 0 0 1 6.4 7L5.3 4.9 7.1 3l2.1 1.1c.8-.4 1.7-.6 2.8-.6s2 .2 2.8.6L16.9 3l1.8 1.9L17.6 7A7.8 7.8 0 0 1 19 9.5l2 .9v3.2l-2 .9a7.8 7.8 0 0 1-1.4 2.5l1.1 2.1-1.8 1.9-2.1-1.1c-.8.4-1.7.6-2.8.6s-2-.2-2.8-.6L7.1 21l-1.8-1.9L6.4 17A7.8 7.8 0 0 1 5 14.5l-2-.9v-3.2l2-.9Zm7 6.5a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0-2a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z",
+    calendar: "M7 2h2v2h6V2h2v2h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2V2Zm12 8H5v9h14v-9ZM5 8h14V6H5v2Zm2 4h3v3H7v-3Zm5 0h5v2h-5v-2Zm0 4h4v2h-4v-2Z",
   };
 
   return (
@@ -40,6 +50,7 @@ function Icon({ name }: { name: NavItem["icon"] }) {
 }
 
 function getPageTitle(pathname: string): string {
+  if (pathname.includes("/processo-eleitoral")) return "Eventos e Processo Eleitoral";
   if (pathname.includes("/gestao")) return "Gestão";
   if (pathname.includes("/votacao")) return "Cabine de Votação";
   if (pathname.includes("/minha-conta")) return "Minha Conta";
@@ -62,6 +73,7 @@ function isGestaoPath(pathname: string): boolean {
 
 export function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { clearToken } = useAuthToken();
   const { usuario } = useUserInfo();
   const navigate = useNavigate();
@@ -96,6 +108,17 @@ export function AppLayout() {
         ],
       },
       {
+        label: "Processo Eleitoral",
+        items: [
+          {
+            label: "Eventos e Eleições",
+            to: "/processo-eleitoral",
+            icon: "calendar",
+            visible: canAccessGestao(tipoUsuario),
+          },
+        ],
+      },
+      {
         label: "Gestão",
         items: [
           {
@@ -115,6 +138,24 @@ export function AppLayout() {
     navigate("/login", { replace: true });
   }
 
+  function handleMenuButtonClick() {
+    if (window.matchMedia("(max-width: 768px)").matches) {
+      setSidebarCollapsed(false);
+      setSidebarOpen(true);
+      return;
+    }
+
+    setSidebarCollapsed((collapsed) => !collapsed);
+  }
+
+  const sidebarClassName = [
+    "appLayout-sidebar",
+    sidebarOpen ? "is-open" : "",
+    sidebarCollapsed ? "is-collapsed" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <div className="appLayout">
       <button
@@ -125,7 +166,16 @@ export function AppLayout() {
         onClick={() => setSidebarOpen(false)}
       />
 
-      <aside className={`appLayout-sidebar ${sidebarOpen ? "is-open" : ""}`}>
+      <aside className={sidebarClassName}>
+        <button
+          className="appLayout-menuButton appLayout-sidebarToggle"
+          type="button"
+          aria-label="Alternar menu lateral"
+          onClick={handleMenuButtonClick}
+        >
+          ☰
+        </button>
+
         <div className="appLayout-brand">
           <img className="appLayout-brandLogo" src={logoUrl} alt="COMADEMAT" />
           <strong>Portal de Eleições</strong>
@@ -150,6 +200,7 @@ export function AppLayout() {
                     key={item.to}
                     to={item.to}
                     onClick={() => setSidebarOpen(false)}
+                    title={item.label}
                   >
                     <Icon name={item.icon} />
                     <span>{item.label}</span>
@@ -161,7 +212,12 @@ export function AppLayout() {
         </nav>
 
         <div className="appLayout-sidebarFooter">
-          <button className="appLayout-logout" type="button" onClick={handleLogout}>
+          <button
+            className="appLayout-logout"
+            type="button"
+            onClick={handleLogout}
+            title="Sair"
+          >
             <Icon name="key" />
             <span>Sair</span>
           </button>
@@ -170,16 +226,6 @@ export function AppLayout() {
 
       <div className="appLayout-body">
         <header className="appLayout-topbar">
-          <button
-            className="appLayout-menuButton"
-            type="button"
-            aria-label="Abrir menu"
-            onClick={() => setSidebarOpen(true)}
-          >
-            ☰
-          </button>
-
-      
           <div className="appLayout-user">
             <div className="appLayout-userCopy">
               <strong>{usuario?.nome ?? "Usuário"}</strong>

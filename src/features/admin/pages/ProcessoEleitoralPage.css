@@ -1,0 +1,9 @@
+.processo-eleitoral-grid {
+  grid-template-columns: repeat(2, minmax(0, 260px));
+}
+
+@media (max-width: 640px) {
+  .processo-eleitoral-grid {
+    grid-template-columns: 1fr;
+  }
+}
