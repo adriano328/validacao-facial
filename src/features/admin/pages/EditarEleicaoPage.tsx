@@ -25,6 +25,14 @@ import {
   type OficialEleicaoPayload,
 } from "@features/admin/api/oficialEleicaoApi";
 import {
+  atualizarCandidato,
+  cadastrarCandidato,
+  excluirCandidato,
+  listarCandidatos,
+  type Candidato,
+  type CandidatoPayload,
+} from "@features/admin/api/candidatoApi";
+import {
   listarMembros,
   type UsuarioResponse,
 } from "@features/user/api/userApi";
@@ -38,6 +46,7 @@ import {
   type DropdownOption,
 } from "@shared/ui/dropdown/DropdownField";
 import { FormField } from "@shared/ui/form/FormField";
+import { MemberAvatar } from "@shared/ui/member-avatar/MemberAvatar";
 import { formatarDataToBr } from "@shared/utils/formataData";
 import { isRequestCanceled } from "@shared/utils/http";
 import { handleAxiosError } from "@shared/utils/messageErro";
@@ -48,10 +57,13 @@ import "./EditarEleicaoPage.css";
 
 const supportPageSize = 500;
 const oficiaisPageSize = 10;
+const candidatosPageSize = 10;
 const membersPageSize = 20;
 const searchDelayMs = 350;
 const allFunctionsValue = 0;
+const allCandidateCargosValue = 0;
 const tipoCargoAdministrativo = 1;
+const acceptedCandidatePhotoTypes = ["image/jpeg", "image/png"];
 const periodoErrorMessage = "A data final não pode ser anterior à data inicial.";
 const periodoEventoErrorMessage =
   "O período da eleição deve estar dentro do período do evento.";
@@ -79,6 +91,21 @@ type OficialForm = {
 };
 
 type OficialFormErrors = Partial<Record<keyof OficialForm, string>>;
+
+type CandidatoForm = {
+  usuarioId?: number;
+  cargoIdEletivo?: number;
+  numero: string;
+  foto: string | null;
+  fotoContentType: string | null;
+};
+
+type CandidatoFormErrors = Partial<Record<keyof CandidatoForm, string>>;
+
+type SelectedMemberReference = {
+  usuarioId: number;
+  nomeUsuario: string;
+};
 
 type OfficialCargoKey = "MESARIO" | "FISCAL";
 
@@ -126,6 +153,10 @@ function trimToNull(value: string) {
   return trimmed ? trimmed : null;
 }
 
+function onlyDigits(value: string) {
+  return value.replace(/\D/g, "");
+}
+
 function formFromEleicao(eleicao: Eleicao): EleicaoForm {
   return {
     eventoId: eleicao.eventoId,
@@ -163,7 +194,7 @@ function toEventoOptions(eventos: Evento[]): DropdownOption<number>[] {
 
 function toMemberOptions(
   members: UsuarioResponse[],
-  selectedOficial?: OficialEleicao | null
+  selectedMember?: SelectedMemberReference | null
 ): DropdownOption<number>[] {
   const options = members.map((member) => ({
     value: member.id,
@@ -171,13 +202,13 @@ function toMemberOptions(
   }));
 
   if (
-    selectedOficial &&
-    !options.some((option) => option.value === selectedOficial.usuarioId)
+    selectedMember &&
+    !options.some((option) => option.value === selectedMember.usuarioId)
   ) {
     return [
       {
-        value: selectedOficial.usuarioId,
-        label: selectedOficial.nomeUsuario,
+        value: selectedMember.usuarioId,
+        label: selectedMember.nomeUsuario,
       },
       ...options,
     ];
@@ -190,6 +221,15 @@ function toCargoOptions(cargos: CargoResponse[]): DropdownOption<number>[] {
   return cargos.map((cargo) => ({
     value: cargo.cargoId,
     label: getOfficialCargoLabel(cargo.nomeCargo),
+  }));
+}
+
+function toCandidateCargoOptions(
+  cargos: CargoResponse[]
+): DropdownOption<number>[] {
+  return cargos.map((cargo) => ({
+    value: cargo.cargoId,
+    label: cargo.nomeCargo,
   }));
 }
 
@@ -261,20 +301,81 @@ function validateOficialForm(form: OficialForm): OficialFormErrors {
   return errors;
 }
 
-function hasErrors(errors: EleicaoFormErrors | OficialFormErrors) {
+function validateCandidatoForm(form: CandidatoForm): CandidatoFormErrors {
+  const errors: CandidatoFormErrors = {};
+  const numero = Number(form.numero);
+
+  if (!form.usuarioId) {
+    errors.usuarioId = "O candidato é obrigatório.";
+  }
+
+  if (!form.cargoIdEletivo) {
+    errors.cargoIdEletivo = "O cargo eletivo é obrigatório.";
+  }
+
+  if (!form.numero.trim()) {
+    errors.numero = "O número é obrigatório.";
+  } else if (!Number.isInteger(numero) || numero <= 0) {
+    errors.numero = "Informe um número válido.";
+  }
+
+  return errors;
+}
+
+function hasErrors(
+  errors: EleicaoFormErrors | OficialFormErrors | CandidatoFormErrors
+) {
   return Object.values(errors).some(Boolean);
 }
 
-function SectionIcon({ type }: { type: "data" | "officers" }) {
-  const path =
-    type === "data"
-      ? "M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Zm1 2v12h12V6H6Zm2 2h8v2H8V8Zm0 4h8v2H8v-2Z"
-      : "M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-3.9 0-7 2-7 4.5V20h14v-1.5C19 16 15.9 14 12 14Z";
+function getCandidatePhotoSrc(candidato?: Candidato | null) {
+  const photo = candidato?.foto?.trim();
+
+  if (!photo) return null;
+  if (photo.startsWith("data:image/")) return photo;
+
+  return candidato?.fotoContentType
+    ? `data:${candidato.fotoContentType};base64,${photo}`
+    : photo;
+}
+
+function readCandidatePhotoFile(
+  file: File
+): Promise<Pick<CandidatoForm, "foto" | "fotoContentType">> {
+  return new Promise((resolve, reject) => {
+    if (!acceptedCandidatePhotoTypes.includes(file.type)) {
+      reject(new Error("Selecione uma imagem JPG ou PNG."));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result ?? "");
+      const [, base64 = ""] = result.split(",");
+
+      resolve({
+        foto: base64 || null,
+        fotoContentType: file.type,
+      });
+    };
+    reader.onerror = () => reject(new Error("Não foi possível carregar a foto."));
+    reader.readAsDataURL(file);
+  });
+}
+
+function SectionIcon({ type }: { type: "data" | "officers" | "candidates" }) {
+  const paths = {
+    data: "M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Zm1 2v12h12V6H6Zm2 2h8v2H8V8Zm0 4h8v2H8v-2Z",
+    officers:
+      "M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-3.9 0-7 2-7 4.5V20h14v-1.5C19 16 15.9 14 12 14Z",
+    candidates:
+      "M8.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm7-1a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM8.5 13C5.5 13 3 14.7 3 17v1h11v-1c0-2.3-2.5-4-5.5-4Zm7 0c-.7 0-1.4.1-2 .3 1.3.9 2.1 2.2 2.1 3.7v1H21v-1c0-2.3-2.4-4-5.5-4Z",
+  };
 
   return (
     <span className="editar-eleicao-sectionIcon" aria-hidden>
       <svg viewBox="0 0 24 24">
-        <path d={path} />
+        <path d={paths[type]} />
       </svg>
     </span>
   );
@@ -306,6 +407,7 @@ export function EditarEleicaoPage() {
   const [eventosLoading, setEventosLoading] = useState(false);
   const [eventosError, setEventosError] = useState<string | null>(null);
   const [cargosOficiais, setCargosOficiais] = useState<CargoResponse[]>([]);
+  const [cargosCandidatos, setCargosCandidatos] = useState<CargoResponse[]>([]);
   const [cargosLoading, setCargosLoading] = useState(false);
   const [cargosError, setCargosError] = useState<string | null>(null);
   const [form, setForm] = useState<EleicaoForm | null>(null);
@@ -343,6 +445,39 @@ export function EditarEleicaoPage() {
   const [savingOficial, setSavingOficial] = useState(false);
   const [deletingOficialId, setDeletingOficialId] = useState<number | null>(null);
 
+  const [candidatosPage, setCandidatosPage] = useState(0);
+  const [candidatosData, setCandidatosData] =
+    useState<PageResponse<Candidato> | null>(null);
+  const [candidatosLoading, setCandidatosLoading] = useState(false);
+  const [candidatosError, setCandidatosError] = useState<string | null>(null);
+  const [filterNomeCandidato, setFilterNomeCandidato] = useState("");
+  const [debouncedFilterNomeCandidato, setDebouncedFilterNomeCandidato] =
+    useState("");
+  const [filterCargoCandidatoId, setFilterCargoCandidatoId] = useState(
+    allCandidateCargosValue
+  );
+  const [filterNumeroCandidato, setFilterNumeroCandidato] = useState("");
+  const [debouncedFilterNumeroCandidato, setDebouncedFilterNumeroCandidato] =
+    useState("");
+  const [candidatoDialogOpen, setCandidatoDialogOpen] = useState(false);
+  const [selectedCandidato, setSelectedCandidato] = useState<Candidato | null>(
+    null
+  );
+  const [candidatoForm, setCandidatoForm] = useState<CandidatoForm>({
+    numero: "",
+    foto: null,
+    fotoContentType: null,
+  });
+  const [candidatoFormErrors, setCandidatoFormErrors] =
+    useState<CandidatoFormErrors>({});
+  const [candidatoFormTouched, setCandidatoFormTouched] = useState<
+    Partial<Record<keyof CandidatoForm, boolean>>
+  >({});
+  const [savingCandidato, setSavingCandidato] = useState(false);
+  const [deletingCandidatoId, setDeletingCandidatoId] = useState<number | null>(
+    null
+  );
+
   const eventoOptions = useMemo(() => toEventoOptions(eventos), [eventos]);
   const selectedEvento = useMemo(
     () => eventos.find((evento) => evento.eventoId === form?.eventoId) ?? null,
@@ -352,6 +487,10 @@ export function EditarEleicaoPage() {
     () => toCargoOptions(cargosOficiais),
     [cargosOficiais]
   );
+  const cargoCandidatoOptions = useMemo(
+    () => toCandidateCargoOptions(cargosCandidatos),
+    [cargosCandidatos]
+  );
   const cargoFilterOptions = useMemo<DropdownOption<number>[]>(
     () => [
       { value: allFunctionsValue, label: "Todas as funções" },
@@ -359,19 +498,45 @@ export function EditarEleicaoPage() {
     ],
     [cargoOptions]
   );
+  const cargoCandidatoFilterOptions = useMemo<DropdownOption<number>[]>(
+    () => [
+      { value: allCandidateCargosValue, label: "Todos os cargos" },
+      ...cargoCandidatoOptions,
+    ],
+    [cargoCandidatoOptions]
+  );
+  const selectedMember = selectedOficial ?? selectedCandidato;
   const memberOptions = useMemo(
-    () => toMemberOptions(members, selectedOficial),
-    [members, selectedOficial]
+    () => toMemberOptions(members, selectedMember),
+    [members, selectedMember]
   );
   const hasOfficialFilters = Boolean(
     filterNomeUsuario.trim() || filterCargoId !== allFunctionsValue
   );
+  const hasCandidateFilters = Boolean(
+    filterNomeCandidato.trim() ||
+      filterCargoCandidatoId !== allCandidateCargosValue ||
+      filterNumeroCandidato.trim()
+  );
   const oficiais = oficiaisData?.content ?? [];
   const oficiaisTotalPages = oficiaisData?.totalPages ?? 0;
+  const candidatos = candidatosData?.content ?? [];
+  const candidatosTotalPages = candidatosData?.totalPages ?? 0;
   const dialogTitle = selectedOficial ? "Editar oficial" : "Adicionar oficial";
   const dialogSubtitle = selectedOficial
     ? "Atualize o oficial e sua função nesta eleição."
     : "Defina o oficial e sua função nesta eleição.";
+  const candidatoDialogTitle = selectedCandidato
+    ? "Editar candidato"
+    : "Adicionar candidato";
+  const candidatoDialogSubtitle = selectedCandidato
+    ? "Atualize os dados do candidato nesta eleição."
+    : "Defina o candidato, cargo eletivo, número e foto nesta eleição.";
+  const candidatoPhotoPreview = candidatoForm.foto
+    ? candidatoForm.fotoContentType
+      ? `data:${candidatoForm.fotoContentType};base64,${candidatoForm.foto}`
+      : candidatoForm.foto
+    : null;
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -381,6 +546,24 @@ export function EditarEleicaoPage() {
 
     return () => window.clearTimeout(timeout);
   }, [filterNomeUsuario]);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setDebouncedFilterNomeCandidato(filterNomeCandidato.trim());
+      setCandidatosPage(0);
+    }, searchDelayMs);
+
+    return () => window.clearTimeout(timeout);
+  }, [filterNomeCandidato]);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setDebouncedFilterNumeroCandidato(filterNumeroCandidato.trim());
+      setCandidatosPage(0);
+    }, searchDelayMs);
+
+    return () => window.clearTimeout(timeout);
+  }, [filterNumeroCandidato]);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -445,7 +628,12 @@ export function EditarEleicaoPage() {
         setEventosError(null);
         setCargosError(null);
 
-        const [currentEvento, eventosResponse, cargosResponse] = await Promise.all([
+        const [
+          currentEvento,
+          eventosResponse,
+          cargosOficiaisResponse,
+          cargosCandidatosResponse,
+        ] = await Promise.all([
           buscarEventoPorId(eleicaoAtual.eventoId, controller.signal),
           listarEventos(
             0,
@@ -464,6 +652,16 @@ export function EditarEleicaoPage() {
               tipoCargo: tipoCargoAdministrativo,
             }
           ),
+          listarCargos(
+            0,
+            supportPageSize,
+            undefined,
+            controller.signal,
+            {
+              convencaoId: eleicaoAtual.convencaoId,
+              statusAtivo: true,
+            }
+          ),
         ]);
 
         const eventosDaConvencao = eventosResponse.content.some(
@@ -471,19 +669,21 @@ export function EditarEleicaoPage() {
         )
           ? eventosResponse.content
           : [currentEvento, ...eventosResponse.content];
-        const oficiais = cargosResponse.content.filter((cargo) =>
+        const oficiais = cargosOficiaisResponse.content.filter((cargo) =>
           Boolean(getOfficialCargoKey(cargo.nomeCargo))
         );
 
         setEventos(eventosDaConvencao);
         setCargosOficiais(oficiais);
+        setCargosCandidatos(cargosCandidatosResponse.content);
       } catch (requestError) {
         if (isRequestCanceled(requestError)) return;
 
         setEventos([]);
         setCargosOficiais([]);
+        setCargosCandidatos([]);
         setEventosError("Não foi possível carregar os eventos.");
-        setCargosError("Não foi possível carregar as funções.");
+        setCargosError("Não foi possível carregar os cargos.");
       } finally {
         if (!controller.signal.aborted) {
           setEventosLoading(false);
@@ -542,8 +742,62 @@ export function EditarEleicaoPage() {
     oficiaisPage,
   ]);
 
+  async function loadCandidatos(nextPage = candidatosPage, signal?: AbortSignal) {
+    if (!hasValidEleicaoId) return;
+
+    const numero = debouncedFilterNumeroCandidato
+      ? Number(debouncedFilterNumeroCandidato)
+      : undefined;
+
+    try {
+      setCandidatosLoading(true);
+      setCandidatosError(null);
+
+      const response = await listarCandidatos(
+        nextPage,
+        candidatosPageSize,
+        {
+          eleicaoId,
+          nomeUsuario: debouncedFilterNomeCandidato,
+          cargoIdEletivo:
+            filterCargoCandidatoId === allCandidateCargosValue
+              ? undefined
+              : filterCargoCandidatoId,
+          numero:
+            numero && Number.isInteger(numero) && numero > 0 ? numero : undefined,
+        },
+        signal
+      );
+
+      setCandidatosData(response);
+      setCandidatosPage(response.number ?? nextPage);
+    } catch (requestError) {
+      if (isRequestCanceled(requestError)) return;
+
+      setCandidatosData(null);
+      setCandidatosError(handleAxiosError(requestError));
+    } finally {
+      if (!signal?.aborted) {
+        setCandidatosLoading(false);
+      }
+    }
+  }
+
   useEffect(() => {
-    if (!dialogOpen) return;
+    const controller = new AbortController();
+    void loadCandidatos(candidatosPage, controller.signal);
+    return () => controller.abort();
+  }, [
+    candidatosPage,
+    debouncedFilterNomeCandidato,
+    debouncedFilterNumeroCandidato,
+    eleicaoId,
+    filterCargoCandidatoId,
+    hasValidEleicaoId,
+  ]);
+
+  useEffect(() => {
+    if (!dialogOpen && !candidatoDialogOpen) return;
 
     const controller = new AbortController();
 
@@ -572,7 +826,7 @@ export function EditarEleicaoPage() {
     void loadMembers();
 
     return () => controller.abort();
-  }, [debouncedMemberSearch, dialogOpen]);
+  }, [candidatoDialogOpen, debouncedMemberSearch, dialogOpen]);
 
   function updateEleicaoForm<K extends keyof EleicaoForm>(
     field: K,
@@ -647,6 +901,15 @@ export function EditarEleicaoPage() {
     setDebouncedFilterNomeUsuario("");
     setFilterCargoId(allFunctionsValue);
     setOficiaisPage(0);
+  }
+
+  function clearCandidateFilters() {
+    setFilterNomeCandidato("");
+    setDebouncedFilterNomeCandidato("");
+    setFilterCargoCandidatoId(allCandidateCargosValue);
+    setFilterNumeroCandidato("");
+    setDebouncedFilterNumeroCandidato("");
+    setCandidatosPage(0);
   }
 
   function resetOficialDialog() {
@@ -790,6 +1053,183 @@ export function EditarEleicaoPage() {
     }
   }
 
+  function resetCandidatoDialog() {
+    setCandidatoDialogOpen(false);
+    setSelectedCandidato(null);
+    setCandidatoForm({
+      numero: "",
+      foto: null,
+      fotoContentType: null,
+    });
+    setCandidatoFormErrors({});
+    setCandidatoFormTouched({});
+    setMemberSearch("");
+    setDebouncedMemberSearch("");
+    setMembers([]);
+    setSavingCandidato(false);
+  }
+
+  function openCreateCandidatoDialog() {
+    setSelectedCandidato(null);
+    setCandidatoForm({
+      numero: "",
+      foto: null,
+      fotoContentType: null,
+    });
+    setCandidatoFormErrors({});
+    setCandidatoFormTouched({});
+    setMemberSearch("");
+    setCandidatoDialogOpen(true);
+  }
+
+  function openEditCandidatoDialog(candidato: Candidato) {
+    setSelectedCandidato(candidato);
+    setCandidatoForm({
+      usuarioId: candidato.usuarioId,
+      cargoIdEletivo: candidato.cargoIdEletivo,
+      numero: String(candidato.numero),
+      foto: candidato.foto ?? null,
+      fotoContentType: candidato.fotoContentType ?? null,
+    });
+    setCandidatoFormErrors({});
+    setCandidatoFormTouched({});
+    setMemberSearch("");
+    setCandidatoDialogOpen(true);
+  }
+
+  function updateCandidatoForm<K extends keyof CandidatoForm>(
+    field: K,
+    value: CandidatoForm[K]
+  ) {
+    setCandidatoForm((current) => {
+      const next = { ...current, [field]: value };
+
+      if (candidatoFormTouched[field]) {
+        setCandidatoFormErrors(validateCandidatoForm(next));
+      }
+
+      return next;
+    });
+  }
+
+  function touchCandidatoField(field: keyof CandidatoForm) {
+    setCandidatoFormTouched((current) => ({ ...current, [field]: true }));
+    setCandidatoFormErrors(validateCandidatoForm(candidatoForm));
+  }
+
+  function toCandidatoPayload(formData: CandidatoForm): CandidatoPayload {
+    return {
+      eleicaoId,
+      usuarioId: formData.usuarioId!,
+      cargoIdEletivo: formData.cargoIdEletivo!,
+      numero: Number(formData.numero),
+      foto: formData.foto,
+      fotoContentType: formData.fotoContentType,
+    };
+  }
+
+  async function handleCandidatePhotoChange(file?: File | null) {
+    if (!file) return;
+
+    try {
+      const photoData = await readCandidatePhotoFile(file);
+      setCandidatoForm((current) => ({ ...current, ...photoData }));
+      setCandidatoFormErrors((current) => ({ ...current, foto: undefined }));
+    } catch (photoError) {
+      const message =
+        photoError instanceof Error
+          ? photoError.message
+          : "Não foi possível carregar a foto.";
+
+      setCandidatoFormTouched((current) => ({ ...current, foto: true }));
+      setCandidatoFormErrors((current) => ({ ...current, foto: message }));
+      await alerts.warn({ text: message });
+    }
+  }
+
+  async function handleSaveCandidato() {
+    if (savingCandidato) return;
+
+    const errors = validateCandidatoForm(candidatoForm);
+    setCandidatoFormErrors(errors);
+    setCandidatoFormTouched({
+      usuarioId: true,
+      cargoIdEletivo: true,
+      numero: true,
+    });
+
+    if (hasErrors(errors)) {
+      await alerts.warn({ text: "Revise as informações antes de salvar." });
+      return;
+    }
+
+    try {
+      setSavingCandidato(true);
+      alerts.loading({
+        title: selectedCandidato
+          ? "Salvando candidato..."
+          : "Adicionando candidato...",
+      });
+
+      if (selectedCandidato) {
+        await atualizarCandidato(
+          selectedCandidato.candidatoId,
+          toCandidatoPayload(candidatoForm)
+        );
+      } else {
+        await cadastrarCandidato(toCandidatoPayload(candidatoForm));
+      }
+
+      alerts.close();
+      await alerts.success({
+        text: selectedCandidato
+          ? "Candidato atualizado com sucesso."
+          : "Candidato cadastrado com sucesso.",
+      });
+
+      resetCandidatoDialog();
+      await loadCandidatos(candidatosPage);
+    } catch (requestError) {
+      alerts.close();
+      await alerts.error({ text: handleAxiosError(requestError) });
+    } finally {
+      setSavingCandidato(false);
+    }
+  }
+
+  async function handleDeleteCandidato(candidato: Candidato) {
+    if (deletingCandidatoId) return;
+
+    const confirmed = await alerts.confirm({
+      title: "Excluir candidato",
+      text: `Deseja realmente excluir este candidato da eleição?\n\n${candidato.nomeUsuario}\n${candidato.nomeCargoEletivo}\nNúmero ${candidato.numero}`,
+      confirmButtonText: "Excluir",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!confirmed) return;
+
+    try {
+      setDeletingCandidatoId(candidato.candidatoId);
+      alerts.loading({ title: "Excluindo candidato..." });
+      await excluirCandidato(candidato.candidatoId);
+      alerts.close();
+      await alerts.success({ text: "Candidato excluído com sucesso." });
+
+      const currentItems = candidatosData?.content.length ?? 0;
+      const nextPage =
+        currentItems === 1 && candidatosPage > 0
+          ? candidatosPage - 1
+          : candidatosPage;
+      await loadCandidatos(nextPage);
+    } catch (requestError) {
+      alerts.close();
+      await alerts.error({ text: handleAxiosError(requestError) });
+    } finally {
+      setDeletingCandidatoId(null);
+    }
+  }
+
   const currentPeriod = selectedEvento
     ? `${formatarDataToBr(selectedEvento.dataInicial)} a ${formatarDataToBr(
         selectedEvento.dataFinal
@@ -811,7 +1251,7 @@ export function EditarEleicaoPage() {
       <header className="portal-pageHeader editar-eleicao-header">
         <div>
           <h1 id="editar-eleicao-title">Editar Eleição</h1>
-          <p>Gerencie os dados, configurações e oficiais desta eleição.</p>
+          <p>Gerencie os dados, configurações, oficiais e candidatos desta eleição.</p>
         </div>
         {eleicao ? (
           <span className="editar-eleicao-id">Eleição: #{eleicao.eleicaoId}</span>
@@ -1122,6 +1562,190 @@ export function EditarEleicaoPage() {
               </footer>
             </section>
           </section>
+
+          <section
+            className="editar-eleicao-card"
+            aria-label="Candidatos da eleição"
+          >
+            <header className="editar-eleicao-cardHeader">
+              <div>
+                <SectionIcon type="candidates" />
+                <div>
+                  <strong>Candidatos</strong>
+                  <span>Gerencie os candidatos participantes desta eleição.</span>
+                </div>
+              </div>
+              <button
+                className="editar-eleicao-primaryButton"
+                type="button"
+                disabled={cargosLoading || Boolean(cargosError)}
+                onClick={openCreateCandidatoDialog}
+              >
+                + Adicionar candidato
+              </button>
+            </header>
+
+            {cargosError ? (
+              <div className="portal-state portal-state--error">{cargosError}</div>
+            ) : null}
+
+            <section className="editar-eleicao-candidateFilters">
+              <FormField label="Candidato">
+                <input
+                  className="vf-input"
+                  value={filterNomeCandidato}
+                  placeholder="Buscar candidato por nome..."
+                  onChange={(event) => setFilterNomeCandidato(event.target.value)}
+                />
+              </FormField>
+
+              <FormField label="Cargo eletivo">
+                <DropdownField<number>
+                  value={filterCargoCandidatoId}
+                  options={cargoCandidatoFilterOptions}
+                  placeholder={cargosLoading ? "Carregando..." : "Todos os cargos"}
+                  searchPlaceholder="Buscar cargo..."
+                  emptyText={
+                    cargosLoading ? "Carregando cargos..." : "Nenhum cargo encontrado"
+                  }
+                  disabled={cargosLoading}
+                  onChange={(value) => {
+                    setFilterCargoCandidatoId(value);
+                    setCandidatosPage(0);
+                  }}
+                />
+              </FormField>
+
+              <FormField label="Número">
+                <input
+                  className="vf-input"
+                  type="number"
+                  min={1}
+                  value={filterNumeroCandidato}
+                  placeholder="Número..."
+                  onChange={(event) =>
+                    setFilterNumeroCandidato(onlyDigits(event.target.value))
+                  }
+                />
+              </FormField>
+
+              <div className="gestao-filterActions">
+                <ClearFiltersButton
+                  disabled={!hasCandidateFilters}
+                  onClick={clearCandidateFilters}
+                />
+              </div>
+            </section>
+
+            <section className="identity-tableCard editar-eleicao-officialTableCard">
+              {candidatosLoading ? (
+                <div className="portal-state">Carregando candidatos...</div>
+              ) : candidatosError ? (
+                <div className="portal-state portal-state--error">{candidatosError}</div>
+              ) : candidatos.length === 0 ? (
+                <div className="identity-empty">
+                  <strong>
+                    {hasCandidateFilters
+                      ? "Nenhum candidato encontrado para os filtros informados."
+                      : "Nenhum candidato cadastrado para esta eleição."}
+                  </strong>
+                </div>
+              ) : (
+                <div className="identity-tableWrap">
+                  <table className="identity-table editar-eleicao-candidateTable">
+                    <thead>
+                      <tr>
+                        <th>Candidato</th>
+                        <th>Cargo eletivo</th>
+                        <th>Número</th>
+                        <th>Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {candidatos.map((candidato) => (
+                        <tr key={candidato.candidatoId}>
+                          <td>
+                            <div className="editar-eleicao-personCell">
+                              <MemberAvatar
+                                src={getCandidatePhotoSrc(candidato)}
+                                alt={candidato.nomeUsuario}
+                                fallback={candidato.nomeUsuario}
+                                size="sm"
+                              />
+                              <span className="editar-eleicao-personText">
+                                <strong>{candidato.nomeUsuario}</strong>
+                              </span>
+                            </div>
+                          </td>
+                          <td>
+                            <span className="portal-badge portal-badge--ativo">
+                              {candidato.nomeCargoEletivo}
+                            </span>
+                          </td>
+                          <td>
+                            <span className="editar-eleicao-numberBadge">
+                              {candidato.numero}
+                            </span>
+                          </td>
+                          <td>
+                            <div className="editar-eleicao-actions">
+                              <button
+                                type="button"
+                                title="Editar candidato"
+                                aria-label={`Editar candidato ${candidato.nomeUsuario}`}
+                                onClick={() => openEditCandidatoDialog(candidato)}
+                              >
+                                <EditIcon />
+                              </button>
+                              <button
+                                className="editar-eleicao-actionDelete"
+                                type="button"
+                                title="Excluir candidato"
+                                aria-label={`Excluir candidato ${candidato.nomeUsuario}`}
+                                disabled={
+                                  deletingCandidatoId === candidato.candidatoId
+                                }
+                                onClick={() => void handleDeleteCandidato(candidato)}
+                              >
+                                <TrashIcon />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              <footer className="identity-pagination">
+                <span>
+                  Página {candidatosPage + 1} de{" "}
+                  {Math.max(candidatosTotalPages, 1)} (
+                  {candidatosData?.totalElements ?? 0} candidatos cadastrados)
+                </span>
+                <div>
+                  <button
+                    type="button"
+                    disabled={candidatosPage === 0}
+                    onClick={() => setCandidatosPage((current) => current - 1)}
+                  >
+                    Anterior
+                  </button>
+                  <button
+                    type="button"
+                    disabled={
+                      candidatosTotalPages === 0 ||
+                      candidatosPage + 1 >= candidatosTotalPages
+                    }
+                    onClick={() => setCandidatosPage((current) => current + 1)}
+                  >
+                    Próxima
+                  </button>
+                </div>
+              </footer>
+            </section>
+          </section>
         </>
       ) : null}
 
@@ -1232,6 +1856,241 @@ export function EditarEleicaoPage() {
                   : selectedOficial
                     ? "Salvar alterações"
                     : "Salvar oficial"}
+              </button>
+            </footer>
+          </section>
+        </div>
+      ) : null}
+
+      {candidatoDialogOpen ? (
+        <div
+          className="editar-eleicao-dialogLayer"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="candidato-dialog-title"
+        >
+          <button
+            className="editar-eleicao-dialogBackdrop"
+            type="button"
+            aria-label="Fechar"
+            onClick={resetCandidatoDialog}
+          />
+          <section className="editar-eleicao-dialog editar-eleicao-candidateDialog">
+            <header className="editar-eleicao-dialogHeader">
+              <div>
+                <h2 id="candidato-dialog-title">{candidatoDialogTitle}</h2>
+                <p>{candidatoDialogSubtitle}</p>
+              </div>
+              <button
+                type="button"
+                aria-label="Fechar"
+                onClick={resetCandidatoDialog}
+              >
+                ×
+              </button>
+            </header>
+
+            <div className="editar-eleicao-dialogForm">
+              <FormField
+                label="Candidato"
+                required
+                error={
+                  candidatoFormTouched.usuarioId
+                    ? candidatoFormErrors.usuarioId
+                    : undefined
+                }
+                helperText="Busque pelo nome ou CPF do membro cadastrado."
+              >
+                <DropdownField<number>
+                  value={candidatoForm.usuarioId}
+                  options={memberOptions}
+                  placeholder={membersLoading ? "Carregando..." : "Selecione um membro"}
+                  searchPlaceholder="Buscar membro..."
+                  emptyText={
+                    membersLoading ? "Carregando membros..." : "Nenhum membro encontrado"
+                  }
+                  disabled={membersLoading || savingCandidato}
+                  invalid={
+                    !!(
+                      candidatoFormTouched.usuarioId &&
+                      candidatoFormErrors.usuarioId
+                    )
+                  }
+                  onSearchChange={setMemberSearch}
+                  onChange={(value) => updateCandidatoForm("usuarioId", value)}
+                  onBlur={() => touchCandidatoField("usuarioId")}
+                />
+              </FormField>
+
+              <div className="editar-eleicao-candidateDialogGrid">
+                <FormField
+                  label="Cargo eletivo"
+                  required
+                  error={
+                    candidatoFormTouched.cargoIdEletivo
+                      ? candidatoFormErrors.cargoIdEletivo
+                      : undefined
+                  }
+                >
+                  <DropdownField<number>
+                    value={candidatoForm.cargoIdEletivo}
+                    options={cargoCandidatoOptions}
+                    placeholder={cargosLoading ? "Carregando..." : "Selecione um cargo"}
+                    searchPlaceholder="Buscar cargo..."
+                    emptyText={
+                      cargosLoading ? "Carregando cargos..." : "Nenhum cargo encontrado"
+                    }
+                    disabled={cargosLoading || savingCandidato}
+                    invalid={
+                      !!(
+                        candidatoFormTouched.cargoIdEletivo &&
+                        candidatoFormErrors.cargoIdEletivo
+                      )
+                    }
+                    onChange={(value) => updateCandidatoForm("cargoIdEletivo", value)}
+                    onBlur={() => touchCandidatoField("cargoIdEletivo")}
+                  />
+                </FormField>
+
+                <FormField
+                  label="Número"
+                  required
+                  error={
+                    candidatoFormTouched.numero
+                      ? candidatoFormErrors.numero
+                      : undefined
+                  }
+                >
+                  <input
+                    className="vf-input"
+                    type="number"
+                    min={1}
+                    value={candidatoForm.numero}
+                    placeholder="Ex.: 12"
+                    disabled={savingCandidato}
+                    aria-invalid={
+                      !!(candidatoFormTouched.numero && candidatoFormErrors.numero)
+                    }
+                    onChange={(event) =>
+                      updateCandidatoForm("numero", onlyDigits(event.target.value))
+                    }
+                    onBlur={() => touchCandidatoField("numero")}
+                  />
+                </FormField>
+              </div>
+
+              <FormField
+                label="Foto"
+                error={
+                  candidatoFormTouched.foto ? candidatoFormErrors.foto : undefined
+                }
+                helperText="A foto é opcional."
+              >
+                <label
+                  className="editar-eleicao-photoUpload"
+                  onDragOver={(event) => event.preventDefault()}
+                  onDrop={(event) => {
+                    event.preventDefault();
+                    if (savingCandidato) return;
+                    void handleCandidatePhotoChange(event.dataTransfer.files?.[0]);
+                  }}
+                >
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png"
+                    disabled={savingCandidato}
+                    onChange={(event) => {
+                      void handleCandidatePhotoChange(event.target.files?.[0]);
+                      event.target.value = "";
+                    }}
+                  />
+
+                  {candidatoPhotoPreview ? (
+                    <span className="editar-eleicao-photoPreview">
+                      <MemberAvatar
+                        src={candidatoPhotoPreview}
+                        alt="Foto do candidato"
+                        fallback={selectedCandidato?.nomeUsuario}
+                        size={52}
+                      />
+                      <span>
+                        <strong>Foto selecionada</strong>
+                        <small>JPG ou PNG anexado ao candidato.</small>
+                      </span>
+                    </span>
+                  ) : (
+                    <span className="editar-eleicao-photoPlaceholder">
+                      <span className="editar-eleicao-photoIcon" aria-hidden>
+                        +
+                      </span>
+                      <span>
+                        <strong>Clique ou arraste uma foto do candidato</strong>
+                        <small>JPG ou PNG.</small>
+                      </span>
+                    </span>
+                  )}
+                </label>
+
+                {candidatoPhotoPreview ? (
+                  <div className="editar-eleicao-photoActions">
+                    <label>
+                      Alterar
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png"
+                        disabled={savingCandidato}
+                        onChange={(event) => {
+                          void handleCandidatePhotoChange(event.target.files?.[0]);
+                          event.target.value = "";
+                        }}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      disabled={savingCandidato}
+                      onClick={() => {
+                        setCandidatoForm((current) => ({
+                          ...current,
+                          foto: null,
+                          fotoContentType: null,
+                        }));
+                        setCandidatoFormErrors((current) => ({
+                          ...current,
+                          foto: undefined,
+                        }));
+                      }}
+                    >
+                      Remover
+                    </button>
+                  </div>
+                ) : null}
+              </FormField>
+
+              <div className="editar-eleicao-infoBox">
+                O candidato só será vinculado a esta eleição após salvar. A
+                unicidade do candidato e do número é validada no backend.
+              </div>
+            </div>
+
+            <footer>
+              <button
+                type="button"
+                onClick={resetCandidatoDialog}
+                disabled={savingCandidato}
+              >
+                Cancelar
+              </button>
+              <button
+                className="editar-eleicao-primaryButton"
+                type="button"
+                disabled={savingCandidato}
+                onClick={() => void handleSaveCandidato()}
+              >
+                {savingCandidato
+                  ? "Salvando..."
+                  : selectedCandidato
+                    ? "Salvar alterações"
+                    : "Salvar candidato"}
               </button>
             </footer>
           </section>
