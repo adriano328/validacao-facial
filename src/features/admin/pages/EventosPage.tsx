@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  atualizarEvento,
   cadastrarEvento,
   excluirEvento,
   listarEventos,
@@ -65,14 +64,6 @@ function TrashIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
       <path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 11H7L6 9Zm3 2 .5 7h2L11 11H9Zm4 0-.5 7h2l.5-7h-2Z" />
-    </svg>
-  );
-}
-
-function ParticipantsIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-3.9 0-7 2-7 4.5V20h14v-1.5C19 16 15.9 14 12 14Zm6.5-2.2a3 3 0 1 0-2.7-5.2 5.9 5.9 0 0 1 0 5.2 4.9 4.9 0 0 1 3.2 2.1 4.7 4.7 0 0 1 1 2.9V18h3v-1.1c0-2.1-2.4-3.9-5.5-5.1ZM5.5 11.8a5.9 5.9 0 0 1 0-5.2 3 3 0 1 0-2.7 5.2C-.4 13 .1 14.8.1 16.9V18h3v-1.2a4.7 4.7 0 0 1 1-2.9 4.9 4.9 0 0 1 3.2-2.1Z" />
     </svg>
   );
 }
@@ -155,7 +146,6 @@ export function EventosPage() {
   const [filterDataFinal, setFilterDataFinal] = useState("");
   const [filterStatus, setFilterStatus] = useState<StatusFilter>("");
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedEvento, setSelectedEvento] = useState<Evento | null>(null);
   const [form, setForm] = useState<EventoForm>(initialForm);
   const [formErrors, setFormErrors] = useState<EventoFormErrors>({});
   const [formTouched, setFormTouched] = useState<
@@ -279,7 +269,6 @@ export function EventosPage() {
 
   function resetDialog() {
     setDialogOpen(false);
-    setSelectedEvento(null);
     setForm(initialForm);
     setFormErrors({});
     setFormTouched({});
@@ -287,22 +276,7 @@ export function EventosPage() {
   }
 
   function openCreateDialog() {
-    setSelectedEvento(null);
     setForm(initialForm);
-    setFormErrors({});
-    setFormTouched({});
-    setDialogOpen(true);
-  }
-
-  function openEditDialog(evento: Evento) {
-    setSelectedEvento(evento);
-    setForm({
-      convencaoId: evento.convencaoId,
-      nomeEvento: evento.nomeEvento,
-      dataInicial: evento.dataInicial,
-      dataFinal: evento.dataFinal,
-      statusAtivo: Boolean(evento.statusAtivo),
-    });
     setFormErrors({});
     setFormTouched({});
     setDialogOpen(true);
@@ -349,25 +323,18 @@ export function EventosPage() {
     try {
       setSaving(true);
       alerts.loading({
-        title: selectedEvento ? "Salvando alterações..." : "Cadastrando evento...",
+        title: "Cadastrando evento...",
       });
 
-      if (selectedEvento) {
-        await atualizarEvento(selectedEvento.eventoId, toPayload(form));
-      } else {
-        await cadastrarEvento(toPayload(form));
-      }
+      await cadastrarEvento(toPayload(form));
 
       alerts.close();
       await alerts.success({
-        text: selectedEvento
-          ? "Evento atualizado com sucesso."
-          : "Evento cadastrado com sucesso.",
+        text: "Evento cadastrado com sucesso.",
       });
 
-      const nextPage = selectedEvento ? page : 0;
       resetDialog();
-      await loadEventos(nextPage);
+      await loadEventos(0);
     } catch (requestError) {
       alerts.close();
       await alerts.error({ text: handleAxiosError(requestError) });
@@ -408,8 +375,6 @@ export function EventosPage() {
 
   const eventos = data?.content ?? [];
   const totalPages = data?.totalPages ?? 0;
-  const dialogTitle = selectedEvento ? "Editar evento" : "Cadastrar evento";
-  const saveText = selectedEvento ? "Salvar alterações" : "Salvar evento";
 
   return (
     <section className="portal-page eventos-page" aria-labelledby="eventos-title">
@@ -564,21 +529,13 @@ export function EventosPage() {
                           type="button"
                           title="Editar evento"
                           aria-label={`Editar evento ${evento.nomeEvento}`}
-                          onClick={() => openEditDialog(evento)}
-                        >
-                          <EditIcon />
-                        </button>
-                        <button
-                          type="button"
-                          title="Campos participantes"
-                          aria-label={`Definir campos participantes do evento ${evento.nomeEvento}`}
                           onClick={() =>
                             navigate(
-                              `/processo-eleitoral/eventos/${evento.eventoId}/campos-eclesiasticos`
+                              `/processo-eleitoral/eventos/${evento.eventoId}/editar`
                             )
                           }
                         >
-                          <ParticipantsIcon />
+                          <EditIcon />
                         </button>
                         <button
                           className="eventos-actionDelete"
@@ -633,7 +590,7 @@ export function EventosPage() {
           />
           <section className="eventos-dialog">
             <header className="eventos-dialogHeader">
-              <h2 id="evento-dialog-title">{dialogTitle}</h2>
+              <h2 id="evento-dialog-title">Cadastrar evento</h2>
               <button type="button" aria-label="Fechar" onClick={resetDialog}>
                 ×
               </button>
@@ -741,7 +698,7 @@ export function EventosPage() {
                 disabled={saving || supportLoading}
                 onClick={() => void handleSave()}
               >
-                {saving ? "Salvando..." : saveText}
+                {saving ? "Salvando..." : "Salvar evento"}
               </button>
             </footer>
           </section>

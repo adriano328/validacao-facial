@@ -19,6 +19,7 @@ import { GestaoPage } from "@features/admin/pages/GestaoPage";
 import { MesaDiretoraPage } from "@features/admin/pages/MesaDiretoraPage";
 import { ParametrosPage } from "@features/admin/pages/ParametrosPage";
 import { EventosPage } from "@features/admin/pages/EventosPage";
+import { EditarEventoPage } from "@features/admin/pages/EditarEventoPage";
 import { EventoCamposEclesiasticosPage } from "@features/admin/pages/EventoCamposEclesiasticosPage";
 import { EleicoesPage } from "@features/admin/pages/EleicoesPage";
 import { EditarEleicaoPage } from "@features/admin/pages/EditarEleicaoPage";
@@ -70,6 +71,10 @@ export function AppRoutes() {
             <Route
               path="/processo-eleitoral/eventos"
               element={<EventosPage />}
+            />
+            <Route
+              path="/processo-eleitoral/eventos/:eventoId/editar"
+              element={<EditarEventoPage />}
             />
             <Route
               path="/processo-eleitoral/eventos/:eventoId/campos-eclesiasticos"
