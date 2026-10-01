@@ -4,10 +4,6 @@ import "./GestaoPage.css";
 import "./ProcessoEleitoralPage.css";
 
 export function ProcessoEleitoralPage() {
-  function handleEleicoesClick() {
-    // navigate("/processo-eleitoral/eleicoes");
-  }
-
   return (
     <section
       className="portal-page processo-eleitoral-page"
@@ -31,7 +27,7 @@ export function ProcessoEleitoralPage() {
             description="Gerencie os processos eleitorais, configurações e informações das eleições."
             icon="election"
             title="Eleições"
-            onClick={handleEleicoesClick}
+            to="/processo-eleitoral/eleicoes"
           />
         </div>
       </section>

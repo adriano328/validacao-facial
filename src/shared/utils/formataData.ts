@@ -21,3 +21,13 @@ export function formatarDataToBr(data: string): string {
 
   return `${dia}/${mes}/${ano}`;
 }
+
+export function formatarDataHoraToBr(dataHora: string): string {
+  if (!dataHora) return "—";
+
+  const [datePart, timePart = ""] = dataHora.split("T");
+  const data = formatarDataToBr(datePart);
+  const hora = timePart.slice(0, 5);
+
+  return hora ? `${data} ${hora}` : data;
+}
