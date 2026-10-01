@@ -130,7 +130,7 @@
   color: var(--primary-800, #062f70);
 }
 
-.eventos-actions button:last-child:hover:not(:disabled) {
+.eventos-actions button.eventos-actionDelete:hover:not(:disabled) {
   border-color: #fecaca;
   background: var(--danger-50, #fef3f2);
   color: var(--danger-700, #b42318);

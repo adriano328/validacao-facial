@@ -27,6 +27,16 @@ export type EventoPayload = {
   statusAtivo: boolean;
 };
 
+export type SelectOptionDto = {
+  id: number;
+  nome: string;
+};
+
+export type EventoCamposParticipantes = {
+  eventoId: number;
+  campoEclesiasticoIds: number[];
+};
+
 export async function listarEventos(
   page: number,
   size: number,
@@ -69,6 +79,51 @@ export async function buscarEventoPorId(
   signal?: AbortSignal
 ): Promise<Evento> {
   const response = await api.get<Evento>(`/eventos/${eventoId}`, { signal });
+
+  return response.data;
+}
+
+export async function buscarCamposParticipantesDoEvento(
+  eventoId: number,
+  signal?: AbortSignal
+): Promise<EventoCamposParticipantes> {
+  const response = await api.get<EventoCamposParticipantes>(
+    `/eventos/${eventoId}/campos-eclesiasticos`,
+    { signal }
+  );
+
+  return response.data;
+}
+
+export async function atualizarCamposParticipantesDoEvento(
+  eventoId: number,
+  campoEclesiasticoIds: number[]
+): Promise<void> {
+  await api.put(`/eventos/${eventoId}/campos-eclesiasticos`, {
+    campoEclesiasticoIds,
+  });
+}
+
+export async function listarRegioesPorConvencao(
+  convencaoId: number,
+  signal?: AbortSignal
+): Promise<SelectOptionDto[]> {
+  const response = await api.get<SelectOptionDto[]>("/regioes", {
+    params: { convencaoId },
+    signal,
+  });
+
+  return response.data;
+}
+
+export async function listarCamposEclesiasticosPorRegiao(
+  regiaoId: number,
+  signal?: AbortSignal
+): Promise<SelectOptionDto[]> {
+  const response = await api.get<SelectOptionDto[]>("/campos-eclesiasticos", {
+    params: { regiaoId },
+    signal,
+  });
 
   return response.data;
 }

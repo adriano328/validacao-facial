@@ -1,0 +1,239 @@
+.evento-campos-page {
+  gap: 18px;
+}
+
+.evento-campos-headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.evento-campos-summary {
+  border: 1px solid var(--gray-200, #e4e7ec);
+  border-radius: 8px;
+  background: #ffffff;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 12px;
+  padding: 16px;
+}
+
+.evento-campos-summary div {
+  min-width: 0;
+  border-radius: 8px;
+  background: var(--gray-50, #f9fafb);
+  display: grid;
+  gap: 5px;
+  padding: 12px;
+}
+
+.evento-campos-summary span,
+.evento-campos-filterCard .ff-label {
+  color: var(--gray-600, #475467);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.evento-campos-summary strong {
+  min-width: 0;
+  color: var(--gray-900, #101828);
+  font-size: 13px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.evento-campos-filterCard,
+.evento-campos-listCard {
+  border: 1px solid var(--gray-200, #e4e7ec);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.evento-campos-filterCard {
+  max-width: 520px;
+  padding: 16px;
+}
+
+.evento-campos-filterCard .ff-container {
+  gap: 7px;
+  margin-bottom: 0;
+}
+
+.evento-campos-listCard {
+  overflow: hidden;
+}
+
+.evento-campos-listHeader,
+.evento-campos-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.evento-campos-listHeader {
+  border-bottom: 1px solid var(--gray-100, #f2f4f7);
+}
+
+.evento-campos-listHeader > strong,
+.evento-campos-footer > span {
+  color: var(--primary-800, #062f70);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.evento-campos-selectAll,
+.evento-campos-item {
+  color: var(--gray-800, #1d2939);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.evento-campos-selectAll {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.evento-campos-selectAll input,
+.evento-campos-item input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary-800, #062f70);
+  flex: 0 0 auto;
+}
+
+.evento-campos-groups,
+.evento-campos-singleList {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+}
+
+.evento-campos-group {
+  display: grid;
+  gap: 10px;
+}
+
+.evento-campos-group h2 {
+  margin: 0;
+  color: var(--primary-800, #062f70);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.evento-campos-group > div,
+.evento-campos-singleList {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.evento-campos-group > div {
+  display: grid;
+  gap: 8px;
+}
+
+.evento-campos-item {
+  min-width: 0;
+  min-height: 48px;
+  border: 1px solid var(--gray-200, #e4e7ec);
+  border-radius: 8px;
+  background: var(--gray-50, #f9fafb);
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.evento-campos-item:hover {
+  border-color: var(--primary-200, #b9d2ff);
+  background: var(--primary-50, #eef4ff);
+}
+
+.evento-campos-item span {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.evento-campos-item strong {
+  min-width: 0;
+  color: var(--gray-900, #101828);
+  font-size: 13px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.evento-campos-item em {
+  min-width: 0;
+  color: var(--gray-500, #667085);
+  font-size: 12px;
+  font-style: normal;
+  overflow-wrap: anywhere;
+}
+
+.evento-campos-footer {
+  border-top: 1px solid var(--gray-100, #f2f4f7);
+}
+
+.evento-campos-footer > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.evento-campos-footer button {
+  min-height: 34px;
+  border: 1px solid var(--gray-300, #d0d5dd);
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--gray-700, #344054);
+  font-size: 12px;
+  padding: 0 13px;
+  cursor: pointer;
+}
+
+.evento-campos-saveButton {
+  border-color: var(--primary-800, #062f70) !important;
+  background: var(--primary-800, #062f70) !important;
+  color: #ffffff !important;
+}
+
+.evento-campos-footer button:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+@media (max-width: 900px) {
+  .evento-campos-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .evento-campos-filterCard {
+    max-width: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .evento-campos-listHeader,
+  .evento-campos-footer,
+  .evento-campos-footer > div {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .evento-campos-listHeader {
+    align-items: flex-start;
+  }
+
+  .evento-campos-group > div,
+  .evento-campos-singleList {
+    grid-template-columns: 1fr;
+  }
+
+  .evento-campos-footer button {
+    width: 100%;
+  }
+}

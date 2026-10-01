@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   atualizarEvento,
   cadastrarEvento,
@@ -68,6 +69,14 @@ function TrashIcon() {
   );
 }
 
+function ParticipantsIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-3.9 0-7 2-7 4.5V20h14v-1.5C19 16 15.9 14 12 14Zm6.5-2.2a3 3 0 1 0-2.7-5.2 5.9 5.9 0 0 1 0 5.2 4.9 4.9 0 0 1 3.2 2.1 4.7 4.7 0 0 1 1 2.9V18h3v-1.1c0-2.1-2.4-3.9-5.5-5.1ZM5.5 11.8a5.9 5.9 0 0 1 0-5.2 3 3 0 1 0-2.7 5.2C-.4 13 .1 14.8.1 16.9V18h3v-1.2a4.7 4.7 0 0 1 1-2.9 4.9 4.9 0 0 1 3.2-2.1Z" />
+    </svg>
+  );
+}
+
 function toConvencaoOptions(convencoes: Convencao[]): DropdownOption<number>[] {
   return convencoes.map((convencao) => ({
     value: convencao.convencaoId,
@@ -131,6 +140,7 @@ function toPayload(form: EventoForm): EventoPayload {
 }
 
 export function EventosPage() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [data, setData] = useState<PageResponse<Evento> | null>(null);
   const [loading, setLoading] = useState(true);
@@ -559,6 +569,19 @@ export function EventosPage() {
                           <EditIcon />
                         </button>
                         <button
+                          type="button"
+                          title="Campos participantes"
+                          aria-label={`Definir campos participantes do evento ${evento.nomeEvento}`}
+                          onClick={() =>
+                            navigate(
+                              `/processo-eleitoral/eventos/${evento.eventoId}/campos-eclesiasticos`
+                            )
+                          }
+                        >
+                          <ParticipantsIcon />
+                        </button>
+                        <button
+                          className="eventos-actionDelete"
                           type="button"
                           title="Excluir evento"
                           aria-label={`Excluir evento ${evento.nomeEvento}`}

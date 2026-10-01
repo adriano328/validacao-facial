@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  atualizarEleicao,
   cadastrarEleicao,
   excluirEleicao,
   listarEleicoes,
@@ -105,37 +105,12 @@ function toEventoOptions(eventos: Evento[]): DropdownOption<number>[] {
   }));
 }
 
-function mergeSelectedEventoOption(
-  options: DropdownOption<number>[],
-  selected?: Eleicao | null
-): DropdownOption<number>[] {
-  if (!selected) return options;
-  if (options.some((option) => option.value === selected.eventoId)) return options;
-
-  return [
-    {
-      value: selected.eventoId,
-      label: selected.nomeEvento,
-    },
-    ...options,
-  ];
-}
-
 function formatDate(value?: string | null) {
   return value ? formatarDataToBr(value) : "—";
 }
 
 function formatDateTime(value?: string | null) {
   return value ? formatarDataHoraToBr(value) : "—";
-}
-
-function toDateTimeInput(value?: string | null) {
-  if (!value) return "";
-
-  const [datePart, timePart = ""] = value.split("T");
-  const time = timePart.slice(0, 5);
-
-  return time ? `${datePart}T${time}` : datePart;
 }
 
 function normalizeDateTime(value: string) {
@@ -216,6 +191,7 @@ function toPayload(form: EleicaoForm): EleicaoPayload {
 }
 
 export function EleicoesPage() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [data, setData] = useState<PageResponse<Eleicao> | null>(null);
   const [loading, setLoading] = useState(true);
@@ -239,7 +215,6 @@ export function EleicoesPage() {
   const [filterDataFinal, setFilterDataFinal] = useState("");
   const [filterDataInicioApuracao, setFilterDataInicioApuracao] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedEleicao, setSelectedEleicao] = useState<Eleicao | null>(null);
   const [form, setForm] = useState<EleicaoForm>(() => createInitialForm());
   const [formErrors, setFormErrors] = useState<EleicaoFormErrors>({});
   const [formTouched, setFormTouched] = useState<
@@ -257,8 +232,8 @@ export function EleicoesPage() {
     [filterEventos]
   );
   const dialogEventoOptions = useMemo(
-    () => mergeSelectedEventoOption(toEventoOptions(dialogEventos), selectedEleicao),
-    [dialogEventos, selectedEleicao]
+    () => toEventoOptions(dialogEventos),
+    [dialogEventos]
   );
   const selectedDialogEvento = useMemo(
     () => dialogEventos.find((evento) => evento.eventoId === form.eventoId),
@@ -451,7 +426,6 @@ export function EleicoesPage() {
 
   function resetDialog() {
     setDialogOpen(false);
-    setSelectedEleicao(null);
     setDialogEventos([]);
     setDialogEventosError(null);
     setForm(createInitialForm());
@@ -461,26 +435,7 @@ export function EleicoesPage() {
   }
 
   function openCreateDialog() {
-    setSelectedEleicao(null);
     setForm(createInitialForm());
-    setFormErrors({});
-    setFormTouched({});
-    setDialogEventosError(null);
-    setDialogOpen(true);
-  }
-
-  function openEditDialog(eleicao: Eleicao) {
-    setSelectedEleicao(eleicao);
-    setForm({
-      eventoId: eleicao.eventoId,
-      dataInicial: eleicao.dataInicial,
-      dataFinal: eleicao.dataFinal,
-      dataInicioApuracao: toDateTimeInput(eleicao.dataInicioApuracao),
-      dataCadastro: eleicao.dataCadastro || getTodayDateISO(),
-      chavePublica: eleicao.chavePublica ?? "",
-      fingerprint: eleicao.fingerprint ?? "",
-      tamanhoBits: eleicao.tamanhoBits ? String(eleicao.tamanhoBits) : "",
-    });
     setFormErrors({});
     setFormTouched({});
     setDialogEventosError(null);
@@ -531,27 +486,18 @@ export function EleicoesPage() {
     try {
       setSaving(true);
       alerts.loading({
-        title: selectedEleicao
-          ? "Salvando alterações..."
-          : "Cadastrando eleição...",
+        title: "Cadastrando eleição...",
       });
 
-      if (selectedEleicao) {
-        await atualizarEleicao(selectedEleicao.eleicaoId, toPayload(form));
-      } else {
-        await cadastrarEleicao(toPayload(form));
-      }
+      await cadastrarEleicao(toPayload(form));
 
       alerts.close();
       await alerts.success({
-        text: selectedEleicao
-          ? "Eleição atualizada com sucesso."
-          : "Eleição cadastrada com sucesso.",
+        text: "Eleição cadastrada com sucesso.",
       });
 
-      const nextPage = selectedEleicao ? page : 0;
       resetDialog();
-      await loadEleicoes(nextPage);
+      await loadEleicoes(0);
     } catch (requestError) {
       alerts.close();
       await alerts.error({ text: handleAxiosError(requestError) });
@@ -592,11 +538,9 @@ export function EleicoesPage() {
 
   const eleicoes = data?.content ?? [];
   const totalPages = data?.totalPages ?? 0;
-  const dialogTitle = selectedEleicao ? "Editar eleição" : "Cadastrar eleição";
-  const dialogSubtitle = selectedEleicao
-    ? "Atualize o evento, período da eleição e início da apuração."
-    : "Informe o evento, período da eleição e início da apuração.";
-  const saveText = selectedEleicao ? "Salvar alterações" : "Salvar eleição";
+  const dialogTitle = "Cadastrar eleição";
+  const dialogSubtitle = "Informe o evento, período da eleição e início da apuração.";
+  const saveText = "Salvar eleição";
   const selectedEventPeriod = selectedDialogEvento
     ? `${formatDate(selectedDialogEvento.dataInicial)} a ${formatDate(
         selectedDialogEvento.dataFinal
@@ -761,7 +705,11 @@ export function EleicoesPage() {
                           type="button"
                           title="Editar eleição"
                           aria-label={`Editar eleição ${eleicao.nomeEvento}`}
-                          onClick={() => openEditDialog(eleicao)}
+                          onClick={() =>
+                            navigate(
+                              `/processo-eleitoral/eleicoes/${eleicao.eleicaoId}/editar`
+                            )
+                          }
                         >
                           <EditIcon />
                         </button>

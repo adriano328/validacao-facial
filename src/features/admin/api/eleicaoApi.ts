@@ -71,3 +71,12 @@ export async function atualizarEleicao(
 export async function excluirEleicao(eleicaoId: number): Promise<void> {
   await api.delete(`/eleicoes/${eleicaoId}`);
 }
+
+export async function buscarEleicaoPorId(
+  eleicaoId: number,
+  signal?: AbortSignal
+): Promise<Eleicao> {
+  const response = await api.get<Eleicao>(`/eleicoes/${eleicaoId}`, { signal });
+
+  return response.data;
+}
