@@ -6,11 +6,13 @@ export type Candidato = {
   eleicaoId: number;
   usuarioId: number;
   nomeUsuario: string;
+  campoEclesiasticoId?: number | null;
+  nomeCampoEclesiastico?: string | null;
   cargoIdEletivo: number;
   nomeCargoEletivo: string;
   numero: number;
-  foto?: string | null;
   fotoContentType?: string | null;
+  fotoUrl?: string | null;
 };
 
 export type CandidatoFilters = {
@@ -18,6 +20,7 @@ export type CandidatoFilters = {
   nomeUsuario?: string;
   cargoIdEletivo?: number;
   numero?: number;
+  incluirFoto?: boolean;
 };
 
 export type CandidatoPayload = {
@@ -27,6 +30,7 @@ export type CandidatoPayload = {
   numero: number;
   foto: string | null;
   fotoContentType: string | null;
+  removerFoto?: boolean;
 };
 
 export async function listarCandidatos(
@@ -43,11 +47,26 @@ export async function listarCandidatos(
       nomeUsuario: filters.nomeUsuario || undefined,
       cargoIdEletivo: filters.cargoIdEletivo,
       numero: filters.numero,
+      incluirFoto: filters.incluirFoto,
     },
     signal,
   });
 
   return response.data;
+}
+
+export async function buscarFotoUrlCandidato(
+  eleicaoId: number,
+  candidatoId: number,
+  signal?: AbortSignal
+): Promise<string | null> {
+  const response = await api.get<{
+    fotoUrl?: string | null;
+  }>(`/eleicoes/${eleicaoId}/candidatos/${candidatoId}/foto-url`, {
+    signal,
+  });
+
+  return response.data.fotoUrl ?? null;
 }
 
 export async function cadastrarCandidato(

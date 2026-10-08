@@ -110,6 +110,12 @@
   color: #3730a3;
 }
 
+.cargos-type.is-eletivo,
+.cargos-type.is-eletivos {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
 .cargos-type.is-administrativo {
   background: #ffedd5;
   color: #9a3412;

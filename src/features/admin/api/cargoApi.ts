@@ -25,6 +25,13 @@ export type CargoPayload = {
   tipoCargo: number;
 };
 
+export const TIPO_CARGO = {
+  ADMINISTRATIVO: 1,
+  MINISTERIAL: 2,
+  MESA_DIRETORA: 3,
+  ELETIVOS: 4,
+} as const;
+
 export type TipoCargo = {
   codigo: number;
   descricao: string;
@@ -47,6 +54,24 @@ export async function listarCargos(
     params: {
       page,
       size,
+      nomeCargo: nomeCargo || undefined,
+      convencaoId: filters.convencaoId,
+      statusAtivo: filters.statusAtivo,
+      tipoCargo: filters.tipoCargo,
+    },
+    signal,
+  });
+
+  return response.data;
+}
+
+export async function listarCargosOpcoes(
+  filters: CargoListFilters = {},
+  signal?: AbortSignal,
+  nomeCargo?: string
+): Promise<CargoResponse[]> {
+  const response = await api.get<CargoResponse[]>("/cargos/opcoes", {
+    params: {
       nomeCargo: nomeCargo || undefined,
       convencaoId: filters.convencaoId,
       statusAtivo: filters.statusAtivo,

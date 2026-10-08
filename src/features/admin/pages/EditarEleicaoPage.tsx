@@ -13,6 +13,8 @@ import {
 } from "@features/admin/api/eventoApi";
 import {
   listarCargos,
+  listarCargosOpcoes,
+  TIPO_CARGO,
   type CargoResponse,
   type PageResponse,
 } from "@features/admin/api/cargoApi";
@@ -62,7 +64,6 @@ const membersPageSize = 20;
 const searchDelayMs = 350;
 const allFunctionsValue = 0;
 const allCandidateCargosValue = 0;
-const tipoCargoAdministrativo = 1;
 const acceptedCandidatePhotoTypes = ["image/jpeg", "image/png"];
 const periodoErrorMessage = "A data final não pode ser anterior à data inicial.";
 const periodoEventoErrorMessage =
@@ -105,6 +106,7 @@ type CandidatoForm = {
   numero: string;
   foto: string | null;
   fotoContentType: string | null;
+  removerFoto: boolean;
 };
 
 type CandidatoFormErrors = Partial<Record<keyof CandidatoForm, string>>;
@@ -245,12 +247,28 @@ function toCargoOptions(cargos: CargoResponse[]): DropdownOption<number>[] {
 }
 
 function toCandidateCargoOptions(
-  cargos: CargoResponse[]
+  cargos: CargoResponse[],
+  selectedCandidato?: Candidato | null
 ): DropdownOption<number>[] {
-  return cargos.map((cargo) => ({
+  const options = cargos.map((cargo) => ({
     value: cargo.cargoId,
     label: cargo.nomeCargo,
   }));
+
+  if (
+    selectedCandidato &&
+    !options.some((option) => option.value === selectedCandidato.cargoIdEletivo)
+  ) {
+    return [
+      {
+        value: selectedCandidato.cargoIdEletivo,
+        label: selectedCandidato.nomeCargoEletivo,
+      },
+      ...options,
+    ];
+  }
+
+  return options;
 }
 
 function isElectionInsideEvent(form: EleicaoForm, evento?: Evento | null) {
@@ -369,14 +387,7 @@ function hasErrors(
 }
 
 function getCandidatePhotoSrc(candidato?: Candidato | null) {
-  const photo = candidato?.foto?.trim();
-
-  if (!photo) return null;
-  if (photo.startsWith("data:image/")) return photo;
-
-  return candidato?.fotoContentType
-    ? `data:${candidato.fotoContentType};base64,${photo}`
-    : photo;
+  return candidato?.fotoUrl?.trim() || null;
 }
 
 function readCandidatePhotoFile(
@@ -507,6 +518,7 @@ export function EditarEleicaoPage() {
     numero: "",
     foto: null,
     fotoContentType: null,
+    removerFoto: false,
   });
   const [candidatoFormErrors, setCandidatoFormErrors] =
     useState<CandidatoFormErrors>({});
@@ -527,9 +539,13 @@ export function EditarEleicaoPage() {
     () => toCargoOptions(cargosOficiais),
     [cargosOficiais]
   );
-  const cargoCandidatoOptions = useMemo(
+  const baseCargoCandidatoOptions = useMemo(
     () => toCandidateCargoOptions(cargosCandidatos),
     [cargosCandidatos]
+  );
+  const cargoCandidatoOptions = useMemo(
+    () => toCandidateCargoOptions(cargosCandidatos, selectedCandidato),
+    [cargosCandidatos, selectedCandidato]
   );
   const cargoFilterOptions = useMemo<DropdownOption<number>[]>(
     () => [
@@ -541,9 +557,9 @@ export function EditarEleicaoPage() {
   const cargoCandidatoFilterOptions = useMemo<DropdownOption<number>[]>(
     () => [
       { value: allCandidateCargosValue, label: "Todos os cargos" },
-      ...cargoCandidatoOptions,
+      ...baseCargoCandidatoOptions,
     ],
-    [cargoCandidatoOptions]
+    [baseCargoCandidatoOptions]
   );
   const selectedMember = selectedOficial ?? selectedCandidato;
   const memberOptions = useMemo(
@@ -689,18 +705,16 @@ export function EditarEleicaoPage() {
             {
               convencaoId: eleicaoAtual.convencaoId,
               statusAtivo: true,
-              tipoCargo: tipoCargoAdministrativo,
+              tipoCargo: TIPO_CARGO.ADMINISTRATIVO,
             }
           ),
-          listarCargos(
-            0,
-            supportPageSize,
-            undefined,
-            controller.signal,
+          listarCargosOpcoes(
             {
               convencaoId: eleicaoAtual.convencaoId,
               statusAtivo: true,
-            }
+              tipoCargo: TIPO_CARGO.ELETIVOS,
+            },
+            controller.signal
           ),
         ]);
 
@@ -715,7 +729,7 @@ export function EditarEleicaoPage() {
 
         setEventos(eventosDaConvencao);
         setCargosOficiais(oficiais);
-        setCargosCandidatos(cargosCandidatosResponse.content);
+        setCargosCandidatos(cargosCandidatosResponse);
       } catch (requestError) {
         if (isRequestCanceled(requestError)) return;
 
@@ -1101,6 +1115,7 @@ export function EditarEleicaoPage() {
       numero: "",
       foto: null,
       fotoContentType: null,
+      removerFoto: false,
     });
     setCandidatoFormErrors({});
     setCandidatoFormTouched({});
@@ -1116,6 +1131,7 @@ export function EditarEleicaoPage() {
       numero: "",
       foto: null,
       fotoContentType: null,
+      removerFoto: false,
     });
     setCandidatoFormErrors({});
     setCandidatoFormTouched({});
@@ -1129,8 +1145,9 @@ export function EditarEleicaoPage() {
       usuarioId: candidato.usuarioId,
       cargoIdEletivo: candidato.cargoIdEletivo,
       numero: String(candidato.numero),
-      foto: candidato.foto ?? null,
-      fotoContentType: candidato.fotoContentType ?? null,
+      foto: candidato.fotoUrl ?? null,
+      fotoContentType: null,
+      removerFoto: false,
     });
     setCandidatoFormErrors({});
     setCandidatoFormTouched({});
@@ -1159,13 +1176,18 @@ export function EditarEleicaoPage() {
   }
 
   function toCandidatoPayload(formData: CandidatoForm): CandidatoPayload {
+    const possuiNovaFoto =
+      Boolean(formData.foto)
+      && Boolean(formData.fotoContentType);
+
     return {
       eleicaoId,
       usuarioId: formData.usuarioId!,
       cargoIdEletivo: formData.cargoIdEletivo!,
       numero: Number(formData.numero),
-      foto: formData.foto,
-      fotoContentType: formData.fotoContentType,
+      foto: possuiNovaFoto ? formData.foto : null,
+      fotoContentType: possuiNovaFoto ? formData.fotoContentType : null,
+      removerFoto: formData.removerFoto || undefined,
     };
   }
 
@@ -1174,7 +1196,11 @@ export function EditarEleicaoPage() {
 
     try {
       const photoData = await readCandidatePhotoFile(file);
-      setCandidatoForm((current) => ({ ...current, ...photoData }));
+      setCandidatoForm((current) => ({
+        ...current,
+        ...photoData,
+        removerFoto: false,
+      }));
       setCandidatoFormErrors((current) => ({ ...current, foto: undefined }));
     } catch (photoError) {
       const message =
@@ -2008,7 +2034,9 @@ export function EditarEleicaoPage() {
                     placeholder={cargosLoading ? "Carregando..." : "Selecione um cargo"}
                     searchPlaceholder="Buscar cargo..."
                     emptyText={
-                      cargosLoading ? "Carregando cargos..." : "Nenhum cargo encontrado"
+                      cargosLoading
+                        ? "Carregando cargos..."
+                        : "Nenhum cargo eletivo disponível"
                     }
                     disabled={cargosLoading || savingCandidato}
                     invalid={
@@ -2123,6 +2151,7 @@ export function EditarEleicaoPage() {
                           ...current,
                           foto: null,
                           fotoContentType: null,
+                          removerFoto: true,
                         }));
                         setCandidatoFormErrors((current) => ({
                           ...current,

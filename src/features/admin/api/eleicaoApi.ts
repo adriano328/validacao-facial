@@ -17,6 +17,19 @@ export type Eleicao = {
   dataCadastro: string;
 };
 
+export type EleicaoCabine = Pick<
+  Eleicao,
+  | "eleicaoId"
+  | "eventoId"
+  | "nomeEvento"
+  | "convencaoId"
+  | "nomeConvencao"
+  | "dataInicial"
+  | "dataFinal"
+  | "dataInicioVotacao"
+  | "dataInicioApuracao"
+>;
+
 export type EleicaoFilters = {
   convencaoId?: number;
   eventoId?: number;
@@ -57,6 +70,25 @@ export async function listarEleicoes(
     },
     signal,
   });
+
+  return response.data;
+}
+
+export async function listarEleicoesPorCampoEDataInicioVotacao(
+  campoEclesiasticoId: number,
+  dataInicioVotacao: string,
+  signal?: AbortSignal
+): Promise<EleicaoCabine[]> {
+  const response = await api.get<EleicaoCabine[]>(
+    "/eleicoes/por-campo-eclesiastico",
+    {
+      params: {
+        campoEclesiasticoId,
+        dataInicioVotacao,
+      },
+      signal,
+    }
+  );
 
   return response.data;
 }

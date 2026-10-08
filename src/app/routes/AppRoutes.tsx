@@ -32,6 +32,7 @@ import { RegistrationSubmittedPage } from "@features/registration/pages/Registra
 import { AppLayout } from "@shared/ui/app-layout/AppLayout";
 import { HomePage } from "@features/user/pages/HomePage";
 import { PersonalDataPage } from "@features/user/pages/PersonalDataPage";
+import { VotingElectionPage } from "@features/user/pages/VotingElectionPage";
 import { VotingBoothPage } from "@features/user/pages/VotingBoothPage";
 
 export function AppRoutes() {
@@ -56,6 +57,7 @@ export function AppRoutes() {
         <Route element={<AppLayout />}>
           <Route path="/home" element={<HomePage />} />
           <Route path="/votacao/cabine" element={<VotingBoothPage />} />
+          <Route path="/votacao/cabine/:eleicaoId" element={<VotingElectionPage />} />
           <Route path="/minha-conta/dados-pessoais" element={<PersonalDataPage />} />
 
           <Route
