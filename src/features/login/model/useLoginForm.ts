@@ -8,6 +8,7 @@ import { ativarTwoFactor, twoFactorAtivado } from "@features/two-factor/api/twoF
 import { initialLoginForm, type LoginForm } from "./types";
 import { useAuthFlow } from "@features/auth/model/AuthFlowContext";
 import { useTwoFactor } from "@features/two-factor/model/TwoFactorContext";
+import { isRequestCanceled } from "@shared/utils/http";
 
 type TouchedState = Partial<Record<keyof LoginForm, boolean>>;
 type TwoFactorData = { secret: string; qrCodeUrl: string };
@@ -25,12 +26,16 @@ export function useLoginForm() {
 
   const navigate = useNavigate();
   const abortRef = useRef<AbortController | null>(null);
+  const submittingRef = useRef(false);
 
   const { setEmail, clearAuthFlow } = useAuthFlow();
   const { setSecret, setActive, resetTwoFactor } = useTwoFactor();
 
   useEffect(() => {
-    return () => abortRef.current?.abort();
+    return () => {
+      abortRef.current?.abort();
+      submittingRef.current = false;
+    };
   }, []);
 
 
@@ -100,12 +105,16 @@ export function useLoginForm() {
   }
 
   async function handleLogin() {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+
     setSubmitAttempted(true);
     markAllTouched();
 
     const result = validate();
     if (!result.ok) {
       alerts.warn({ text: "Ops! Revise e-mail e senha." });
+      submittingRef.current = false;
       return;
     }
 
@@ -137,12 +146,21 @@ export function useLoginForm() {
       setActive();
       setTwoFactorStep("confirm");
     } catch (err) {
+      if (isRequestCanceled(err)) {
+        return;
+      }
+
       const message = handleAxiosError(err);
       alerts.error({ text: message });
       clearAuthFlow();
       resetTwoFactor();
     } finally {
+      if (abortRef.current === controller) {
+        abortRef.current = null;
+      }
+
       setIsSubmitting(false);
+      submittingRef.current = false;
     }
   }
 
@@ -161,6 +179,7 @@ export function useLoginForm() {
   const reset = () => {
     abortRef.current?.abort();
     abortRef.current = null;
+    submittingRef.current = false;
 
     setForm(initialLoginForm);
     setErrors({});

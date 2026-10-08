@@ -18,6 +18,7 @@ export const api = axios.create({
 const publicPaths = [
   "/usuario/salvar",
   "/usuario/login",
+  "/campos-eclesiasticos",
   "/comademat/consulta",
   "/usuario/two-factor-ativado",
   "/usuario/confirmar-email",

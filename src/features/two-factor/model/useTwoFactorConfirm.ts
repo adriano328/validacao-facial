@@ -36,6 +36,7 @@ export function useTwoFactorConfirm({
   const [touched, setTouched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  const submittingRef = useRef(false);
   const navigate = useNavigate();
 
   const { status, secret, clearSecret, setActive, resetTwoFactor } = useTwoFactor();
@@ -43,8 +44,18 @@ export function useTwoFactorConfirm({
   const { setToken } = useAuthToken();
 
   useEffect(() => {
-    return () => abortRef.current?.abort();
+    return () => {
+      abortRef.current?.abort();
+      submittingRef.current = false;
+    };
   }, []);
+
+  useEffect(() => {
+    resetLocalInput();
+    submittingRef.current = false;
+    abortRef.current?.abort();
+    abortRef.current = null;
+  }, [email, secret, status]);
 
   const error = useMemo(() => {
     if (!touched) return undefined;
@@ -78,6 +89,10 @@ export function useTwoFactorConfirm({
   }
 
   async function confirm(): Promise<boolean> {
+    if (submittingRef.current) {
+      return false;
+    }
+
     setTouched(true);
 
     if (!email) {
@@ -100,6 +115,7 @@ export function useTwoFactorConfirm({
     const controller = new AbortController();
     abortRef.current = controller;
 
+    submittingRef.current = true;
     setIsSubmitting(true);
 
     try {
@@ -159,6 +175,7 @@ export function useTwoFactorConfirm({
     } finally {
       // ✅ SEMPRE destrava
       setIsSubmitting(false);
+      submittingRef.current = false;
 
       // ✅ evita ficar com controller "pendurado"
       if (abortRef.current === controller) {

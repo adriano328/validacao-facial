@@ -14,12 +14,23 @@ import {
 import { useNavigate } from "react-router-dom";
 import { alerts } from "@shared/lib/swal";
 import { brDateToISO, formatarDataToBr } from "@shared/utils/formataData";
+import {
+  listarCamposEclesiasticos,
+  type SelectOptionDto,
+} from "@features/admin/api/eventoApi";
 import { salvarPessoa } from "@features/registration/api/pessoaApi";
 import { handleAxiosError } from "@shared/utils/messageErro";
 import { consultaMembro } from "@features/registration/api/consultaMembroApi";
+import { isRequestCanceled } from "@shared/utils/http";
 import axios from "axios";
 
 type TouchedState = Partial<Record<keyof CadastroForm, boolean>>;
+
+function normalizeCampoId(campoId: number | null | undefined) {
+  return typeof campoId === "number" && Number.isFinite(campoId)
+    ? campoId
+    : undefined;
+}
 
 export function useCadastroForm() {
   const [formCadastro, setForm] = useState<CadastroForm>(initialCadastroForm);
@@ -29,11 +40,23 @@ export function useCadastroForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState<"cadastro" | "confirmarSenha">("cadastro");
   const [loadingCpf, setLoadingCpf] = useState(false);
+  const [consultaCpfEncontrada, setConsultaCpfEncontrada] = useState(false);
+  const [camposEclesiasticos, setCamposEclesiasticos] = useState<
+    SelectOptionDto[]
+  >([]);
+  const [camposEclesiasticosLoading, setCamposEclesiasticosLoading] =
+    useState(true);
+  const [camposEclesiasticosLoaded, setCamposEclesiasticosLoaded] =
+    useState(false);
+  const [camposEclesiasticosError, setCamposEclesiasticosError] = useState<
+    string | null
+  >(null);
 
   const navigate = useNavigate();
 
   const abortRef = useRef<AbortController | null>(null);
   const submittingRef = useRef(false);
+  const autoCampoEclesiasticoIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     return () => {
@@ -43,10 +66,61 @@ export function useCadastroForm() {
     };
   }, []);
 
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadCamposEclesiasticos() {
+      try {
+        setCamposEclesiasticosLoading(true);
+        setCamposEclesiasticosLoaded(false);
+        setCamposEclesiasticosError(null);
+
+        const campos = await listarCamposEclesiasticos(controller.signal);
+
+        setCamposEclesiasticos(campos);
+        setCamposEclesiasticosLoaded(true);
+        setForm((current) => {
+          const campoSelecionado = current.campoEclesiasticoId;
+
+          if (
+            campoSelecionado !== undefined &&
+            !campos.some((campo) => campo.id === campoSelecionado)
+          ) {
+            if (autoCampoEclesiasticoIdRef.current === campoSelecionado) {
+              autoCampoEclesiasticoIdRef.current = null;
+            }
+
+            return { ...current, campoEclesiasticoId: undefined };
+          }
+
+          return current;
+        });
+      } catch (error) {
+        if (isRequestCanceled(error)) return;
+
+        setCamposEclesiasticos([]);
+        setCamposEclesiasticosLoaded(false);
+        setCamposEclesiasticosError(handleAxiosError(error));
+      } finally {
+        if (!controller.signal.aborted) {
+          setCamposEclesiasticosLoading(false);
+        }
+      }
+    }
+
+    void loadCamposEclesiasticos();
+
+    return () => controller.abort();
+  }, []);
+
   const setFormCadastro = <K extends keyof CadastroForm>(
     key: K,
     value: CadastroForm[K],
   ) => {
+    if (key === "cpf") {
+      setConsultaCpfEncontrada(false);
+    }
+
     setForm((prev) => {
       const next = { ...prev, [key]: value };
 
@@ -65,6 +139,44 @@ export function useCadastroForm() {
       return next;
     });
   };
+
+  function handleCampoEclesiasticoChange(campoEclesiasticoId: number) {
+    autoCampoEclesiasticoIdRef.current = null;
+    setFormCadastro("campoEclesiasticoId", campoEclesiasticoId);
+  }
+
+  function applyCampoEclesiasticoFromConsulta(
+    campoEclesiasticoId: number | null | undefined
+  ) {
+    const normalizedCampoId = normalizeCampoId(campoEclesiasticoId);
+
+    if (normalizedCampoId === undefined) {
+      setForm((current) => {
+        if (
+          autoCampoEclesiasticoIdRef.current !== null &&
+          current.campoEclesiasticoId === autoCampoEclesiasticoIdRef.current
+        ) {
+          autoCampoEclesiasticoIdRef.current = null;
+          return { ...current, campoEclesiasticoId: undefined };
+        }
+
+        autoCampoEclesiasticoIdRef.current = null;
+        return current;
+      });
+      return;
+    }
+
+    const existsInOptions = camposEclesiasticos.some(
+      (campo) => campo.id === normalizedCampoId
+    );
+    const nextCampoId =
+      camposEclesiasticosLoaded && !existsInOptions
+        ? undefined
+        : normalizedCampoId;
+
+    autoCampoEclesiasticoIdRef.current = nextCampoId ?? null;
+    setFormCadastro("campoEclesiasticoId", nextCampoId);
+  }
 
   const touchField = <K extends keyof CadastroForm>(
     key: K,
@@ -102,6 +214,8 @@ export function useCadastroForm() {
   async function handleConsultaCpf(cpf: string) {
     try {
       const cpfLimpo = cpf.replace(/\D/g, "");
+      setConsultaCpfEncontrada(false);
+
       if (cpfLimpo.length !== 11) {
         return;
       }
@@ -109,13 +223,18 @@ export function useCadastroForm() {
       setLoadingCpf(true);
 
       const response = await consultaMembro({ documento: cpfLimpo });
-      if (response) {
-        setFormCadastro("nome", response.NOME);
-        setFormCadastro("dataNascimento", formatarDataToBr(response.NASCIMENTO));
-        setFormCadastro("email", response.EMAIL);
-        setFormCadastro("cargo", mapearCargo(response.MINISTERIO));
+      if (!response) {
+        return;
       }
+
+      setConsultaCpfEncontrada(true);
+      setFormCadastro("nome", response.NOME);
+      setFormCadastro("dataNascimento", formatarDataToBr(response.NASCIMENTO));
+      setFormCadastro("email", response.EMAIL);
+      setFormCadastro("cargo", mapearCargo(response.MINISTERIO));
+      applyCampoEclesiasticoFromConsulta(response.CAMPO_ID);
     } catch (error: any) {
+      setConsultaCpfEncontrada(false);
       console.error(error);
       // opcional: mostrar erro
       // messageAlert.error(error.message)
@@ -149,6 +268,7 @@ export function useCadastroForm() {
       senha: true,
       senhaConfirmacao: true,
       cpf: true,
+      campoEclesiasticoId: true,
       foto: true,
       fotoDocumento: true,
     });
@@ -160,6 +280,12 @@ export function useCadastroForm() {
 
     setSubmitAttempted(true);
     markAllTouched();
+
+    if (!consultaCpfEncontrada) {
+      alerts.warn({ text: "Consulte um CPF válido antes de cadastrar." });
+      submittingRef.current = false;
+      return;
+    }
 
     const result = validate();
 
@@ -183,7 +309,7 @@ export function useCadastroForm() {
       senha: formCadastro.senha,
       cpf: formCadastro.cpf.replace(/\D/g, ""),
       campoEclesiastico: {
-        id: 1,
+        id: formCadastro.campoEclesiasticoId!,
       },
       foto: formCadastro.foto,
       fotoDocumento: formCadastro.fotoDocumento,
@@ -231,32 +357,8 @@ export function useCadastroForm() {
   }
 
   const canSubmit = useMemo(() => {
-    return (
-      !!formCadastro.nome &&
-      !!formCadastro.cpf &&
-      !!formCadastro.telefone &&
-      !!formCadastro.dataNascimento &&
-      !!formCadastro.email &&
-      !!formCadastro.senha &&
-      !!formCadastro.senhaConfirmacao &&
-      !!formCadastro.foto &&
-      !!formCadastro.fotoDocumento &&
-      formCadastro.cargo !== undefined &&
-      !isSubmitting
-    );
-  }, [
-    formCadastro.nome,
-    formCadastro.cpf,
-    formCadastro.telefone,
-    formCadastro.dataNascimento,
-    formCadastro.email,
-    formCadastro.senha,
-    formCadastro.senhaConfirmacao,
-    formCadastro.foto,
-    formCadastro.fotoDocumento,
-    formCadastro.cargo,
-    isSubmitting,
-  ]);
+    return consultaCpfEncontrada && !loadingCpf && !isSubmitting;
+  }, [consultaCpfEncontrada, loadingCpf, isSubmitting]);
 
   const reset = () => {
     abortRef.current?.abort();
@@ -267,6 +369,7 @@ export function useCadastroForm() {
     setTouched({});
     setSubmitAttempted(false);
     setIsSubmitting(false);
+    setConsultaCpfEncontrada(false);
     setStep("cadastro");
   };
 
@@ -275,6 +378,10 @@ export function useCadastroForm() {
 
   return {
     formCadastro,
+    camposEclesiasticos,
+    camposEclesiasticosLoading,
+    camposEclesiasticosError,
+    handleCampoEclesiasticoChange,
     handleConsultaCpf,
     loadingCpf,
     setFormCadastro,

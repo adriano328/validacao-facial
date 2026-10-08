@@ -1,10 +1,14 @@
 import { FacePhotoField } from "@features/registration/ui/FacePhotoField";
 import { DocumentPhotoField } from "@features/registration/ui/DocumentPhotoField";
+import { useMemo } from "react";
 import { useCadastroForm } from "@features/registration/model/useCadastroForm";
 import type { CargoUsuario } from "@features/registration/model/types";
 import { CARGOS_ECLESIASTICOS } from "@shared/data/cargos";
 import { BrandMark } from "@shared/ui/brand/BrandMark";
-import { DropdownField } from "@shared/ui/dropdown/DropdownField";
+import {
+  DropdownField,
+  type DropdownOption,
+} from "@shared/ui/dropdown/DropdownField";
 import { FormField } from "@shared/ui/form/FormField";
 import { PasswordInput } from "@shared/ui/password-input/PasswordInput";
 import { SectionHeader } from "@shared/ui/section-header/SectionHeader";
@@ -55,16 +59,31 @@ function BallotIcon({ className }: { className?: string }) {
 export function CadastroPage() {
   const {
     formCadastro,
+    camposEclesiasticos,
+    camposEclesiasticosLoading,
+    camposEclesiasticosError,
     setFormCadastro,
+    handleCampoEclesiasticoChange,
     touchField,
     showError,
     handleConsultaCpf,
     handleCadastrar,
     isSubmitting,
+    canSubmit,
   } = useCadastroForm();
 
   const cargoError = showError("cargo");
   const cargoInvalid = !!cargoError;
+  const campoEclesiasticoError = showError("campoEclesiasticoId");
+  const campoEclesiasticoInvalid = !!campoEclesiasticoError;
+  const campoEclesiasticoOptions = useMemo<DropdownOption<number>[]>(
+    () =>
+      camposEclesiasticos.map((campo) => ({
+        value: campo.id,
+        label: campo.nome,
+      })),
+    [camposEclesiasticos]
+  );
 
   return (
     <div className="cadastro-page">
@@ -156,6 +175,33 @@ export function CadastroPage() {
                 />
               </FormField>
 
+              <FormField
+                label="Campo Eclesiástico"
+                required
+                error={campoEclesiasticoError}
+                helperText={camposEclesiasticosError}
+              >
+                <DropdownField<number>
+                  value={formCadastro.campoEclesiasticoId}
+                  placeholder={
+                    camposEclesiasticosLoading
+                      ? "Carregando campos..."
+                      : "Selecione um campo eclesiástico"
+                  }
+                  searchPlaceholder="Buscar campo eclesiástico..."
+                  emptyText={
+                    camposEclesiasticosError
+                      ? "Não foi possível carregar os campos"
+                      : "Nenhum campo encontrado"
+                  }
+                  options={campoEclesiasticoOptions}
+                  onChange={handleCampoEclesiasticoChange}
+                  onBlur={() => touchField("campoEclesiasticoId")}
+                  invalid={campoEclesiasticoInvalid}
+                  disabled={camposEclesiasticosLoading}
+                />
+              </FormField>
+
               <FormField label="E-mail" required error={showError("email")}>
                 <input
                   className="vf-input"
@@ -217,7 +263,7 @@ export function CadastroPage() {
               className="vf-button vf-button--primary cadastro-submit"
               type="button"
               onClick={handleCadastrar}
-              disabled={isSubmitting}
+              disabled={!canSubmit}
             >
               <span>{isSubmitting ? "Salvando..." : "Cadastrar"}</span>
               <BallotIcon className="cadastro-buttonIcon" />

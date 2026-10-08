@@ -116,6 +116,16 @@ export async function listarRegioesPorConvencao(
   return response.data;
 }
 
+export async function listarCamposEclesiasticos(
+  signal?: AbortSignal
+): Promise<SelectOptionDto[]> {
+  const response = await api.get<SelectOptionDto[]>("/campos-eclesiasticos", {
+    signal,
+  });
+
+  return response.data;
+}
+
 export async function listarCamposEclesiasticosPorRegiao(
   regiaoId: number,
   signal?: AbortSignal

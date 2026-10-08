@@ -12,19 +12,35 @@ export interface ConsultaEleitorResponse {
   DOCUMENTO: string;
   NASCIMENTO: string;
   EMAIL: string;
-  CAMPO_ID: number;
+  CAMPO_ID: number | null;
   CAMPO: string;
+  REGIAO_ID: number | null;
+  REGIAO: string;
 }
+
+type ConsultaEleitorApiResponse =
+  | ConsultaEleitorResponse
+  | Partial<ConsultaEleitorResponse>
+  | null
+  | "";
 
 export async function consultaMembro(
   payload: ConsultaEleitorRequest,
   signal?: AbortSignal,
-): Promise<ConsultaEleitorResponse> {
-  const response: AxiosResponse<ConsultaEleitorResponse> = await api.post(
+): Promise<ConsultaEleitorResponse | null> {
+  const response: AxiosResponse<ConsultaEleitorApiResponse> = await api.post(
     "/comademat/consulta",
     payload,
     { signal },
   );
 
-  return response.data;
+  if (
+    !response.data ||
+    typeof response.data !== "object" ||
+    Object.keys(response.data).length === 0
+  ) {
+    return null;
+  }
+
+  return response.data as ConsultaEleitorResponse;
 }
