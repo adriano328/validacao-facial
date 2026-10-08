@@ -9,6 +9,7 @@ export type Eleicao = {
   nomeConvencao: string;
   dataInicial: string;
   dataFinal: string;
+  dataInicioVotacao: string;
   dataInicioApuracao: string;
   chavePublica?: string | null;
   fingerprint?: string | null;
@@ -21,6 +22,7 @@ export type EleicaoFilters = {
   eventoId?: number;
   dataInicial?: string;
   dataFinal?: string;
+  dataInicioVotacao?: string;
   dataInicioApuracao?: string;
 };
 
@@ -28,6 +30,7 @@ export type EleicaoPayload = {
   eventoId: number;
   dataInicial: string;
   dataFinal: string;
+  dataInicioVotacao: string;
   dataInicioApuracao: string;
   chavePublica: string | null;
   fingerprint: string | null;
@@ -49,6 +52,7 @@ export async function listarEleicoes(
       eventoId: filters.eventoId,
       dataInicial: filters.dataInicial || undefined,
       dataFinal: filters.dataFinal || undefined,
+      dataInicioVotacao: filters.dataInicioVotacao || undefined,
       dataInicioApuracao: filters.dataInicioApuracao || undefined,
     },
     signal,

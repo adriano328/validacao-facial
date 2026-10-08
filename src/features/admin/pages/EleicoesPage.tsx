@@ -41,6 +41,12 @@ const supportPageSize = 500;
 const periodoErrorMessage = "A data final não pode ser anterior à data inicial.";
 const periodoEventoErrorMessage =
   "O período da eleição deve estar dentro do período do evento selecionado.";
+const votacaoAntesInicialErrorMessage =
+  "O início da votação não pode ser anterior à data inicial da eleição.";
+const votacaoAposFinalErrorMessage =
+  "O início da votação não pode ser posterior à data final da eleição.";
+const votacaoAposApuracaoErrorMessage =
+  "O início da votação não pode ser posterior ao início da apuração.";
 const apuracaoErrorMessage =
   "O início da apuração deve estar dentro do período da eleição.";
 
@@ -48,6 +54,7 @@ type EleicaoForm = {
   eventoId?: number;
   dataInicial: string;
   dataFinal: string;
+  dataInicioVotacao: string;
   dataInicioApuracao: string;
   dataCadastro: string;
   chavePublica: string;
@@ -83,6 +90,7 @@ function createInitialForm(): EleicaoForm {
   return {
     dataInicial: "",
     dataFinal: "",
+    dataInicioVotacao: "",
     dataInicioApuracao: "",
     dataCadastro: getTodayDateISO(),
     chavePublica: "",
@@ -115,6 +123,17 @@ function formatDateTime(value?: string | null) {
 
 function normalizeDateTime(value: string) {
   return value.length === 16 ? `${value}:00` : value;
+}
+
+function minDateTimeInput(...values: Array<string | undefined>) {
+  return values.filter(Boolean).sort()[0];
+}
+
+function getVotacaoMax(form: EleicaoForm) {
+  return minDateTimeInput(
+    form.dataInicioApuracao || undefined,
+    form.dataFinal ? `${form.dataFinal}T23:59` : undefined
+  );
 }
 
 function trimToNull(value: string) {
@@ -164,6 +183,26 @@ function validateForm(
     errors.dataInicioApuracao = apuracaoErrorMessage;
   }
 
+  if (!form.dataInicioVotacao) {
+    errors.dataInicioVotacao = "O início da votação é obrigatório.";
+  } else if (
+    form.dataInicial &&
+    normalizeDateTime(form.dataInicioVotacao) < `${form.dataInicial}T00:00:00`
+  ) {
+    errors.dataInicioVotacao = votacaoAntesInicialErrorMessage;
+  } else if (
+    form.dataFinal &&
+    normalizeDateTime(form.dataInicioVotacao) > `${form.dataFinal}T23:59:59`
+  ) {
+    errors.dataInicioVotacao = votacaoAposFinalErrorMessage;
+  } else if (
+    form.dataInicioApuracao &&
+    normalizeDateTime(form.dataInicioVotacao) >
+      normalizeDateTime(form.dataInicioApuracao)
+  ) {
+    errors.dataInicioVotacao = votacaoAposApuracaoErrorMessage;
+  }
+
   if (!form.dataCadastro) {
     errors.dataCadastro = "A data de cadastro é obrigatória.";
   }
@@ -182,6 +221,7 @@ function toPayload(form: EleicaoForm): EleicaoPayload {
     eventoId: form.eventoId!,
     dataInicial: form.dataInicial,
     dataFinal: form.dataFinal,
+    dataInicioVotacao: normalizeDateTime(form.dataInicioVotacao),
     dataInicioApuracao: normalizeDateTime(form.dataInicioApuracao),
     chavePublica: trimToNull(form.chavePublica),
     fingerprint: trimToNull(form.fingerprint),
@@ -213,6 +253,7 @@ export function EleicoesPage() {
   const [filterEventoId, setFilterEventoId] = useState<number | undefined>();
   const [filterDataInicial, setFilterDataInicial] = useState("");
   const [filterDataFinal, setFilterDataFinal] = useState("");
+  const [filterDataInicioVotacao, setFilterDataInicioVotacao] = useState("");
   const [filterDataInicioApuracao, setFilterDataInicioApuracao] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState<EleicaoForm>(() => createInitialForm());
@@ -248,6 +289,7 @@ export function EleicoesPage() {
       filterEventoId ||
       filterDataInicial ||
       filterDataFinal ||
+      filterDataInicioVotacao ||
       filterDataInicioApuracao
   );
 
@@ -270,6 +312,9 @@ export function EleicoesPage() {
           eventoId: filterEventoId,
           dataInicial: filterDataInicial,
           dataFinal: filterDataFinal,
+          dataInicioVotacao: filterDataInicioVotacao
+            ? normalizeDateTime(filterDataInicioVotacao)
+            : undefined,
           dataInicioApuracao: filterDataInicioApuracao
             ? normalizeDateTime(filterDataInicioApuracao)
             : undefined,
@@ -397,6 +442,7 @@ export function EleicoesPage() {
     filterDataFinal,
     filterDataInicial,
     filterDataInicioApuracao,
+    filterDataInicioVotacao,
     filterEventoId,
     filterPeriodoError,
     page,
@@ -420,6 +466,7 @@ export function EleicoesPage() {
     setFilterEventoId(undefined);
     setFilterDataInicial("");
     setFilterDataFinal("");
+    setFilterDataInicioVotacao("");
     setFilterDataInicioApuracao("");
     setPage(0);
   }
@@ -475,6 +522,7 @@ export function EleicoesPage() {
       eventoId: true,
       dataInicial: true,
       dataFinal: true,
+      dataInicioVotacao: true,
       dataInicioApuracao: true,
     });
 
@@ -621,17 +669,15 @@ export function EleicoesPage() {
           />
         </FormField>
 
-        <FormField label="Data final">
+        <FormField label="Início da votação">
           <input
             className="vf-input"
-            type="date"
-            value={filterDataFinal}
-            min={filterDataInicial || undefined}
+            type="datetime-local"
+            value={filterDataInicioVotacao}
             onChange={(event) => {
-              setFilterDataFinal(event.target.value);
+              setFilterDataInicioVotacao(event.target.value);
               setPage(0);
             }}
-            aria-invalid={!!filterPeriodoError}
           />
         </FormField>
 
@@ -644,6 +690,20 @@ export function EleicoesPage() {
               setFilterDataInicioApuracao(event.target.value);
               setPage(0);
             }}
+          />
+        </FormField>
+
+        <FormField label="Data final">
+          <input
+            className="vf-input"
+            type="date"
+            value={filterDataFinal}
+            min={filterDataInicial || undefined}
+            onChange={(event) => {
+              setFilterDataFinal(event.target.value);
+              setPage(0);
+            }}
+            aria-invalid={!!filterPeriodoError}
           />
         </FormField>
 
@@ -678,8 +738,9 @@ export function EleicoesPage() {
                   <th>Convenção</th>
                   <th>Evento</th>
                   <th>Data inicial</th>
-                  <th>Data final</th>
+                  <th>Início da votação</th>
                   <th>Início da apuração</th>
+                  <th>Data final</th>
                   <th>Data de cadastro</th>
                   <th>Ações</th>
                 </tr>
@@ -696,8 +757,9 @@ export function EleicoesPage() {
                       <span className="eleicoes-name">{eleicao.nomeEvento}</span>
                     </td>
                     <td>{formatDate(eleicao.dataInicial)}</td>
-                    <td>{formatDate(eleicao.dataFinal)}</td>
+                    <td>{formatDateTime(eleicao.dataInicioVotacao)}</td>
                     <td>{formatDateTime(eleicao.dataInicioApuracao)}</td>
+                    <td>{formatDate(eleicao.dataFinal)}</td>
                     <td>{formatDate(eleicao.dataCadastro)}</td>
                     <td>
                       <div className="eleicoes-actions">
@@ -844,38 +906,69 @@ export function EleicoesPage() {
                 </FormField>
               </div>
 
-              <FormField
-                label="Início da apuração"
-                required
-                error={
-                  formTouched.dataInicioApuracao
-                    ? formErrors.dataInicioApuracao
-                    : undefined
-                }
-              >
-                <input
-                  className="vf-input"
-                  type="datetime-local"
-                  value={form.dataInicioApuracao}
-                  min={form.dataInicial ? `${form.dataInicial}T00:00` : undefined}
-                  max={form.dataFinal ? `${form.dataFinal}T23:59` : undefined}
-                  onChange={(event) =>
-                    updateForm("dataInicioApuracao", event.target.value)
+              <div className="eleicoes-formRow">
+                <FormField
+                  label="Início da votação"
+                  required
+                  error={
+                    formTouched.dataInicioVotacao
+                      ? formErrors.dataInicioVotacao
+                      : undefined
                   }
-                  onBlur={() => touchField("dataInicioApuracao")}
-                  disabled={saving}
-                  aria-invalid={
-                    !!(
-                      formTouched.dataInicioApuracao &&
-                      formErrors.dataInicioApuracao
-                    )
+                >
+                  <input
+                    className="vf-input"
+                    type="datetime-local"
+                    value={form.dataInicioVotacao}
+                    min={form.dataInicial ? `${form.dataInicial}T00:00` : undefined}
+                    max={getVotacaoMax(form)}
+                    onChange={(event) =>
+                      updateForm("dataInicioVotacao", event.target.value)
+                    }
+                    onBlur={() => touchField("dataInicioVotacao")}
+                    disabled={saving}
+                    aria-invalid={
+                      !!(
+                        formTouched.dataInicioVotacao &&
+                        formErrors.dataInicioVotacao
+                      )
+                    }
+                  />
+                </FormField>
+
+                <FormField
+                  label="Início da apuração"
+                  required
+                  error={
+                    formTouched.dataInicioApuracao
+                      ? formErrors.dataInicioApuracao
+                      : undefined
                   }
-                />
-              </FormField>
+                >
+                  <input
+                    className="vf-input"
+                    type="datetime-local"
+                    value={form.dataInicioApuracao}
+                    min={form.dataInicial ? `${form.dataInicial}T00:00` : undefined}
+                    max={form.dataFinal ? `${form.dataFinal}T23:59` : undefined}
+                    onChange={(event) =>
+                      updateForm("dataInicioApuracao", event.target.value)
+                    }
+                    onBlur={() => touchField("dataInicioApuracao")}
+                    disabled={saving}
+                    aria-invalid={
+                      !!(
+                        formTouched.dataInicioApuracao &&
+                        formErrors.dataInicioApuracao
+                      )
+                    }
+                  />
+                </FormField>
+              </div>
 
               <div className="eleicoes-infoBox">
                 O período da eleição deve estar dentro do evento selecionado, e a
-                apuração deve estar dentro do período da eleição.
+                votação deve iniciar entre a data inicial e o início da apuração.
               </div>
 
             </div>

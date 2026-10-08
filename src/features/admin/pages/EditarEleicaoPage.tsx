@@ -67,6 +67,12 @@ const acceptedCandidatePhotoTypes = ["image/jpeg", "image/png"];
 const periodoErrorMessage = "A data final não pode ser anterior à data inicial.";
 const periodoEventoErrorMessage =
   "O período da eleição deve estar dentro do período do evento.";
+const votacaoAntesInicialMessage =
+  "O início da votação não pode ser anterior à data inicial da eleição.";
+const votacaoAposFinalMessage =
+  "O início da votação não pode ser posterior à data final da eleição.";
+const votacaoAposApuracaoMessage =
+  "O início da votação não pode ser posterior ao início da apuração.";
 const apuracaoAntesFinalMessage =
   "A data de início da apuração não pode ser anterior à data final da eleição.";
 const apuracaoPeriodoMessage =
@@ -76,6 +82,7 @@ type EleicaoForm = {
   eventoId?: number;
   dataInicial: string;
   dataFinal: string;
+  dataInicioVotacao: string;
   dataInicioApuracao: string;
   dataCadastro: string;
   chavePublica: string;
@@ -148,6 +155,17 @@ function normalizeDateTime(value: string) {
   return value.length === 16 ? `${value}:00` : value;
 }
 
+function minDateTimeInput(...values: Array<string | undefined>) {
+  return values.filter(Boolean).sort()[0];
+}
+
+function getVotacaoMax(form: EleicaoForm) {
+  return minDateTimeInput(
+    form.dataInicioApuracao || undefined,
+    form.dataFinal ? `${form.dataFinal}T23:59` : undefined
+  );
+}
+
 function trimToNull(value: string) {
   const trimmed = value.trim();
   return trimmed ? trimmed : null;
@@ -162,6 +180,7 @@ function formFromEleicao(eleicao: Eleicao): EleicaoForm {
     eventoId: eleicao.eventoId,
     dataInicial: eleicao.dataInicial,
     dataFinal: eleicao.dataFinal,
+    dataInicioVotacao: toDateTimeInput(eleicao.dataInicioVotacao),
     dataInicioApuracao: toDateTimeInput(eleicao.dataInicioApuracao),
     dataCadastro: eleicao.dataCadastro,
     chavePublica: eleicao.chavePublica ?? "",
@@ -177,6 +196,7 @@ function toEleicaoPayload(form: EleicaoForm): EleicaoPayload {
     eventoId: form.eventoId!,
     dataInicial: form.dataInicial,
     dataFinal: form.dataFinal,
+    dataInicioVotacao: normalizeDateTime(form.dataInicioVotacao),
     dataInicioApuracao: normalizeDateTime(form.dataInicioApuracao),
     chavePublica: trimToNull(form.chavePublica),
     fingerprint: trimToNull(form.fingerprint),
@@ -262,6 +282,26 @@ function validateEleicaoForm(
     errors.dataFinal = periodoErrorMessage;
   } else if (!isElectionInsideEvent(form, selectedEvento)) {
     errors.dataFinal = periodoEventoErrorMessage;
+  }
+
+  if (!form.dataInicioVotacao) {
+    errors.dataInicioVotacao = "O início da votação é obrigatório.";
+  } else if (
+    form.dataInicial &&
+    normalizeDateTime(form.dataInicioVotacao) < `${form.dataInicial}T00:00:00`
+  ) {
+    errors.dataInicioVotacao = votacaoAntesInicialMessage;
+  } else if (
+    form.dataFinal &&
+    normalizeDateTime(form.dataInicioVotacao) > `${form.dataFinal}T23:59:59`
+  ) {
+    errors.dataInicioVotacao = votacaoAposFinalMessage;
+  } else if (
+    form.dataInicioApuracao &&
+    normalizeDateTime(form.dataInicioVotacao) >
+      normalizeDateTime(form.dataInicioApuracao)
+  ) {
+    errors.dataInicioVotacao = votacaoAposApuracaoMessage;
   }
 
   if (!form.dataInicioApuracao) {
@@ -865,6 +905,7 @@ export function EditarEleicaoPage() {
       eventoId: true,
       dataInicial: true,
       dataFinal: true,
+      dataInicioVotacao: true,
       dataInicioApuracao: true,
       dataCadastro: true,
     });
@@ -1360,6 +1401,35 @@ export function EditarEleicaoPage() {
                       updateEleicaoForm("dataFinal", event.target.value)
                     }
                     onBlur={() => touchEleicaoField("dataFinal")}
+                  />
+                </FormField>
+
+                <FormField
+                  label="Início da votação"
+                  required
+                  error={
+                    formTouched.dataInicioVotacao
+                      ? formErrors.dataInicioVotacao
+                      : undefined
+                  }
+                >
+                  <input
+                    className="vf-input"
+                    type="datetime-local"
+                    value={form.dataInicioVotacao}
+                    min={form.dataInicial ? `${form.dataInicial}T00:00` : undefined}
+                    max={getVotacaoMax(form)}
+                    disabled={savingEleicao}
+                    aria-invalid={
+                      !!(
+                        formTouched.dataInicioVotacao &&
+                        formErrors.dataInicioVotacao
+                      )
+                    }
+                    onChange={(event) =>
+                      updateEleicaoForm("dataInicioVotacao", event.target.value)
+                    }
+                    onBlur={() => touchEleicaoField("dataInicioVotacao")}
                   />
                 </FormField>
 
