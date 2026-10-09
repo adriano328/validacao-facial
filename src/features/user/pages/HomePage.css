@@ -253,6 +253,10 @@
   gap: 10px;
 }
 
+.voting-detailGrid--four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .voting-detailGrid div {
   min-width: 0;
   border: 1px solid var(--gray-100, #f2f4f7);
@@ -281,15 +285,15 @@
 }
 
 .voting-candidateGroups {
-  padding: 16px;
+  padding: 14px;
   display: grid;
-  gap: 16px;
+  gap: 14px;
 }
 
 .voting-candidateGroup {
   min-width: 0;
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .voting-candidateGroupHeader {
@@ -308,6 +312,13 @@
   font-weight: 700;
   letter-spacing: 0;
   overflow-wrap: anywhere;
+}
+
+.voting-candidateGroupHeader p {
+  margin: 2px 0 0;
+  color: var(--gray-500, #667085);
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .voting-candidateGroupHeader span {
@@ -370,6 +381,438 @@
   line-height: 1;
   font-style: normal;
   font-weight: 800;
+}
+
+.voting-electionPage {
+  padding-bottom: 96px;
+}
+
+.voting-candidatesHeader {
+  align-items: flex-start;
+}
+
+.voting-stepHeader {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+}
+
+.voting-stepBadge {
+  width: fit-content;
+  border-radius: 999px;
+  background: var(--primary-50, #eef4ff);
+  color: var(--primary-900, #062f70);
+  padding: 5px 9px;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.voting-progressCompact,
+.voting-submitProgress {
+  min-width: 210px;
+  display: grid;
+  gap: 7px;
+}
+
+.voting-progressCompact strong,
+.voting-submitProgress strong {
+  color: var(--gray-700, #344054);
+  font-size: 12px;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+.voting-progressCompact span,
+.voting-submitProgress span {
+  height: 9px;
+  border-radius: 999px;
+  background: #e8edf5;
+  overflow: hidden;
+}
+
+.voting-progressCompact i,
+.voting-submitProgress i {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary-600, #1570ef);
+  display: block;
+  transition: width 160ms ease;
+}
+
+.voting-voteGrid {
+  grid-template-columns: repeat(auto-fill, minmax(250px, 320px));
+  justify-content: start;
+  gap: 12px;
+}
+
+.voting-voteOption {
+  width: 100%;
+  min-height: 84px;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  column-gap: 10px;
+  row-gap: 4px;
+  justify-content: start;
+  padding: 22px 12px 10px;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  transition:
+    border-color var(--vf-transition-fast, 160ms ease),
+    background var(--vf-transition-fast, 160ms ease),
+    box-shadow var(--vf-transition-fast, 160ms ease);
+}
+
+.voting-voteOption:hover {
+  border-color: var(--primary-300, #8bb5ff);
+  background: var(--primary-50, #eef4ff);
+}
+
+.voting-voteOption:focus-visible,
+.voting-submitButton:focus-visible,
+.voting-secondaryButton:focus-visible {
+  outline: 2px solid var(--primary-500, #2563eb);
+  outline-offset: 2px;
+}
+
+.voting-voteOption--selected {
+  border-color: var(--primary-500, #2563eb);
+  background: #f4f8ff;
+  box-shadow: 0 0 0 1px rgba(21, 112, 239, 0.25);
+}
+
+.voting-voteOption--candidate {
+  min-height: 90px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.voting-voteOption--candidate .voting-candidatePhoto {
+  flex: 0 0 48px;
+}
+
+.voting-voteOption--candidate .voting-candidateInfo {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.voting-voteOption--candidate strong {
+  display: -webkit-box;
+  color: var(--gray-900, #101828);
+  font-size: 12.5px;
+  line-height: 1.25;
+  font-weight: 800;
+  text-transform: uppercase;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.voting-voteOption--candidate .voting-candidateLocation {
+  color: var(--gray-500, #667085);
+  font-size: 11.5px;
+  line-height: 1.25;
+}
+
+.voting-voteOption--candidate em {
+  flex: 0 0 auto;
+  align-self: center;
+  min-width: 32px;
+  padding: 4px 7px;
+}
+
+.voting-voteOption .voting-candidatePhoto,
+.voting-voteOption .voting-nullIcon {
+  justify-self: center;
+}
+
+.voting-voteOption div {
+  align-content: center;
+}
+
+.voting-voteOption em {
+  align-self: center;
+  justify-self: end;
+}
+
+.voting-selectedBadge {
+  position: absolute;
+  top: 7px;
+  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--primary-800, #062f70);
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.voting-selectedBadge svg {
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  background: var(--primary-600, #1570ef);
+  fill: #ffffff;
+  padding: 2px;
+}
+
+.voting-selectedBadge--inline {
+  position: static;
+  width: fit-content;
+  margin-bottom: 3px;
+}
+
+.voting-nullIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: #ffffff;
+  display: grid;
+  place-items: center;
+  color: var(--gray-600, #475467);
+}
+
+.voting-nullIcon svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+
+.voting-submitBar {
+  position: sticky;
+  bottom: 12px;
+  z-index: 20;
+  border: 1px solid var(--gray-200, #e4e7ec);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 12px 32px rgba(16, 24, 40, 0.14);
+  padding: 14px 16px;
+  display: grid;
+  grid-template-columns: minmax(190px, 1fr) minmax(0, 2fr) auto;
+  align-items: center;
+  gap: 16px;
+}
+
+.voting-submitBar p {
+  margin: 0;
+  color: var(--gray-600, #475467);
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.voting-submitButton,
+.voting-secondaryButton,
+.voting-iconButton {
+  border-radius: 6px;
+  min-height: 38px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.voting-submitButton {
+  border: 1px solid var(--primary-900, #062f70);
+  background: var(--primary-900, #062f70);
+  color: #ffffff;
+  padding: 0 16px;
+}
+
+.voting-submitButton:disabled {
+  border-color: var(--gray-300, #d0d5dd);
+  background: var(--gray-300, #d0d5dd);
+  color: var(--gray-500, #667085);
+  cursor: not-allowed;
+}
+
+.voting-submitButton svg,
+.voting-secondaryButton svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.voting-secondaryButton {
+  border: 1px solid var(--gray-300, #d0d5dd);
+  background: #ffffff;
+  color: var(--primary-900, #062f70);
+  padding: 0 14px;
+}
+
+.voting-reviewCard {
+  min-width: 0;
+  border: 1px solid var(--gray-200, #e4e7ec);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.voting-reviewList {
+  margin: 0;
+  padding: 16px;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 10px;
+}
+
+.voting-reviewList li {
+  min-width: 0;
+  border: 1px solid var(--gray-100, #f2f4f7);
+  border-radius: 8px;
+  background: var(--gray-50, #f8f9fb);
+  padding: 12px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 76px;
+}
+
+.voting-reviewMedia {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+}
+
+.voting-reviewMedia .voting-nullIcon {
+  width: 48px;
+  height: 48px;
+}
+
+.voting-reviewContent {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.voting-reviewContent span {
+  color: var(--primary-900, #062f70);
+  font-size: 12px;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+.voting-reviewContent strong {
+  color: var(--gray-900, #101828);
+  font-size: 13px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.voting-reviewContent em {
+  color: var(--gray-600, #475467);
+  font-size: 12px;
+  line-height: 1.3;
+  font-style: normal;
+  overflow-wrap: anywhere;
+}
+
+.voting-reviewList b {
+  min-width: 34px;
+  border-radius: 6px;
+  background: #dbeafe;
+  color: var(--primary-900, #062f70);
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 800;
+  text-align: center;
+  padding: 7px 8px;
+}
+
+.voting-reviewActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.voting-successCard {
+  max-width: 720px;
+  border: 1px solid var(--gray-200, #e4e7ec);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 28px;
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.voting-successIcon {
+  width: 54px;
+  height: 54px;
+  border-radius: 999px;
+  background: var(--success-50, #ecfdf3);
+  color: var(--success-700, #157347);
+  display: grid;
+  place-items: center;
+}
+
+.voting-successIcon svg {
+  width: 28px;
+  height: 28px;
+  fill: currentColor;
+}
+
+.voting-successCard h1 {
+  margin: 0;
+  color: var(--gray-900, #101828);
+  font-size: 22px;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.voting-successCard p {
+  max-width: 500px;
+  margin: 6px 0 0;
+  color: var(--gray-600, #475467);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.voting-successKey {
+  width: 100%;
+  border: 1px solid var(--gray-100, #f2f4f7);
+  border-radius: 8px;
+  background: var(--gray-50, #f8f9fb);
+  padding: 14px;
+  display: grid;
+  gap: 6px;
+}
+
+.voting-successKey span {
+  color: var(--gray-500, #667085);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.voting-successKey strong {
+  color: var(--primary-900, #062f70);
+  font-size: 16px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.voting-successActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
 }
 
 .home-summary {
@@ -539,6 +982,38 @@
   .voting-candidateGrid,
   .home-quickGrid {
     grid-template-columns: 1fr;
+  }
+
+  .voting-submitBar {
+    bottom: 8px;
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+  }
+
+  .voting-submitBar p {
+    text-align: left;
+  }
+
+  .voting-progressCompact {
+    width: 100%;
+  }
+
+  .voting-candidatesHeader {
+    flex-direction: column;
+  }
+
+  .voting-stepHeader {
+    grid-template-columns: 1fr;
+  }
+
+  .voting-reviewActions,
+  .voting-successActions {
+    flex-direction: column;
+  }
+
+  .voting-reviewActions button,
+  .voting-successActions button {
+    width: 100%;
   }
 
   .voting-cardHeader {

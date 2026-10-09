@@ -67,15 +67,13 @@ const allCandidateCargosValue = 0;
 const acceptedCandidatePhotoTypes = ["image/jpeg", "image/png"];
 const periodoErrorMessage = "A data final não pode ser anterior à data inicial.";
 const periodoEventoErrorMessage =
-  "O período da eleição deve estar dentro do período do evento.";
+  "A data inicial da eleição deve estar dentro do período do evento.";
 const votacaoAntesInicialMessage =
   "O início da votação não pode ser anterior à data inicial da eleição.";
 const votacaoAposFinalMessage =
   "O início da votação não pode ser posterior à data final da eleição.";
 const votacaoAposApuracaoMessage =
   "O início da votação não pode ser posterior ao início da apuração.";
-const apuracaoAntesFinalMessage =
-  "A data de início da apuração não pode ser anterior à data final da eleição.";
 const apuracaoPeriodoMessage =
   "A data de início da apuração deve estar dentro do período da eleição.";
 
@@ -157,15 +155,8 @@ function normalizeDateTime(value: string) {
   return value.length === 16 ? `${value}:00` : value;
 }
 
-function minDateTimeInput(...values: Array<string | undefined>) {
-  return values.filter(Boolean).sort()[0];
-}
-
 function getVotacaoMax(form: EleicaoForm) {
-  return minDateTimeInput(
-    form.dataInicioApuracao || undefined,
-    form.dataFinal ? `${form.dataFinal}T23:59` : undefined
-  );
+  return form.dataFinal ? `${form.dataFinal}T23:59` : undefined;
 }
 
 function trimToNull(value: string) {
@@ -271,12 +262,12 @@ function toCandidateCargoOptions(
   return options;
 }
 
-function isElectionInsideEvent(form: EleicaoForm, evento?: Evento | null) {
-  if (!evento || !form.dataInicial || !form.dataFinal) return true;
+function isElectionStartInsideEvent(form: EleicaoForm, evento?: Evento | null) {
+  if (!evento || !form.dataInicial) return true;
 
   return (
     form.dataInicial >= evento.dataInicial &&
-    form.dataFinal <= evento.dataFinal
+    form.dataInicial <= evento.dataFinal
   );
 }
 
@@ -292,14 +283,14 @@ function validateEleicaoForm(
 
   if (!form.dataInicial) {
     errors.dataInicial = "A data inicial é obrigatória.";
+  } else if (!isElectionStartInsideEvent(form, selectedEvento)) {
+    errors.dataInicial = periodoEventoErrorMessage;
   }
 
   if (!form.dataFinal) {
     errors.dataFinal = "A data final é obrigatória.";
   } else if (form.dataInicial && form.dataFinal < form.dataInicial) {
     errors.dataFinal = periodoErrorMessage;
-  } else if (!isElectionInsideEvent(form, selectedEvento)) {
-    errors.dataFinal = periodoEventoErrorMessage;
   }
 
   if (!form.dataInicioVotacao) {
@@ -324,11 +315,6 @@ function validateEleicaoForm(
 
   if (!form.dataInicioApuracao) {
     errors.dataInicioApuracao = "O início da apuração é obrigatório.";
-  } else if (
-    form.dataFinal &&
-    normalizeDateTime(form.dataInicioApuracao) < `${form.dataFinal}T00:00:00`
-  ) {
-    errors.dataInicioApuracao = apuracaoAntesFinalMessage;
   } else if (
     form.dataInicial &&
     form.dataFinal &&
@@ -1472,7 +1458,7 @@ export function EditarEleicaoPage() {
                     className="vf-input"
                     type="datetime-local"
                     value={form.dataInicioApuracao}
-                    min={form.dataFinal ? `${form.dataFinal}T00:00` : undefined}
+                    min={form.dataInicial ? `${form.dataInicial}T00:00` : undefined}
                     max={form.dataFinal ? `${form.dataFinal}T23:59` : undefined}
                     disabled={savingEleicao}
                     aria-invalid={

@@ -40,7 +40,7 @@ const pageSize = 10;
 const supportPageSize = 500;
 const periodoErrorMessage = "A data final não pode ser anterior à data inicial.";
 const periodoEventoErrorMessage =
-  "O período da eleição deve estar dentro do período do evento selecionado.";
+  "A data inicial da eleição deve estar dentro do período do evento selecionado.";
 const votacaoAntesInicialErrorMessage =
   "O início da votação não pode ser anterior à data inicial da eleição.";
 const votacaoAposFinalErrorMessage =
@@ -125,15 +125,8 @@ function normalizeDateTime(value: string) {
   return value.length === 16 ? `${value}:00` : value;
 }
 
-function minDateTimeInput(...values: Array<string | undefined>) {
-  return values.filter(Boolean).sort()[0];
-}
-
 function getVotacaoMax(form: EleicaoForm) {
-  return minDateTimeInput(
-    form.dataInicioApuracao || undefined,
-    form.dataFinal ? `${form.dataFinal}T23:59` : undefined
-  );
+  return form.dataFinal ? `${form.dataFinal}T23:59` : undefined;
 }
 
 function trimToNull(value: string) {
@@ -141,12 +134,12 @@ function trimToNull(value: string) {
   return trimmed ? trimmed : null;
 }
 
-function isElectionInsideEvent(form: EleicaoForm, evento?: Evento) {
-  if (!evento || !form.dataInicial || !form.dataFinal) return true;
+function isElectionStartInsideEvent(form: EleicaoForm, evento?: Evento) {
+  if (!evento || !form.dataInicial) return true;
 
   return (
     form.dataInicial >= evento.dataInicial &&
-    form.dataFinal <= evento.dataFinal
+    form.dataInicial <= evento.dataFinal
   );
 }
 
@@ -162,14 +155,14 @@ function validateForm(
 
   if (!form.dataInicial) {
     errors.dataInicial = "A data inicial é obrigatória.";
+  } else if (!isElectionStartInsideEvent(form, selectedEvento)) {
+    errors.dataInicial = periodoEventoErrorMessage;
   }
 
   if (!form.dataFinal) {
     errors.dataFinal = "A data final é obrigatória.";
   } else if (form.dataInicial && form.dataFinal < form.dataInicial) {
     errors.dataFinal = periodoErrorMessage;
-  } else if (!isElectionInsideEvent(form, selectedEvento)) {
-    errors.dataFinal = periodoEventoErrorMessage;
   }
 
   if (!form.dataInicioApuracao) {
@@ -967,7 +960,7 @@ export function EleicoesPage() {
               </div>
 
               <div className="eleicoes-infoBox">
-                O período da eleição deve estar dentro do evento selecionado, e a
+                A data inicial da eleição deve estar dentro do evento selecionado, e a
                 votação deve iniciar entre a data inicial e o início da apuração.
               </div>
 
