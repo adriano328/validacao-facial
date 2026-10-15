@@ -7,6 +7,7 @@ import {
   type GestaoHubIcon,
 } from "@features/admin/ui/GestaoHubCard";
 import { useUserInfo } from "@features/user/model/UserInfoContext";
+import { getPerfilAcessoUsuario } from "@features/user/model/permissions";
 import "@features/user/pages/HomePage.css";
 import "./GestaoPage.css";
 
@@ -20,7 +21,7 @@ type GestaoItem = {
 
 export function GestaoPage() {
   const { usuario } = useUserInfo();
-  const tipoUsuario = usuario?.tipoUsuario;
+  const tipoUsuario = getPerfilAcessoUsuario(usuario);
 
   const gestaoItems: GestaoItem[] = [
     {

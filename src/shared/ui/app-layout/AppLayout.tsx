@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuthToken } from "@features/auth/model/AuthTokenContext";
 import { canAccessGestao } from "@features/admin/model/gestaoAccess";
 import { useUserInfo } from "@features/user/model/UserInfoContext";
-import { getTipoUsuarioLabel } from "@features/user/model/permissions";
+import { getPerfilAcessoUsuario, getTipoUsuarioLabel } from "@features/user/model/permissions";
 import logoUrl from "@shared/assets/comademat-logo.png";
 import { MemberAvatar } from "@shared/ui/member-avatar/MemberAvatar";
 import "./AppLayout.css";
@@ -79,7 +79,7 @@ export function AppLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const tipoUsuario = usuario?.tipoUsuario;
+  const tipoUsuario = getPerfilAcessoUsuario(usuario);
   const navGroups = useMemo<NavGroup[]>(
     () => [
       {

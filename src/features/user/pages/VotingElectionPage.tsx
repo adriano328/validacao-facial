@@ -10,6 +10,7 @@ import {
   type Candidato,
 } from "@features/admin/api/candidatoApi";
 import {
+  consultarSituacaoVoto,
   criarCedulaVotacao,
   registrarVoto,
   type VotoRegistradoResponse,
@@ -227,6 +228,7 @@ export function VotingElectionPage() {
 
   const [eleicao, setEleicao] = useState<Eleicao | null>(null);
   const [candidatos, setCandidatos] = useState<Candidato[]>([]);
+  const [jaVotou, setJaVotou] = useState(false);
   const [selectedVotes, setSelectedVotes] = useState<SelectedVotes>({});
   const [step, setStep] = useState<VotingStep>("voting");
   const [submitting, setSubmitting] = useState(false);
@@ -249,7 +251,7 @@ export function VotingElectionPage() {
   const progressPercent =
     totalCargos > 0 ? Math.round((cargosPreenchidos / totalCargos) * 100) : 0;
   const canReview =
-    totalCargos > 0 && cargosPreenchidos === totalCargos && !submitting;
+    !jaVotou && totalCargos > 0 && cargosPreenchidos === totalCargos && !submitting;
 
   useEffect(() => {
     if (!hasValidEleicaoId) {
@@ -264,22 +266,34 @@ export function VotingElectionPage() {
       try {
         setLoading(true);
         setError(null);
+        setJaVotou(false);
+        setCandidatos([]);
         setSelectedVotes({});
         setStep("voting");
         setVotoRegistrado(null);
 
-        const [eleicaoResponse, candidatosResponse] = await Promise.all([
+        const [eleicaoResponse, situacaoResponse] = await Promise.all([
           buscarEleicaoPorId(eleicaoId, controller.signal),
-          listarCandidatos(
+          consultarSituacaoVoto(eleicaoId, controller.signal),
+        ]);
+
+        if (controller.signal.aborted) return;
+
+        setEleicao(eleicaoResponse);
+        setJaVotou(situacaoResponse.jaVotou);
+
+        if (!situacaoResponse.jaVotou) {
+          const candidatosResponse = await listarCandidatos(
             0,
             supportPageSize,
             { eleicaoId, incluirFoto: false },
             controller.signal
-          ),
-        ]);
+          );
 
-        setEleicao(eleicaoResponse);
-        setCandidatos(candidatosResponse.content);
+          if (controller.signal.aborted) return;
+
+          setCandidatos(candidatosResponse.content);
+        }
       } catch (requestError) {
         if (isRequestCanceled(requestError)) return;
 
@@ -299,7 +313,7 @@ export function VotingElectionPage() {
   }, [eleicaoId, hasValidEleicaoId]);
 
   function handleSelectVote(cargoId: number, voto: number) {
-    if (submitting || votoRegistrado) return;
+    if (submitting || jaVotou || votoRegistrado) return;
 
     setSelectedVotes((current) => ({
       ...current,
@@ -566,7 +580,7 @@ export function VotingElectionPage() {
 
       <header className="portal-pageHeader voting-stepHeader">
         <div>
-          <span className="voting-stepBadge">Etapa 1 de 2</span>
+          {!jaVotou && <span className="voting-stepBadge">Etapa 1 de 2</span>}
           <h1 id="voting-election-title">{eleicao.nomeEvento}</h1>
           <p>{eleicao.nomeConvencao}</p>
         </div>
@@ -599,26 +613,42 @@ export function VotingElectionPage() {
         </dl>
       </section>
 
-      <section className="voting-detailCard" aria-labelledby="voting-candidates-title">
-        <div className="voting-detailHeader voting-candidatesHeader">
-          <div>
-            <h2 id="voting-candidates-title">Candidatos</h2>
-            <p>{candidatos.length} candidato(s) vinculado(s)</p>
-          </div>
-
-          {totalCargos > 0 && (
-            <div className="voting-progressCompact">
-              <strong>
-                {cargosPreenchidos} de {totalCargos} cargos preenchidos
-              </strong>
-              <span>
-                <i style={{ width: `${progressPercent}%` }} />
-              </span>
+      <section
+        className={jaVotou ? "voting-completedNotice" : "voting-detailCard"}
+        aria-labelledby={jaVotou ? "voting-completed-title" : "voting-candidates-title"}
+        role={jaVotou ? "status" : undefined}
+      >
+        {!jaVotou && (
+          <div className="voting-detailHeader voting-candidatesHeader">
+            <div>
+              <h2 id="voting-candidates-title">Candidatos</h2>
+              <p>{candidatos.length} candidato(s) vinculado(s)</p>
             </div>
-          )}
-        </div>
 
-        {candidatos.length === 0 ? (
+            {totalCargos > 0 && (
+              <div className="voting-progressCompact">
+                <strong>
+                  {cargosPreenchidos} de {totalCargos} cargos preenchidos
+                </strong>
+                <span>
+                  <i style={{ width: `${progressPercent}%` }} />
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {jaVotou ? (
+          <>
+            <span className="voting-successIcon">
+              <CheckIcon />
+            </span>
+            <div className="voting-completedContent">
+              <h2 id="voting-completed-title">Voto já efetivado</h2>
+              <p>Você já votou nesta eleição. Sua participação está confirmada.</p>
+            </div>
+          </>
+        ) : candidatos.length === 0 ? (
           <div className="portal-state">Nenhum candidato cadastrado para esta eleição.</div>
         ) : (
           <div className="voting-candidateGroups">
@@ -701,7 +731,7 @@ export function VotingElectionPage() {
         )}
       </section>
 
-      {candidatos.length > 0 && (
+      {!jaVotou && candidatos.length > 0 && (
         <div className="voting-submitBar" role="region" aria-label="Resumo do voto">
           <div className="voting-submitProgress">
             <strong>

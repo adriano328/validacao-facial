@@ -34,6 +34,12 @@ export function getTipoUsuarioLabel(value: TipoUsuarioInput): string {
   return tipoUsuarioLabels[normalizeTipoUsuario(value)];
 }
 
+export function getPerfilAcessoUsuario(
+  usuario: { perfilAcesso?: TipoUsuarioInput; tipoUsuario?: TipoUsuarioInput } | null | undefined
+): TipoUsuario {
+  return normalizeTipoUsuario(usuario?.perfilAcesso ?? usuario?.tipoUsuario);
+}
+
 export function canAccessIdentity(value: TipoUsuarioInput): boolean {
   const tipoUsuario = normalizeTipoUsuario(value);
   return tipoUsuario === "MEMBRO_CPE" || tipoUsuario === "ADMIN_CPE";

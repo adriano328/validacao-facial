@@ -9,7 +9,7 @@ import {
   type UsuarioAnaliseItemRequest,
   type UsuarioAtualizarRequest,
 } from "@features/user/api/userApi";
-import { getTipoUsuarioLabel } from "@features/user/model/permissions";
+import { getPerfilAcessoUsuario, getTipoUsuarioLabel } from "@features/user/model/permissions";
 import { useUserInfo } from "@features/user/model/UserInfoContext";
 import { CARGOS_ECLESIASTICOS } from "@shared/data/cargos";
 import { alerts } from "@shared/lib/swal";
@@ -490,7 +490,7 @@ export function PersonalDataPage() {
         <div className="personal-formHeader">
           <div>
             <h2>Informacoes cadastrais</h2>
-            <span>{getTipoUsuarioLabel(usuario.tipoUsuario)}</span>
+            <span>{getTipoUsuarioLabel(getPerfilAcessoUsuario(usuario))}</span>
           </div>
 
           <span className={`personal-status personal-status--${situacaoUsuario.toLowerCase()}`}>
@@ -636,7 +636,7 @@ export function PersonalDataPage() {
           <FormField label="Perfil">
             <input
               className="vf-input personal-input"
-              value={getTipoUsuarioLabel(usuario.tipoUsuario)}
+              value={getTipoUsuarioLabel(getPerfilAcessoUsuario(usuario))}
               disabled
               readOnly
             />

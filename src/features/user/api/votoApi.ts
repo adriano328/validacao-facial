@@ -1,5 +1,10 @@
 import { api } from "@shared/api/client";
 
+export type SituacaoVotoResponse = {
+  eleicaoId: number;
+  jaVotou: boolean;
+};
+
 export type CedulaVotacaoResponse = {
   cedulaId: string;
 };
@@ -20,6 +25,18 @@ export type VotoRegistradoResponse = {
   dataVotacao: string;
   chaveVerificacao: string;
 };
+
+export async function consultarSituacaoVoto(
+  eleicaoId: number,
+  signal?: AbortSignal
+): Promise<SituacaoVotoResponse> {
+  const response = await api.get<SituacaoVotoResponse>("/votos/situacao", {
+    params: { eleicaoId },
+    signal,
+  });
+
+  return response.data;
+}
 
 export async function criarCedulaVotacao(
   eleicaoId: number

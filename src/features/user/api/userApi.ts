@@ -20,6 +20,7 @@ export type ObterInformacaoUsuarioResponse = {
   status?: string;
   situacaoUsuario?: SituacaoUsuario;
   tipoUsuario?: TipoUsuario | number | string;
+  perfilAcesso?: TipoUsuario;
   foto?: string;
   fotoDocumento?: string;
   fotoDocumentoContentType?: string;

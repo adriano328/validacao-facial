@@ -8,7 +8,8 @@ import {
   type ComissaoCpePayload,
 } from "@features/admin/api/comissaoCpeApi";
 import {
-  listarCargos,
+  listarCargosOpcoes,
+  TIPO_CARGO,
   type CargoResponse,
   type PageResponse,
 } from "@features/admin/api/cargoApi";
@@ -39,7 +40,6 @@ import "@features/identity/pages/IdentityConfirmationPage.css";
 import "./ComissaoCpePage.css";
 
 const pageSize = 8;
-const supportPageSize = 500;
 const memberPageSize = 12;
 const searchDelayMs = 350;
 
@@ -263,19 +263,17 @@ export function ComissaoCpePage() {
     try {
       setDialogCargosLoading(true);
       setDialogCargoError(null);
-      const response = await listarCargos(
-        0,
-        supportPageSize,
-        undefined,
-        signal,
+      const response = await listarCargosOpcoes(
         {
           convencaoId,
           statusAtivo: true,
-        }
+          tipoCargo: TIPO_CARGO.ADMINISTRATIVO,
+        },
+        signal
       );
 
       if (dialogCargoRequestRef.current === requestId) {
-        setDialogCargos(response.content);
+        setDialogCargos(response);
       }
     } catch (requestError) {
       if (isRequestCanceled(requestError)) return;
@@ -352,17 +350,15 @@ export function ComissaoCpePage() {
     async function loadFilterCargos() {
       try {
         setFilterCargosLoading(true);
-        const response = await listarCargos(
-          0,
-          supportPageSize,
-          undefined,
-          controller.signal,
+        const response = await listarCargosOpcoes(
           {
             convencaoId: filterConvencaoId,
             statusAtivo: true,
-          }
+            tipoCargo: TIPO_CARGO.ADMINISTRATIVO,
+          },
+          controller.signal
         );
-        setFilterCargos(response.content);
+        setFilterCargos(response);
       } catch (requestError) {
         if (isRequestCanceled(requestError)) return;
         setFilterCargos([]);

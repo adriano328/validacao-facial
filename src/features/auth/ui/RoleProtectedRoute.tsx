@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useUserInfo } from "@features/user/model/UserInfoContext";
 import {
+  getPerfilAcessoUsuario,
   hasAllowedRole,
   type TipoUsuario,
 } from "@features/user/model/permissions";
@@ -20,7 +21,7 @@ export function RoleProtectedRoute({ allowedRoles }: RoleProtectedRouteProps) {
     );
   }
 
-  if (!usuario || !hasAllowedRole(usuario.tipoUsuario, allowedRoles)) {
+  if (!usuario || !hasAllowedRole(getPerfilAcessoUsuario(usuario), allowedRoles)) {
     return <Navigate to="/home" replace />;
   }
 
